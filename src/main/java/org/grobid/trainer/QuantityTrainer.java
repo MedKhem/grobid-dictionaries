@@ -1,17 +1,20 @@
-package org.grobid.core.trainer;
+package org.grobid.trainer;
 
 import org.grobid.core.GrobidModels;
 import org.grobid.core.exceptions.GrobidException;
+import org.grobid.core.features.FeaturesVectorQuantities;
+import org.grobid.core.lexicon.QuantityLexicon;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.OffsetPosition;
 import org.grobid.core.utilities.Pair;
-import org.grobid.trainer.AbstractTrainer;
-import org.grobid.trainer.Trainer;
 import org.grobid.trainer.evaluation.EvaluationUtilities;
+import org.grobid.trainer.sax.MeasureAnnotationSaxHandler;
 
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +22,7 @@ import java.util.List;
  */
 public class QuantityTrainer extends AbstractTrainer {
 
+    private QuantityLexicon quantityLexicon = null;
 
     public QuantityTrainer() {
         super(GrobidModels.QUANTITIES);
@@ -26,6 +30,7 @@ public class QuantityTrainer extends AbstractTrainer {
 		epsilon = 0.000001;
 		window = 20;
 
+        quantityLexicon = QuantityLexicon.getInstance();
     }
 
     /**
@@ -75,37 +80,39 @@ public class QuantityTrainer extends AbstractTrainer {
                 name = thefile.getName();
                 System.out.println(name);
 
-                //get a new instance of parser
-                //SAXParser p = spf.newSAXParser();
-                //p.parse(thefile, handler);
+                MeasureAnnotationSaxHandler handler = new MeasureAnnotationSaxHandler();
 
-                //List<Pair<String, String>> labeled = handler.getLabeledResult();
+                //get a new instance of parser
+                SAXParser p = spf.newSAXParser();
+                p.parse(thefile, handler);
+
+                List<Pair<String, String>> labeled = handler.getLabeledResult();
 
                 // we need to add now the features to the labeled tokens
-//                List<Pair<String, String>> bufferLabeled = null;
-//                int pos = 0;
-//
-//                // let's iterate by defined CRF input (separated by new line)
-//                while (pos < labeled.size()) {
-//                    bufferLabeled = new ArrayList<>();
-//                    while (pos < labeled.size()) {
-//                        if (labeled.get(pos).getA().equals("\n")) {
-//                            pos++;
-//                            break;
-//                        }
-//                        bufferLabeled.add(labeled.get(pos));
-//                        pos++;
-//                    }
-//
-//                    if (bufferLabeled.size() == 0)
-//                        continue;
-//
-//                    List<OffsetPosition> unitTokenPositions = quantityLexicon.inUnitNamesPairs(bufferLabeled);
-//
-//                    addFeatures(bufferLabeled, writer, unitTokenPositions);
-//                    writer.write("\n");
-//                }
-//                writer.write("\n");
+                List<Pair<String, String>> bufferLabeled = null;
+                int pos = 0;
+
+                // let's iterate by defined CRF input (separated by new line)
+                while (pos < labeled.size()) {
+                    bufferLabeled = new ArrayList<>();
+                    while (pos < labeled.size()) {
+                        if (labeled.get(pos).getA().equals("\n")) {
+                            pos++;
+                            break;
+                        }
+                        bufferLabeled.add(labeled.get(pos));
+                        pos++;
+                    }
+
+                    if (bufferLabeled.size() == 0)
+                        continue;
+
+                    List<OffsetPosition> unitTokenPositions = quantityLexicon.inUnitNamesPairs(bufferLabeled);
+
+                    addFeatures(bufferLabeled, writer, unitTokenPositions);
+                    writer.write("\n");
+                }
+                writer.write("\n");
             }
 
             writer.close();
@@ -153,12 +160,12 @@ public class QuantityTrainer extends AbstractTrainer {
                     }
                 }
 
-//                FeaturesVectorQuantities featuresVector =
-//                        FeaturesVectorQuantities.addFeaturesQuantities(token, label,
-//                                quantityLexicon.inUnitDictionary(token), isUnitPattern, quantityLexicon.isNumberToken(token));
-//                if (featuresVector.label == null)
-//                    continue;
-//                writer.write(featuresVector.printVector());
+                FeaturesVectorQuantities featuresVector =
+                        FeaturesVectorQuantities.addFeaturesQuantities(token, label,
+                                quantityLexicon.inUnitDictionary(token), isUnitPattern, quantityLexicon.isNumberToken(token));
+                if (featuresVector.label == null)
+                    continue;
+                writer.write(featuresVector.printVector());
                 writer.write("\n");
                 writer.flush();
                 posit++;

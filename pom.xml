@@ -283,8 +283,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.5.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -404,9 +404,9 @@
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
                     </connectors>
-                    <resourceBases>
+                <!--    <resourceBases>
                         <resourceBase>${basedir}/src/main/webapp</resourceBase>
-                    </resourceBases>
+                    </resourceBases> -->
                     <!--jettyConfig>target/classes/jetty.xml</jettyConfig-->
                     <systemProperties>
                         <systemProperty>
