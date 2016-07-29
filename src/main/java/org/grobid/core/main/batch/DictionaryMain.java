@@ -1,24 +1,21 @@
 package org.grobid.core.main.batch;
 
-import org.grobid.core.engines.QuantityParser;
-import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
-import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.core.utilities.UnitTrainingDataGenerator;
-
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
-/**
- * The entrance point for starting grobid from command line and perform batch processing
- * 
- * @author Patrice
- */
-public class QuantityMain {
+import org.grobid.core.engines.ProcessEngine;
+import org.grobid.core.mock.MockContext;
+import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.Utilities;
 
-    private static List<String> availableCommands = Arrays.asList("processQuantities",
-            "createTrainingQuantities", "generateTrainingUnits");
+/**
+ *  The entrance point for starting grobid-dictionaries from command line and perform batch processing
+ *
+ * Created by med on 27.07.16.
+ */
+public class DictionaryMain {
+
+    private static List<String> availableCommands;
 
     /**
      * Arguments of the batch.
@@ -27,7 +24,7 @@ public class QuantityMain {
 
     /**
      * Build the path to grobid.properties from the path to grobid-home.
-     * 
+     *
      * @param pPath2GbdHome
      *            The path to Grobid home.
      * @return the path to grobid.properties.
@@ -55,7 +52,6 @@ public class QuantityMain {
     protected static void initProcess() {
         try {
             MockContext.setInitialContext(gbdArgs.getPath2grobidHome(), gbdArgs.getPath2grobidProperty());
-            LibraryLoader.load();
         } catch (final Exception exp) {
             System.err.println("Grobid initialisation failed: " + exp);
         }
@@ -74,6 +70,7 @@ public class QuantityMain {
         help.append("-dOut: gives the path to the directory where the result files will be saved. The default output directory is the curent directory.\n");
         help.append("-s: is the parameter used for process using string as input and not file.\n");
         help.append("-r: recursive directory processing, default processing is not recursive.\n");
+        help.append("-ignoreAssets: do not extract and save the PDF assets (bitmaps, vector graphics), by default the assets are extracted and saved.\n");
         help.append("-exe: gives the command to execute. The value should be one of these:\n");
         help.append("\t" + availableCommands + "\n");
         return help.toString();
@@ -81,7 +78,7 @@ public class QuantityMain {
 
     /**
      * Process batch given the args.
-     * 
+     *
      * @param pArgs
      *            The arguments given to the batch.
      */
@@ -90,7 +87,7 @@ public class QuantityMain {
         if (pArgs.length == 0) {
             System.out.println(getHelp());
             result = false;
-        } 
+        }
         else {
             String currArg;
             for (int i = 0; i < pArgs.length; i++) {
@@ -137,12 +134,16 @@ public class QuantityMain {
                         gbdArgs.setProcessMethodName(command);
                         i++;
                         continue;
-                    } 
+                    }
                     else {
                         System.err.println("-exe value should be one value from this list: " + availableCommands);
                         result = false;
                         break;
                     }
+                }
+                if (currArg.equals("-ignoreAssets")) {
+                    gbdArgs.setSaveAssets(false);
+                    continue;
                 }
                 if (currArg.equals("-r")) {
                     gbdArgs.setRecursive(true);
@@ -155,30 +156,20 @@ public class QuantityMain {
 
     /**
      * Starts Grobid from command line using the following parameters:
-     * 
+     *
      * @param args
      *            The arguments
      */
     public static void main(final String[] args) throws Exception {
         gbdArgs = new GrobidMainArgs();
+        availableCommands = ProcessEngine.getUsableMethods();
 
-        if (processArgs(args) && (gbdArgs.getProcessMethodName() != null)) {
+        if (processArgs(args)) {
             inferParamsNotSet();
             initProcess();
-            int nb = 0;
-            QuantityParser quantityParser = QuantityParser.getInstance();
-            
-            long time = System.currentTimeMillis();
-
-            if (gbdArgs.getProcessMethodName().equals("processQuantities")) {
-                nb = quantityParser.batchProcess(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), gbdArgs.isRecursive());
-            } else if (gbdArgs.getProcessMethodName().equals("createTrainingQuantities")) {
-                nb = quantityParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), -1);
-            } else if(gbdArgs.getProcessMethodName().equals("generateTrainingUnits")){
-                UnitTrainingDataGenerator unitTrainingDataGenerator = new UnitTrainingDataGenerator();
-                unitTrainingDataGenerator.generateData(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
-            }
-            System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            ProcessEngine processEngine = new ProcessEngine();
+            Utilities.launchMethod(processEngine, new Object[] { gbdArgs }, gbdArgs.getProcessMethodName());
+            processEngine.close();
         }
 
     }
