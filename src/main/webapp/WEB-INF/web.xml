@@ -20,9 +20,9 @@
 
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processQuantityText</url-pattern>
+        <url-pattern>/processHeaderDocument</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
+    <!--<servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processQuantityXML</url-pattern>
     </servlet-mapping>
@@ -37,7 +37,7 @@
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/service/*</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping> -->
     <welcome-file-list>
         <welcome-file>grobid/index.html</welcome-file>
         <welcome-file>index.html</welcome-file>
