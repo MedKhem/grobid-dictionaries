@@ -16,4 +16,9 @@ public interface DictionaryPathes {
      * path extension for processing document headers.
      */
     public static final String PATH_HEADER = "processHeaderDocument";
+
+    /**
+     * path extension for processing dictionary entries.
+     */
+    public static final String PATH_ENTRIES = "processLexicalEntries";
 }

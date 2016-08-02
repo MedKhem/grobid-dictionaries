@@ -22,6 +22,10 @@
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processHeaderDocument</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processLexicalEntries</url-pattern>
+    </servlet-mapping>
     <!--<servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processQuantityXML</url-pattern>

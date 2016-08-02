@@ -70,6 +70,21 @@ public class DictionaryRestService implements DictionaryPathes {
         }
         Response ob = null;
        return ob;
-        // return DictionaryProcessFiles.processStatelessHeaderDocument(inputStream, consol, false);
+        // return DictionaryProcessFile.processStatelessHeaderDocument(inputStream, consol, false);
+    }
+
+    @Path(PATH_ENTRIES)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream,
+                                               @FormDataParam("consolidate") String consolidate
+    ) throws Exception {
+        boolean consol = false;
+        if ( (consolidate != null) && (consolidate.equals("1")) ) {
+            consol = true;
+        }
+
+        return DictionaryProcessFile.processLexicalEntries(inputStream, consol);
     }
 }
