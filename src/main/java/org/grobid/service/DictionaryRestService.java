@@ -2,7 +2,6 @@ package org.grobid.service;
 
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.spi.resource.Singleton;
-import org.grobid.core.lexicon.QuantityLexicon;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
@@ -50,7 +49,7 @@ public class DictionaryRestService implements DictionaryPathes {
 
             LibraryLoader.load();
             GrobidProperties.getInstance();
-            QuantityLexicon.getInstance();
+
         } catch (final Exception exp) {
             System.err.println("GROBID Dictionaries initialisation failed: " + exp);
             exp.printStackTrace();
@@ -69,6 +68,8 @@ public class DictionaryRestService implements DictionaryPathes {
         if ( (consolidate != null) && (consolidate.equals("1")) ) {
             consol = true;
         }
-        return DictionaryProcessFiles.processStatelessHeaderDocument(inputStream, consol, false);
+        Response ob = null;
+       return ob;
+        // return DictionaryProcessFiles.processStatelessHeaderDocument(inputStream, consol, false);
     }
 }
