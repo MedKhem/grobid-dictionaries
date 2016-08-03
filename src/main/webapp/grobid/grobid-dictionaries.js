@@ -32,7 +32,7 @@ var grobid = (function($) {
         $('#consolidateBlock').show();
 
         createInputFile();
-        setBaseUrl('processHeaderDocument');
+        setBaseUrl('processLexicalEntries');
 
         $('#selectedService').change(function() {
             processChange();

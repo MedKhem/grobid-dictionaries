@@ -9,7 +9,6 @@ import org.grobid.core.engines.LexicalEntriesParser;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.factory.GrobidFactory;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.Utilities;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
+import java.util.function.Consumer;
 
 /**
  * Created by med on 29.07.16.
@@ -30,14 +30,11 @@ public class DictionaryProcessFile {
      * Uploads the origin document which shall be extracted into TEI.
      *
      * @param inputStream the data of origin document
-     * @param consolidate the consolidation option allows GROBID to exploit Crossref
-     *                    web services for improving header information
      * @return a response object mainly contain the TEI representation of the
      * full text
      */
 
-    public static Response processLexicalEntries(final InputStream inputStream,
-                                                 final boolean consolidate) {
+    public static Response processLexicalEntries(final InputStream inputStream) {
         LOGGER.debug(methodLogIn());
         Response response = null;
         String retVal;
@@ -61,20 +58,18 @@ public class DictionaryProcessFile {
             if (originFile == null) {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } else {
-
                 // starts conversion process - single thread! :)
-                engine = GrobidFactory.getInstance().getEngine();
                 LexicalEntriesParser lexicalEntriesParser = LexicalEntriesParser.getInstance();
 
                 // Do we need to create GrobidAnalysisConfig as in Grobid? if yes, if not how to adapt the method of GQ with inputStream?
                 GrobidAnalysisConfig config =
                         GrobidAnalysisConfig.builder()
-                                .consolidateHeader(consolidate)
-                                .consolidateCitations(false)
-                                .startPage(-1)
-                                .endPage(-1)
+//                                .consolidateHeader(false)
+//                                .consolidateCitations(false)
+//                                .startPage(-1)
+//                                .endPage(-1)
                                 .generateTeiIds(true)
-                                .pdfAssetPath(null)
+//                                .pdfAssetPath(null)
                                 .build();
 
                 // Segmenter to identify the document's block
@@ -83,10 +78,16 @@ public class DictionaryProcessFile {
 
                 SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
 
+                documentBodyParts.forEach(
+                        new Consumer<DocumentPiece>() {
+                            @Override
+                            public void accept(DocumentPiece documentPiece) {
+                                System.out.println(documentPiece.toString());
+                            }
+                        }
+                );
+
                 //List<LexicalEnties> entries = lexicalEntriesParser.extractLexicalEntries(documentBodyParts, config);
-
-
-                removeTempFile(originFile);
 
 
             }
@@ -96,6 +97,8 @@ public class DictionaryProcessFile {
         } catch (Exception e) {
             LOGGER.error("An unexpected exception occurs. ", e);
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getCause().getMessage()).build();
+        } finally {
+            removeTempFile(originFile);
         }
         LOGGER.debug(methodLogOut());
         return response;

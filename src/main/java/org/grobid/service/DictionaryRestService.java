@@ -50,28 +50,11 @@ public class DictionaryRestService implements DictionaryPathes {
     }
 
 
-    @Path(PATH_HEADER)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_XML)
-    @POST
-    public Response processHeaderDocument_post(@FormDataParam(INPUT) InputStream inputStream,
-                                               @FormDataParam("consolidate") String consolidate
-    ) throws Exception {
-        boolean consol = false;
-        if ((consolidate != null) && (consolidate.equals("1"))) {
-            consol = true;
-        }
-        Response ob = null;
-        return ob;
-        // return DictionaryProcessFile.processStatelessHeaderDocument(inputStream, consol, false);
-    }
-
     @Path(PATH_ENTRIES)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-//        return DictionaryProcessFile.processLexicalEntries(inputStream);
-        return null;
+        return DictionaryProcessFile.processLexicalEntries(inputStream);
     }
 }
