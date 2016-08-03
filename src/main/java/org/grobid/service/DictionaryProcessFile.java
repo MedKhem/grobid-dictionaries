@@ -1,21 +1,24 @@
 package org.grobid.service;
 
+import org.grobid.core.document.Document;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentSource;
 import org.grobid.core.engines.Engine;
+import org.grobid.core.engines.EngineParsers;
+import org.grobid.core.engines.LexicalEntriesParser;
+import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.factory.GrobidPoolingFactory;
-import org.grobid.data.LexicalEntry;
+import org.grobid.core.exceptions.GrobidException;
+import org.grobid.core.factory.GrobidFactory;
+import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.grobid.core.engines.LexicalEntriesParser;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
+import java.io.*;
 import java.util.NoSuchElementException;
+import java.util.SortedSet;
 
 /**
  * Created by med on 29.07.16.
@@ -29,61 +32,64 @@ public class DictionaryProcessFile {
      * @param inputStream the data of origin document
      * @param consolidate the consolidation option allows GROBID to exploit Crossref
      *                    web services for improving header information
-
      * @return a response object mainly contain the TEI representation of the
      * full text
      */
 
     public static Response processLexicalEntries(final InputStream inputStream,
-                                                 final boolean consolidate)  {
+                                                 final boolean consolidate) {
         LOGGER.debug(methodLogIn());
         Response response = null;
         String retVal;
         // Does GrobidServiceProperties need to be imported or use properties as in DictionaryRestService class?
-        boolean isparallelExec = GrobidServiceProperties.isParallelExec();
+//        boolean isparallelExec = GrobidServiceProperties.isParallelExec();
         File originFile = null;
         Engine engine = null;
+
+
+         /*
+            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [LexicalEntriesParser] -> List<LexicalEntries>
+         */
 
         try {
             LOGGER.debug(">> set raw text for stateless quantity service'...");
             long start = System.currentTimeMillis();
 
             // Does GrobidRestUtils need to be imported ?
-            originFile = GrobidRestUtils.writeInputFile(inputStream);
+            originFile = writeInputFile(inputStream);
 
-           // Do we need to create GrobidAnalysisConfig as in Grobid? if yes, if not how to adapt the method of GQ with inputStream?
-            GrobidAnalysisConfig config = null;
+            if (originFile == null) {
+                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            } else {
+
+                // starts conversion process - single thread! :)
+                engine = GrobidFactory.getInstance().getEngine();
+                LexicalEntriesParser lexicalEntriesParser = LexicalEntriesParser.getInstance();
+
+                // Do we need to create GrobidAnalysisConfig as in Grobid? if yes, if not how to adapt the method of GQ with inputStream?
+                GrobidAnalysisConfig config =
+                        GrobidAnalysisConfig.builder()
+                                .consolidateHeader(consolidate)
+                                .consolidateCitations(false)
+                                .startPage(-1)
+                                .endPage(-1)
+                                .generateTeiIds(true)
+                                .pdfAssetPath(null)
+                                .build();
+
+                // Segmenter to identify the document's block
+                DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+                Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+
+                SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+
+                //List<LexicalEnties> entries = lexicalEntriesParser.extractLexicalEntries(documentBodyParts, config);
 
 
-            LexicalEntriesParser lexicalEntriesParser = LexicalEntriesParser.getInstance();
-            Response response1 = lexicalEntriesParser.extractLexicalEntries(originFile, config);
-            long end = System.currentTimeMillis();
+                removeTempFile(originFile);
 
-  /*          StringBuilder jsonBuilder = null;
-            if (measurements != null) {
-                jsonBuilder = new StringBuilder();
-                jsonBuilder.append("{ ");
-                jsonBuilder.append("\"runtime\" : " + (end - start));
-                jsonBuilder.append(", \"measurements\" : [ ");
-                boolean first = true;
-                for (Measurement measurement : measurements) {
-                    if (first)
-                        first = false;
-                    else
-                        jsonBuilder.append(", ");
-                    jsonBuilder.append(measurement.toJson());
-                }
-                jsonBuilder.append("] }");
-            } else
-                response = Response.status(Response.Status.NO_CONTENT).build();
 
-            System.out.println(jsonBuilder.toString());
-
-            if (jsonBuilder != null) {
-                response = Response.status(Response.Status.OK).entity(jsonBuilder.toString())
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON + "; charset=UTF-8")
-                        .build();
-            } */
+            }
         } catch (NoSuchElementException nseExp) {
             LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);
             response = Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
@@ -101,5 +107,66 @@ public class DictionaryProcessFile {
 
     private static String methodLogOut() {
         return "<< " + DictionaryProcessFile.class.getName() + "." + Thread.currentThread().getStackTrace()[1].getMethodName();
+    }
+
+
+    //To be moved somewhere generic where can be used.
+    @Deprecated
+    public static File writeInputFile(InputStream inputStream) {
+        LOGGER.debug(">> set origin document for stateless service'...");
+
+        File originFile = null;
+        OutputStream out = null;
+        try {
+            originFile = newTempFile("origin", ".pdf");
+
+            out = new FileOutputStream(originFile);
+
+            byte buf[] = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (IOException e) {
+            LOGGER.error(
+                    "An internal error occurs, while writing to disk (file to write '"
+                            + originFile + "').", e);
+            originFile = null;
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                inputStream.close();
+            } catch (IOException e) {
+                LOGGER.error("An internal error occurs, while writing to disk (file to write '"
+                        + originFile + "').");
+                originFile = null;
+            }
+        }
+        return originFile;
+    }
+
+    @Deprecated
+    public static File newTempFile(String fileName, String extension) {
+        try {
+            return File.createTempFile(fileName, extension, GrobidProperties.getTempPath());
+        } catch (IOException e) {
+            throw new GrobidException(
+                    "Could not create temprorary file, '" + fileName + "." +
+                            extension + "' under path '" + GrobidProperties.getTempPath() + "'.");
+        }
+    }
+
+    @Deprecated
+    public static void removeTempFile(final File file) {
+        try {
+            // sanity cleaning
+            Utilities.deleteOldies(GrobidProperties.getTempPath(), 300);
+            LOGGER.debug("Removing " + file.getAbsolutePath());
+            file.delete();
+        } catch (Exception exp) {
+            LOGGER.error("Error while deleting the temporary file: " + exp);
+        }
     }
 }

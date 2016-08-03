@@ -19,20 +19,13 @@ import java.io.InputStream;
 
 /**
  * RESTful service for GROBID dictionary extension.
- *
+ * <p>
  * Created by med on 29.07.16.
  */
 @Singleton
 @Path(DictionaryPathes.PATH_DICTIONARY)
 public class DictionaryRestService implements DictionaryPathes {
-
-
-    /**
-     * The class Logger.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryRestService.class);
-
-
     private static final String INPUT = "input";
 
     public DictionaryRestService() {
@@ -65,11 +58,11 @@ public class DictionaryRestService implements DictionaryPathes {
                                                @FormDataParam("consolidate") String consolidate
     ) throws Exception {
         boolean consol = false;
-        if ( (consolidate != null) && (consolidate.equals("1")) ) {
+        if ((consolidate != null) && (consolidate.equals("1"))) {
             consol = true;
         }
         Response ob = null;
-       return ob;
+        return ob;
         // return DictionaryProcessFile.processStatelessHeaderDocument(inputStream, consol, false);
     }
 
@@ -77,14 +70,8 @@ public class DictionaryRestService implements DictionaryPathes {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream,
-                                               @FormDataParam("consolidate") String consolidate
-    ) throws Exception {
-        boolean consol = false;
-        if ( (consolidate != null) && (consolidate.equals("1")) ) {
-            consol = true;
-        }
-
-        return DictionaryProcessFile.processLexicalEntries(inputStream, consol);
+    public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+//        return DictionaryProcessFile.processLexicalEntries(inputStream);
+        return null;
     }
 }
