@@ -1,21 +1,24 @@
 package org.grobid.service;
 
+import org.grobid.core.data.Figure;
+import org.grobid.core.data.Table;
 import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentSource;
-import org.grobid.core.engines.Engine;
-import org.grobid.core.engines.EngineParsers;
-import org.grobid.core.engines.LexicalEntriesParser;
-import org.grobid.core.engines.SegmentationLabel;
+import org.grobid.core.engines.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
+import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.Pair;
+import org.grobid.core.utilities.TextUtilities;
 import org.grobid.core.utilities.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.function.Consumer;
@@ -59,9 +62,7 @@ public class DictionaryProcessFile {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } else {
                 // starts conversion process - single thread! :)
-                LexicalEntriesParser lexicalEntriesParser = LexicalEntriesParser.getInstance();
 
-                // Do we need to create GrobidAnalysisConfig as in Grobid? if yes, if not how to adapt the method of GQ with inputStream?
                 GrobidAnalysisConfig config =
                         GrobidAnalysisConfig.builder()
 //                                .consolidateHeader(false)
@@ -71,22 +72,8 @@ public class DictionaryProcessFile {
                                 .generateTeiIds(true)
 //                                .pdfAssetPath(null)
                                 .build();
-
-                // Segmenter to identify the document's block
-                DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
-                Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
-
-                SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-
-                documentBodyParts.forEach(
-                        new Consumer<DocumentPiece>() {
-                            @Override
-                            public void accept(DocumentPiece documentPiece) {
-                                System.out.println(documentPiece.toString());
-                            }
-                        }
-                );
-
+                LexicalEntriesParser lexEntriesParser = new LexicalEntriesParser();
+                System.out.println(lexEntriesParser.processing(originFile,config));
                 //List<LexicalEnties> entries = lexicalEntriesParser.extractLexicalEntries(documentBodyParts, config);
 
 

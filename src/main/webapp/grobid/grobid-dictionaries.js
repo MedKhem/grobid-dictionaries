@@ -186,10 +186,10 @@ var grobid = (function($) {
             $('#consolidateBlock').show();
             setBaseUrl('processHeaderDocument');
         }
-        else if (selected == 'processFulltextDocument') {
+        else if (selected == 'processLexicalEntries') {
             createInputFile(selected);
             $('#consolidateBlock').show();
-            setBaseUrl('processFulltextDocument');
+            setBaseUrl('processLexicalEntries');
         }
         else if (selected == 'processDate') {
             createInputTextArea('date');
