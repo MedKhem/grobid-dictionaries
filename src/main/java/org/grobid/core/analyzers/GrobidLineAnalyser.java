@@ -84,7 +84,7 @@ public class GrobidLineAnalyser {
                             String[] lines = localText.split("[\\n\\r]");
                             if (lines.length > 0) {
                                 String line = lines[0];
-                                String pattern = FeatureFactory.getPattern(line);
+                                String pattern = featureFactory.getPattern(line);
                                 if (pattern.length() > 8) {
                                     Integer nb = patterns.get(pattern);
                                     if (nb == null) {
@@ -207,7 +207,7 @@ public class GrobidLineAnalyser {
                     features.line = line;
 
                     if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
-                        String pattern = FeatureFactory.getPattern(line);
+                        String pattern = featureFactory.getPattern(line);
                         Integer nb = patterns.get(pattern);
                         if ((nb != null) && (nb > 1)) {
                             features.repetitivePattern = true;

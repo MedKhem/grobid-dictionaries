@@ -1,12 +1,7 @@
 package org.grobid.service;
 
-import org.grobid.core.data.Figure;
-import org.grobid.core.data.Table;
-import org.grobid.core.document.Document;
-import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentSource;
-import org.grobid.core.engines.*;
-import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.Engine;
+import org.grobid.core.engines.LexicalEntriesParser;
 import org.grobid.core.utilities.IOUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +10,6 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
-import java.util.SortedSet;
-import java.util.function.Consumer;
 
 /**
  * Created by med on 29.07.16.
@@ -31,7 +24,6 @@ public class DictionaryProcessFile {
      * @return a response object mainly contain the TEI representation of the
      * full text
      */
-
     public static Response processLexicalEntries(final InputStream inputStream) {
         LOGGER.debug(methodLogIn());
         Response response = null;
@@ -41,11 +33,9 @@ public class DictionaryProcessFile {
         File originFile = null;
         Engine engine = null;
 
-
          /*
             PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [LexicalEntriesParser] -> List<LexicalEntries>
          */
-
         try {
             LOGGER.debug(">> set raw text for stateless quantity service'...");
             long start = System.currentTimeMillis();
@@ -57,21 +47,9 @@ public class DictionaryProcessFile {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } else {
                 // starts conversion process - single thread! :)
-
-                GrobidAnalysisConfig config =
-                        GrobidAnalysisConfig.builder()
-//                                .consolidateHeader(false)
-//                                .consolidateCitations(false)
-//                                .startPage(-1)
-//                                .endPage(-1)
-                                .generateTeiIds(true)
-//                                .pdfAssetPath(null)
-                                .build();
                 LexicalEntriesParser lexEntriesParser = new LexicalEntriesParser();
-                System.out.println(lexEntriesParser.processing(originFile,config));
-                //List<LexicalEnties> entries = lexicalEntriesParser.extractLexicalEntries(documentBodyParts, config);
 
-
+                response = Response.ok(lexEntriesParser.process(originFile)).build();
             }
         } catch (NoSuchElementException nseExp) {
             LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);
@@ -93,5 +71,4 @@ public class DictionaryProcessFile {
     private static String methodLogOut() {
         return "<< " + DictionaryProcessFile.class.getName() + "." + Thread.currentThread().getStackTrace()[1].getMethodName();
     }
-
 }

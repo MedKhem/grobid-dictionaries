@@ -23,8 +23,8 @@ import java.io.InputStream;
  * Created by med on 29.07.16.
  */
 @Singleton
-@Path(DictionaryPathes.PATH_DICTIONARY)
-public class DictionaryRestService implements DictionaryPathes {
+@Path(DictionaryPaths.PATH_DICTIONARY)
+public class DictionaryRestService implements DictionaryPaths {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryRestService.class);
     private static final String INPUT = "input";
 
@@ -37,15 +37,14 @@ public class DictionaryRestService implements DictionaryPathes {
 
             MockContext.setInitialContext(path2grobidHome, path2grobidProperty);
 
-            System.out.println(path2grobidHome);
-            System.out.println(path2grobidProperty);
+            LOGGER.debug(path2grobidHome);
+            LOGGER.debug(path2grobidProperty);
 
             LibraryLoader.load();
             GrobidProperties.getInstance();
 
         } catch (final Exception exp) {
-            System.err.println("GROBID Dictionaries initialisation failed: " + exp);
-            exp.printStackTrace();
+            LOGGER.error("GROBID Dictionaries initialisation failed: " + exp);
         }
     }
 

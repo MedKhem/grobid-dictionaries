@@ -5,17 +5,12 @@ package org.grobid.service;
  *
  * Created by med on 29.07.16.
  */
-public interface DictionaryPathes {
+public interface DictionaryPaths {
 
     /**
      * path extension for Dictionary service.
      */
     public static final String PATH_DICTIONARY = "/";
-
-    /**
-     * path extension for processing document headers.
-     */
-    public static final String PATH_HEADER = "processHeaderDocument";
 
     /**
      * path extension for processing dictionary entries.
