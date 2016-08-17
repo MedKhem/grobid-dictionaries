@@ -124,7 +124,7 @@ public class LexicalEntriesParser extends AbstractParser {
                 if (TextUtilities.filterLine(localText)) {
                     continue;
                 }
-	            /*if (localText != null) {
+                /*if (localText != null) {
 	                if (localText.contains("@PAGE")) {
 	                    mm = 0;
 	                    // pageLength = 0;

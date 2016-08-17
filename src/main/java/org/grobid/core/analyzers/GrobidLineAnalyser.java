@@ -72,12 +72,12 @@ public class GrobidLineAnalyser {
         // (typically indicating a publisher foot or head notes)
         Map<String, Integer> patterns = new TreeMap<String, Integer>();
         Map<String, Boolean> firstTimePattern = new TreeMap<String, Boolean>();
-        for(Page page : pages) {
+        for (Page page : pages) {
             pageHeight = page.getHeight();
             // we just look at the two first and last blocks of the page
             if ((page.getBlocks() != null) && (page.getBlocks().size() > 0)) {
-                for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
-                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                for (int blockIndex = 0; blockIndex < page.getBlocks().size(); blockIndex++) {
+                    if ((blockIndex < 2) || (blockIndex > page.getBlocks().size() - 2)) {
                         Block block = page.getBlocks().get(blockIndex);
                         String localText = block.getText();
                         if ((localText != null) && (localText.length() > 0)) {
@@ -90,9 +90,8 @@ public class GrobidLineAnalyser {
                                     if (nb == null) {
                                         patterns.put(pattern, new Integer(1));
                                         firstTimePattern.put(pattern, false);
-                                    }
-                                    else
-                                        patterns.put(pattern, new Integer(nb+1));
+                                    } else
+                                        patterns.put(pattern, new Integer(nb + 1));
                                 }
                             }
                         }
@@ -101,7 +100,7 @@ public class GrobidLineAnalyser {
             }
         }
 
-        for(Page page : pages) {
+        for (Page page : pages) {
             pageHeight = page.getHeight();
             newPage = true;
             double spacingPreviousBlock = 0.0; // discretized
@@ -114,7 +113,7 @@ public class GrobidLineAnalyser {
             if ((page.getBlocks() == null) || (page.getBlocks().size() == 0))
                 continue;
 
-            for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
+            for (int blockIndex = 0; blockIndex < page.getBlocks().size(); blockIndex++) {
                 Block block = page.getBlocks().get(blockIndex);
                 /*if (start) {
                     newPage = true;
@@ -122,7 +121,7 @@ public class GrobidLineAnalyser {
                 }*/
                 boolean lastPageBlock = false;
                 boolean firstPageBlock = false;
-                if (blockIndex == page.getBlocks().size()-1) {
+                if (blockIndex == page.getBlocks().size() - 1) {
                     lastPageBlock = true;
                 }
 
@@ -140,7 +139,7 @@ public class GrobidLineAnalyser {
                 // check if we have a graphical object connected to the current block
                 List<GraphicObject> localImages = Document.getConnectedGraphics(block, doc);
                 if (localImages != null) {
-                    for(GraphicObject localImage : localImages) {
+                    for (GraphicObject localImage : localImages) {
                         if (localImage.getType() == GraphicObjectType.BITMAP)
                             graphicVector = true;
                         if (localImage.getType() == GraphicObjectType.VECTOR)
@@ -148,11 +147,10 @@ public class GrobidLineAnalyser {
                     }
                 }
 
-                if (lowestPos >  block.getY()) {
+                if (lowestPos > block.getY()) {
                     // we have a vertical shift, which can be due to a change of column or other particular layout formatting
                     spacingPreviousBlock = doc.getMaxBlockSpacing() / 5.0; // default
-                }
-                else
+                } else
                     spacingPreviousBlock = block.getY() - lowestPos;
 
                 String localText = block.getText();
@@ -161,10 +159,10 @@ public class GrobidLineAnalyser {
 
                 // character density of the block
                 double density = 0.0;
-                if ( (block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
+                if ((block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
                         (block.getText() != null) && (!block.getText().contains("@PAGE")) &&
-                        (!block.getText().contains("@IMAGE")) )
-                    density = (double)block.getText().length() / (block.getHeight() * block.getWidth());
+                        (!block.getText().contains("@IMAGE")))
+                    density = (double) block.getText().length() / (block.getHeight() * block.getWidth());
 
                 // is the current block in the main area of the page or not?
                 boolean inPageMainArea = true;
@@ -176,7 +174,7 @@ public class GrobidLineAnalyser {
                 String[] lines = localText.split("[\\n\\r]");
                 // set the max length of the lines in the block, in number of characters
                 int maxLineLength = 0;
-                for(int p=0; p<lines.length; p++) {
+                for (int p = 0; p < lines.length; p++) {
                     if (lines[p].length() > maxLineLength)
                         maxLineLength = lines[p].length();
                 }
@@ -206,7 +204,7 @@ public class GrobidLineAnalyser {
                     features.token = token;
                     features.line = line;
 
-                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                    if ((blockIndex < 2) || (blockIndex > page.getBlocks().size() - 2)) {
                         String pattern = featureFactory.getPattern(line);
                         Integer nb = patterns.get(pattern);
                         if ((nb != null) && (nb > 1)) {
@@ -388,14 +386,14 @@ public class GrobidLineAnalyser {
 
                     if (spacingPreviousBlock != 0.0) {
                         features.spacingWithPreviousBlock = featureFactory
-                                .linearScaling(spacingPreviousBlock-doc.getMinBlockSpacing(), doc.getMaxBlockSpacing()-doc.getMinBlockSpacing(), NBBINS_SPACE);
+                                .linearScaling(spacingPreviousBlock - doc.getMinBlockSpacing(), doc.getMaxBlockSpacing() - doc.getMinBlockSpacing(), NBBINS_SPACE);
                     }
 
                     features.inMainArea = inPageMainArea;
 
                     if (density != -1.0) {
                         features.characterDensity = featureFactory
-                                .linearScaling(density-doc.getMinCharacterDensity(), doc.getMaxCharacterDensity()-doc.getMinCharacterDensity(), NBBINS_DENSITY);
+                                .linearScaling(density - doc.getMinCharacterDensity(), doc.getMaxCharacterDensity() - doc.getMinCharacterDensity(), NBBINS_DENSITY);
 //System.out.println((density-doc.getMinCharacterDensity()) + " " + (doc.getMaxCharacterDensity()-doc.getMinCharacterDensity()) + " " + NBBINS_DENSITY + " " + features.characterDensity);
                     }
 

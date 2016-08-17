@@ -1,15 +1,16 @@
 package org.grobid.core.sax;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Relatively stupid SAX parser which identify structural chunk of textual content like paragraph, titles, ...
- * The parser should work with many usual formats like TEI and ST.36. 
- * 
+ * The parser should work with many usual formats like TEI and ST.36.
+ *
  * @author Patrice Lopez
  */
 public class TextChunkSaxHandler extends DefaultHandler {
@@ -17,7 +18,7 @@ public class TextChunkSaxHandler extends DefaultHandler {
     StringBuffer accumulator = new StringBuffer(); // Accumulate parsed text
 
     private List<String> filters = null; // the name of an element for filtering out the
-                                        // corresponding text, e.g. figure
+    // corresponding text, e.g. figure
 
     private boolean accumule = true;
 
@@ -52,7 +53,7 @@ public class TextChunkSaxHandler extends DefaultHandler {
         String text = accumulator.toString().trim();
         text = text.replace("\n", " ");
         text = text.replace("\t", " ");
-        text = text.replace(" ", " "); 
+        text = text.replace(" ", " ");
         // the last one is a special "large" space missed by the regex "\\p{Space}+" bellow
         text = text.replaceAll("\\p{Space}+", " ");
         return text;
@@ -62,7 +63,7 @@ public class TextChunkSaxHandler extends DefaultHandler {
             throws SAXException {
         if (accumule) {
             if (qName.equals("p") || qName.equals("paragraph")) {
-                if (chunks == null) 
+                if (chunks == null)
                     chunks = new ArrayList<String>();
                 chunks.add(getText());
                 accumulator.setLength(0);
@@ -74,11 +75,10 @@ public class TextChunkSaxHandler extends DefaultHandler {
     }
 
     public void startElement(String namespaceURI, String localName,
-            String qName, Attributes atts) throws SAXException {
+                             String qName, Attributes atts) throws SAXException {
         if ((filters != null) && filters.equals(qName)) {
             accumule = false;
-        }
-        else 
+        } else
             accumule = true;
 
         if (qName.equals("p") || qName.equals("paragraph")) {

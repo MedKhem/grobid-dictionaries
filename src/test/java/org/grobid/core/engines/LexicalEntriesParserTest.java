@@ -64,6 +64,6 @@ public class LexicalEntriesParserTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(doc, documentBodyParts);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(1606));
+        assertThat(layoutTokenization.getTokenization().size(), is(1576));
     }
 }

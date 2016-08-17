@@ -1,16 +1,16 @@
 package org.grobid.core.main.batch;
 
-import java.io.File;
-import java.util.List;
-
 import org.grobid.core.engines.ProcessEngine;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.Utilities;
 
+import java.io.File;
+import java.util.List;
+
 /**
- *  The entrance point for starting grobid-dictionaries from command line and perform batch processing
- *
+ * The entrance point for starting grobid-dictionaries from command line and perform batch processing
+ * <p>
  * Created by med on 27.07.16.
  */
 public class DictionaryMain {
@@ -25,8 +25,7 @@ public class DictionaryMain {
     /**
      * Build the path to grobid.properties from the path to grobid-home.
      *
-     * @param pPath2GbdHome
-     *            The path to Grobid home.
+     * @param pPath2GbdHome The path to Grobid home.
      * @return the path to grobid.properties.
      */
     protected final static String getPath2GbdProperties(final String pPath2GbdHome) {
@@ -79,16 +78,14 @@ public class DictionaryMain {
     /**
      * Process batch given the args.
      *
-     * @param pArgs
-     *            The arguments given to the batch.
+     * @param pArgs The arguments given to the batch.
      */
     protected static boolean processArgs(final String[] pArgs) {
         boolean result = true;
         if (pArgs.length == 0) {
             System.out.println(getHelp());
             result = false;
-        }
-        else {
+        } else {
             String currArg;
             for (int i = 0; i < pArgs.length; i++) {
                 currArg = pArgs[i];
@@ -134,8 +131,7 @@ public class DictionaryMain {
                         gbdArgs.setProcessMethodName(command);
                         i++;
                         continue;
-                    }
-                    else {
+                    } else {
                         System.err.println("-exe value should be one value from this list: " + availableCommands);
                         result = false;
                         break;
@@ -157,8 +153,7 @@ public class DictionaryMain {
     /**
      * Starts Grobid from command line using the following parameters:
      *
-     * @param args
-     *            The arguments
+     * @param args The arguments
      */
     public static void main(final String[] args) throws Exception {
         gbdArgs = new GrobidMainArgs();
@@ -168,7 +163,7 @@ public class DictionaryMain {
             inferParamsNotSet();
             initProcess();
             ProcessEngine processEngine = new ProcessEngine();
-            Utilities.launchMethod(processEngine, new Object[] { gbdArgs }, gbdArgs.getProcessMethodName());
+            Utilities.launchMethod(processEngine, new Object[]{gbdArgs}, gbdArgs.getProcessMethodName());
             processEngine.close();
         }
 
