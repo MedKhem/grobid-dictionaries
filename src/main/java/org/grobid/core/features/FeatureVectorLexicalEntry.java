@@ -49,8 +49,8 @@ public class FeatureVectorLexicalEntry {
     public FeatureVectorLexicalEntry() {
     }
 
-    static public FeatureVectorLexicalEntry addFeaturesLemma(LayoutToken layoutToken,
-                                                             String label, String lineStatus, String fontStatus) {
+    static public FeatureVectorLexicalEntry addFeaturesLexicalEntries(LayoutToken layoutToken,
+                                                                      String label, String lineStatus, String fontStatus) {
 
         FeatureFactory featureFactory = FeatureFactory.getInstance();
         String word = layoutToken.getText();

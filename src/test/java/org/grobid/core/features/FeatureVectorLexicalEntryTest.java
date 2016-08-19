@@ -19,7 +19,7 @@ public class FeatureVectorLexicalEntryTest {
     }
     @Test
     public void testAddFeaturesLemma() throws Exception {
-        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLemma(new LayoutToken("text"), "LE","LINESTART","NEWFONT");
+        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("text"), "LE","LINESTART","NEWFONT");
 
         assertNotNull(output.string);
         assertNotNull(output.label);
@@ -38,7 +38,7 @@ public class FeatureVectorLexicalEntryTest {
 
     @Test
     public void testPrintVector_sample1() throws Exception {
-        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLemma(new LayoutToken("Text"), "LE","LINESTART","NEWFONT");
+        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("Text"), "LE","LINESTART","NEWFONT");
         String outputString = output.printVector();
 
         assertThat(outputString, is("Text text T Te Tex Text t xt ext Text 0.0 false false INITCAP NOPUNCT LINESTART NEWFONT LE"));
