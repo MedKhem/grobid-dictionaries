@@ -14,6 +14,7 @@ import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import  org.grobid.core.enums.PossibleTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     private String output = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
+    private PossibleTags possibleTag;
 
     private boolean figureBlock = false;
     private boolean tableBlock = false;
@@ -40,10 +42,12 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         accumulator = new StringBuffer();
     }
 
+    //Store the text of an element
     public void characters(char[] buffer, int start, int length) {
         accumulator.append(buffer, start, length);
     }
 
+    //Get the text of the document
     public String getText() {
         if (accumulator != null) {
             //System.out.println(accumulator.toString().trim());
@@ -67,10 +71,6 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
             }
         }
 
-        if (qName.equals("figure")) {
-            figureBlock = false;
-            tableBlock = false;
-        }
     }
 
     public void startElement(String namespaceURI,
@@ -97,137 +97,22 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
             }
             accumulator.setLength(0);
 
-            if (qName.equals("div")) {
-                int length = atts.getLength();
+            currentTags.push("<"+qName+">");
+            currentTag = "<"+qName+">";
 
-                // Process each attribute
-                for (int i = 0; i < length; i++) {
-                    // Get names and values for each attribute
-                    String name = atts.getQName(i);
-                    String value = atts.getValue(i);
-
-                    if (name != null) {
-                        if (name.equals("type")) {
-                            if (value.equals("paragraph")) {
-                                currentTags.push("<paragraph>");
-                                currentTag = "<paragraph>";
-                            }
-                        }
-                    }
-                }
-            }
-            else if (qName.equals("p") ) {
-                currentTags.push("<paragraph>");
-                currentTag = "<paragraph>";
-            }
-            else if (qName.equals("other")) {
-                currentTags.push("<other>");
-                currentTag = "<other>";
-            }
-            else if (qName.equals("ref")) {
-                int length = atts.getLength();
-
-                // Process each attribute
-                for (int i = 0; i < length; i++) {
-                    // Get names and values for each attribute
-                    String name = atts.getQName(i);
-                    String value = atts.getValue(i);
-
-                    if (name != null) {
-                        if (name.equals("type")) {
-                            if (value.equals("biblio")) {
-                                currentTags.push("<citation_marker>");
-                                currentTag = "<citation_marker>";
-                            } else if (value.equals("figure")) {
-                                currentTags.push("<figure_marker>");
-                                currentTag = "<figure_marker>";
-                            }
-                            else if (value.equals("table")) {
-                                currentTags.push("<table_marker>");
-                                currentTag = "<table_marker>";
-                            }
-                        }
-                    }
-                }
-            }
-            else if (qName.equals("formula") || qName.equals("label")) {
-                currentTags.push("<equation>");
-                currentTag = "<equation>";
-            }
-            else if (qName.equals("head")) {
-                /*if (figureBlock) {
-                    currentTags.push("<figure_head>");
-					currentTag = "<figure_head>";
-                }
-				else*/
-                {
-                    currentTags.push("<section>");
-                    currentTag = "<section>";
-                }
-            }
-			/*else if (qName.equals("figDesc")) {
-                currentTags.push("<figDesc>");
-				currentTag = "<figDesc>";
-            }*/
-            else if (qName.equals("table")) {
-                currentTags.push("<table>");
-                currentTag = "<table>";
-            }
-            else if (qName.equals("item")) {
-                currentTags.push("<paragraph>");
-                currentTag = "<paragraph>";
-            }
-			/*else if (qName.equals("label")) {
-                currentTags.push("<label>");
-				currentTag = "<label>";
-            } */
-			/*else if (qName.equals("trash")) {
-                currentTags.push("<trash>");
-				currentTag = "<trash>";
-            }*/
-            else if (qName.equals("figure")) {
-                figureBlock = true;
-                int length = atts.getLength();
-
-                // Process each attribute
-                for (int i = 0; i < length; i++) {
-                    // Get names and values for each attribute
-                    String name = atts.getQName(i);
-                    String value = atts.getValue(i);
-
-                    if (name != null) {
-                        if (name.equals("type")) {
-                            if (value.equals("table")) {
-                                tableBlock = true;
-                            }
-                        }
-                    }
-                }
-                if (tableBlock) {
-                    figureBlock = false;
-                    currentTags.push("<table>");
-                    currentTag = "<table>";
-                }
-                else {
-                    currentTags.push("<figure>");
-                    currentTag = "<figure>";
-                }
-            }
-            else {
-                currentTags.push("<other>");
-                currentTag = "<other>";
-            }
         }
 
     }
 
     private void writeData(String qName, boolean pop) {
-        if ( (qName.equals("other")) ||
-                (qName.equals("ref")) || (qName.equals("head")) || (qName.equals("figure")) ||
-                (qName.equals("paragraph")) ||
-                (qName.equals("div")) || //(qName.equals("figDesc")) ||
-                (qName.equals("table")) || //(qName.equals("trash")) ||
-                (qName.equals("formula")) || (qName.equals("item")) || (qName.equals("label"))
+        if ( (qName.equals("entry")) ||
+                (qName.equals("form")) ||
+                (qName.equals("etym")) ||
+                (qName.equals("sense")) ||
+                (qName.equals("metamark")) ||
+                (qName.equals("re")) ||
+                (qName.equals("front")) ||
+                (qName.equals("note"))
                 ) {
             if (currentTag == null) {
                 return;
@@ -237,14 +122,6 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                 if (!currentTags.empty()) {
                     currentTags.pop();
                 }
-            }
-
-            // adjust tag (conservative)
-            if (tableBlock) {
-                currentTag = "<table>";
-            }
-            else if (figureBlock) {
-                currentTag = "<figure>";
             }
 
             String text = getText();

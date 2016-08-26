@@ -35,9 +35,15 @@ public class TEILexicalEntrySaxParserTest {
         List<String> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(11));
+        assertThat(labeled.size(), is(18));
 
-        assertThat(labeled.get(0), is("p I-FRONT"));
+        assertThat(labeled.get(0), is("p I-<form>\n"));
+    /*
+        for (String label: labeled) {
+            System.out.println(label.toString());
+        }
+      */
     }
+
 
 }
