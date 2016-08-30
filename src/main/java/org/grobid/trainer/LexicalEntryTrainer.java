@@ -4,7 +4,7 @@ import org.grobid.core.GrobidModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.trainer.sax.TEIFulltextSaxParser;
+import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -25,7 +25,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
 
     @Override
     public int createCRFPPData(File corpusPath, File outputFile) {
-        return addFeaturesLexicalEntries(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/dictionaries", outputFile);
+        return addFeaturesLexicalEntries(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/raw", outputFile);
     }
 
     /**
@@ -50,7 +50,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
     }
 
     /**
-     * Add the selected features to the author model training for full texts
+     * Add the selected features to the lexical entry segmentaion model
      * @param sourceTEIPathLabel path to TEI files
      * @param sourceLexicalEntriesPathFeatures path to fulltexts
      * @param outputPath output train file
@@ -92,7 +92,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                 String name = tf.getName();
                 System.out.println(name);
 
-                TEIFulltextSaxParser parser2 = new TEIFulltextSaxParser();
+                TEILexicalEntrySaxParser parser2 = new TEILexicalEntrySaxParser();
                 //parser2.setMode(TEILexicalEntrySaxParser.FULLTEXT);
 
                 //get a new instance of parser
