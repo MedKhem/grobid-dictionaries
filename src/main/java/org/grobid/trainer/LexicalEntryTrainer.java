@@ -17,7 +17,8 @@ import java.util.StringTokenizer;
  */
 public class LexicalEntryTrainer extends AbstractTrainer {
 
-
+     OutputStream os2;
+     Writer writer2;
     public LexicalEntryTrainer() {
         super(GrobidModels.DICTIONARIES);
     }
@@ -81,8 +82,8 @@ public class LexicalEntryTrainer extends AbstractTrainer {
             System.out.println(refFiles.length + " tei files");
 
             // the file for writing the training data
-            OutputStream os2 = new FileOutputStream(outputPath);
-            Writer writer2 = new OutputStreamWriter(os2, "UTF8");
+             os2 = new FileOutputStream(outputPath);
+             writer2 = new OutputStreamWriter(os2, "UTF8");
 
             // get a factory for SAX parser
             SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -141,25 +142,33 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                             break;
                         }
                     }
-                    /*if (!found) {
-                             if (lastTag != null)
-                                 header.append(lastTag);
-                         }*/
-                    //fulltext.append("\n");
                 }
                 bis.close();
-
-                //String fulltext = FeatureTrainerUtil.addFeaturesLexicalEntries(labeled, false);
-                //doc.getFulltextFeatured(boolean firstPass, boolean getHeader);
-
                 // format with features for sequence tagging...
                 writer2.write(fulltext.toString() + "\n");
             }
 
-            writer2.close();
-            os2.close();
+
         } catch (Exception e) {
             throw new GrobidException("An exception occured while running Grobid.", e);
+        }
+        finally {
+            try{
+                if (writer2 != null)
+                {
+                    writer2.close();
+                }
+
+                if (os2 != null)
+                {
+                    os2.close();
+                }
+
+            }
+            catch (Exception ex){
+                throw new GrobidException("An exception occured while closing file", ex);
+            }
+
         }
         return totalExamples;
     }
