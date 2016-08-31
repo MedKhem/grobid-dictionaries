@@ -330,7 +330,7 @@ public class LexicalEntriesParser extends AbstractParser {
                     previousLine = "LINEIN";
                 }
 
-                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", "lineStatus", fontStatus);
+                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
                 stringBuilder.append(vector.printVector());
             }
 
