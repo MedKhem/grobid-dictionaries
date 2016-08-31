@@ -6,6 +6,7 @@ import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentPointer;
 import org.grobid.core.document.DocumentSource;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.layout.Block;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
@@ -13,7 +14,7 @@ import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -125,7 +126,7 @@ public class LexicalEntriesParser extends AbstractParser {
                     continue;
                 }
                 /*if (localText != null) {
-	                if (localText.contains("@PAGE")) {
+                    if (localText.contains("@PAGE")) {
 	                    mm = 0;
 	                    // pageLength = 0;
 	                    endPage = true;
@@ -283,4 +284,44 @@ public class LexicalEntriesParser extends AbstractParser {
         }
         return new LayoutTokenization(layoutTokens);
     }
+
+
+    public void createTrainingData(String inputFile,
+                                   String pathFullText) {
+
+        Writer writer = null;
+        DocumentSource documentSource = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            File file = new File(inputFile);
+            String PDFFileName = file.getName();
+
+            documentSource = DocumentSource.fromPdf(file);
+            Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, GrobidAnalysisConfig.defaultInstance());
+            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+
+            LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+
+            for(LayoutToken layoutToken : tokens.getTokenization()) {
+                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", "lineStatus", "fontStatus");
+                stringBuilder.append(vector.printVector());
+            }
+
+            // we write the features
+            String outPathFulltext = pathFullText + File.separator +
+                    PDFFileName.replace(".pdf", ".training.segmentation");
+            writer = new OutputStreamWriter(new FileOutputStream(new File(outPathFulltext), false), "UTF-8");
+
+            writer.write(stringBuilder + "\n");
+        } catch (Exception e) {
+           //TODO: something
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
 }

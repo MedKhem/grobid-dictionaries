@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 public class TEILexicalEntrySaxParser extends DefaultHandler {
 
@@ -90,10 +92,9 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         else {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
-            if (text != null) {
-                if (text.length() > 0) {
+            if (!isBlank(text)) {
                     writeData(qName, false);
-                }
+
             }
             accumulator.setLength(0);
 

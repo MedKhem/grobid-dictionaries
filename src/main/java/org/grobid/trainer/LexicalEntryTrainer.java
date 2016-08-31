@@ -17,8 +17,6 @@ import java.util.StringTokenizer;
  */
 public class LexicalEntryTrainer extends AbstractTrainer {
 
-     OutputStream os2;
-     Writer writer2;
     public LexicalEntryTrainer() {
         super(GrobidModels.DICTIONARIES);
     }
@@ -32,14 +30,10 @@ public class LexicalEntryTrainer extends AbstractTrainer {
     /**
      * Add the selected features to a full text example set
      *
-     * @param corpusDir
-     *            a path where corpus files are located
-     * @param trainingOutputPath
-     *            path where to store the temporary training data
-     * @param evalOutputPath
-     *            path where to store the temporary evaluation data
-     * @param splitRatio
-     *            ratio to consider for separating training and evaluation data, e.g. 0.8 for 80%
+     * @param corpusDir          a path where corpus files are located
+     * @param trainingOutputPath path where to store the temporary training data
+     * @param evalOutputPath     path where to store the temporary evaluation data
+     * @param splitRatio         ratio to consider for separating training and evaluation data, e.g. 0.8 for 80%
      * @return the total number of used corpus items
      */
     @Override
@@ -52,15 +46,19 @@ public class LexicalEntryTrainer extends AbstractTrainer {
 
     /**
      * Add the selected features to the lexical entry segmentaion model
-     * @param sourceTEIPathLabel path to TEI files
+     *
+     * @param sourceTEIPathLabel               path to TEI files
      * @param sourceLexicalEntriesPathFeatures path to fulltexts
-     * @param outputPath output train file
+     * @param outputPath                       output train file
      * @return number of examples
      */
     public int addFeaturesLexicalEntries(String sourceTEIPathLabel,
                                          String sourceLexicalEntriesPathFeatures,
                                          File outputPath) {
         int totalExamples = 0;
+        OutputStream os2 = null;
+        Writer writer2 = null;
+
         try {
             System.out.println("sourceTEIPathLabel: " + sourceTEIPathLabel);
             System.out.println("sourceLexicalEntriesPathFeatures: " + sourceLexicalEntriesPathFeatures);
@@ -82,8 +80,8 @@ public class LexicalEntryTrainer extends AbstractTrainer {
             System.out.println(refFiles.length + " tei files");
 
             // the file for writing the training data
-             os2 = new FileOutputStream(outputPath);
-             writer2 = new OutputStreamWriter(os2, "UTF8");
+            os2 = new FileOutputStream(outputPath);
+            writer2 = new OutputStreamWriter(os2, "UTF8");
 
             // get a factory for SAX parser
             SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -101,76 +99,82 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                 p.parse(tf, parser2);
 
                 List<String> labeled = parser2.getLabeledResult();
-                //totalExamples += parser2.n;
 
                 // we can now add the features
                 // we open the featured file
-                int q = 0;
-                BufferedReader bis = new BufferedReader(
+                BufferedReader featuresFileBR = new BufferedReader(
                         new InputStreamReader(new FileInputStream(
                                 sourceLexicalEntriesPathFeatures + File.separator +
                                         name.replace(".tei.xml", "")), "UTF8"));
 
-                StringBuilder fulltext = new StringBuilder();
+                StringBuilder trainingDataLineBuilder = new StringBuilder();
 
+                int counterStart = 0;
                 String line;
-//                String lastTag = null;
-                while ((line = bis.readLine()) != null) {
-                    //fulltext.append(line);
-                    int ii = line.indexOf(' ');
-                    String token = null;
-                    if (ii != -1)
-                        token = line.substring(0, ii);
-//                    boolean found = false;
-                    // we get the label in the labelled data file for the same token
-                    for (int pp = q; pp < labeled.size(); pp++) {
-                        String localLine = labeled.get(pp);
-                        StringTokenizer st = new StringTokenizer(localLine, " ");
-                        if (st.hasMoreTokens()) {
-                            String localToken = st.nextToken();
-
-                            if (localToken.equals(token)) {
-                                String tag = st.nextToken();
-                                fulltext.append(line).append(" ").append(tag);
-//                                lastTag = tag;
-//                                found = true;
-                                q = pp + 1;
-                                pp = q + 10;
-                            }
-                        }
-                        if (pp - q > 5) {
-                            break;
-                        }
-                    }
+                while ((line = featuresFileBR.readLine()) != null) {
+                    String token = getFirstToken(line);
+                    String label = getLabelByToken(token, counterStart, labeled);
+                    trainingDataLineBuilder.append(line).append(" ").append(label).append("\n");
+                    counterStart++;
                 }
-                bis.close();
-                // format with features for sequence tagging...
-                writer2.write(fulltext.toString() + "\n");
+                featuresFileBR.close();
+                // Add the training data with suffixed label
+                writer2.write(trainingDataLineBuilder.toString() + "\n");
             }
 
-
         } catch (Exception e) {
-            throw new GrobidException("An exception occured while running Grobid.", e);
-        }
-        finally {
-            try{
-                if (writer2 != null)
-                {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        } finally {
+            try {
+                if (writer2 != null) {
                     writer2.close();
                 }
 
-                if (os2 != null)
-                {
+                if (os2 != null) {
                     os2.close();
                 }
 
-            }
-            catch (Exception ex){
-                throw new GrobidException("An exception occured while closing file", ex);
+            } catch (Exception ex) {
+                throw new GrobidException("An exception occurred while closing file", ex);
             }
 
         }
         return totalExamples;
+    }
+
+    private String getFirstToken(String line) {
+        int ii = line.indexOf(' ');
+        String token = null;
+
+        if (ii != -1) {
+            token = line.substring(0, ii);
+        }
+
+        return token;
+    }
+
+    /**
+     * Searching for the label in the labelled data file for the same token
+     */
+    protected String getLabelByToken(String token, int counterStart, List<String> labeled) {
+
+        for (int indexLabeled = counterStart; indexLabeled < labeled.size(); indexLabeled++) {
+            String localLine = labeled.get(indexLabeled);
+            StringTokenizer st = new StringTokenizer(localLine, " ");
+            if (st.hasMoreTokens()) {
+                String localToken = st.nextToken();
+
+                if (localToken.equals(token)) {
+                    String tag = st.nextToken();
+                    return tag;
+                }
+            }
+            if (indexLabeled - counterStart > 5) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     /**
