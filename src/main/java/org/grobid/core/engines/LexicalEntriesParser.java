@@ -36,10 +36,7 @@ public class LexicalEntriesParser extends AbstractParser {
 
 
     public String process(File originFile) {
-        GrobidAnalysisConfig config =
-                GrobidAnalysisConfig.builder()
-                        .generateTeiIds(true)
-                        .build();
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
 
         // Segment the document to identify the document's block
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
@@ -301,9 +298,39 @@ public class LexicalEntriesParser extends AbstractParser {
             SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
 
             LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+            String previousFont = null;
+            String fontStatus = null;
+            String previousLine = null;
+            String lineStatus = null;
 
             for(LayoutToken layoutToken : tokens.getTokenization()) {
-                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", "lineStatus", "fontStatus");
+
+                if (previousFont == null) {
+                    previousFont = layoutToken.getFont();
+                    fontStatus = "NEWFONT";
+                } else if (!previousFont.equals(layoutToken.getFont())) {
+                    previousFont = layoutToken.getFont();
+                    fontStatus = "NEWFONT";
+                } else{
+                    fontStatus = "SAMEFONT";
+                }
+
+                if (previousLine == null){
+                    lineStatus = "LINESTART";
+                    previousLine  = "LINESTART";
+                }
+                else if(layoutToken.getText().equals("\n")){
+                    lineStatus = "LINEEND";
+                    previousLine = "LINEEND";
+                }else if (!layoutToken.getText().equals("\n")&&(previousLine=="LINEEND")){
+                    lineStatus= "LINESTART";
+                    previousLine = "LINESTART";
+                }else if ((!layoutToken.getText().equals("\n"))&&((previousLine=="LINESTART")||(previousLine=="LINEIN"))){
+                    lineStatus= "LINEIN";
+                    previousLine = "LINEIN";
+                }
+
+                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", "lineStatus", fontStatus);
                 stringBuilder.append(vector.printVector());
             }
 
