@@ -425,7 +425,7 @@
 
     <profiles>
         <profile>
-            <id>train_quantities</id>
+            <id>train_lexicalEntries</id>
             <build>
                 <plugins>
                     <plugin>
@@ -439,30 +439,7 @@
                                     <goal>java</goal>
                                 </goals>
                                 <configuration>
-                                    <mainClass>org.grobid.trainer.QuantityTrainer</mainClass>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>train_units</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.1.1</version>
-                        <executions>
-                            <execution>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>org.grobid.trainer.UnitTrainer</mainClass>
+                                    <mainClass>org.grobid.trainer.LexicalEntryTrainer</mainClass>
                                 </configuration>
                             </execution>
                         </executions>

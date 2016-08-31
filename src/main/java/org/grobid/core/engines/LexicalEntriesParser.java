@@ -1,5 +1,6 @@
 package org.grobid.core.engines;
 
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
@@ -29,6 +30,7 @@ public class LexicalEntriesParser extends AbstractParser {
 
     private String lexEntries;
     private static volatile LexicalEntriesParser instance;
+
     public static LexicalEntriesParser getInstance() {
         if (instance == null) {
             getNewInstance();
@@ -336,34 +338,37 @@ public class LexicalEntriesParser extends AbstractParser {
                 } else if (layoutToken.getText().equals("\n")) {
                     lineStatus = "LINEEND";
                     previousLine = "LINEEND";
-                } else if (!layoutToken.getText().equals("\n") && (previousLine == "LINEEND")) {
+                } else if (StringUtils.equals(previousLine, "LINEEND")) {
                     lineStatus = "LINESTART";
                     previousLine = "LINESTART";
-                } else if ((!layoutToken.getText().equals("\n")) && ((previousLine == "LINESTART") || (previousLine == "LINEIN"))) {
+                } else if (StringUtils.equals(previousLine, "LINESTART") || StringUtils.equals(previousLine, "LINEIN")) {
                     lineStatus = "LINEIN";
                     previousLine = "LINEIN";
                 }
 
                 FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
-                stringBuilder.append(vector.printVector());
+                stringBuilder.append(vector.printVector()).append("\n");
             }
 
             // we write the features
             String featureMatrix = pathFeatureMatrix + File.separator +
                     PDFFileName.replace(".pdf", ".training.lexicalEntries");
-            writer = new OutputStreamWriter(new FileOutputStream(new File(featureMatrix), false), "UTF-8");
+            writer = new OutputStreamWriter(new FileOutputStream(new File(pathFeatureMatrix), false), "UTF-8");
 
             writer.write(stringBuilder + "\n");
         } catch (Exception e) {
             //TODO: something
         } finally {
             try {
-                writer.close();
+                if (writer != null) {
+                    writer.close();
+                }
             } catch (IOException e) {
 
             }
         }
     }
+
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory,
                                    String outputDirectory,
@@ -383,10 +388,10 @@ public class LexicalEntriesParser extends AbstractParser {
             File[] refFiles = path.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     System.out.println(name);
-                    return name.endsWith(".pdf") || name.endsWith(".PDF") ||
-                            name.endsWith(".txt") || name.endsWith(".TXT") ||
-                            name.endsWith(".xml") || name.endsWith(".tei") ||
-                            name.endsWith(".XML") || name.endsWith(".TEI");
+                    return name.endsWith(".pdf") || name.endsWith(".PDF"); //||
+//                            name.endsWith(".txt") || name.endsWith(".TXT") ||
+//                            name.endsWith(".xml") || name.endsWith(".tei") ||
+//                            name.endsWith(".XML") || name.endsWith(".TEI");
                 }
             });
 
@@ -402,11 +407,11 @@ public class LexicalEntriesParser extends AbstractParser {
             }
             for (final File file : refFiles) {
                 try {
-                    String pathTEI = outputDirectory + "/" + file.getName().substring(0, file.getName().length() - 4) + ".training.tei.xml";
-                    createTrainingData(file.getAbsolutePath(), pathTEI);
+                    String featuresFile = outputDirectory + "/" + file.getName().substring(0, file.getName().length() - 4) + ".training";
+                    createTrainingData(file.getAbsolutePath(), featuresFile);
                 } catch (final Exception exp) {
-                    LOGGER.error("An error occured while processing the following pdf: "
-                            + file.getPath() + ": " + exp);
+                    LOGGER.error("An error occurred while processing the following pdf: "
+                            + file.getPath(), exp);
                 }
                 if (ind != -1)
                     n++;
@@ -414,7 +419,7 @@ public class LexicalEntriesParser extends AbstractParser {
 
             return refFiles.length;
         } catch (final Exception exp) {
-            throw new GrobidException("An exception occured while running Grobid batch.", exp);
+            throw new GrobidException("An exception occurred while running Grobid batch.", exp);
         }
     }
 

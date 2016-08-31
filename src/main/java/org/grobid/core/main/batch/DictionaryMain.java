@@ -1,10 +1,9 @@
 package org.grobid.core.main.batch;
 
-import org.grobid.core.engines.ProcessEngine;
+import org.grobid.core.engines.LexicalEntriesParser;
+import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.core.utilities.Utilities;
-import org.grobid.core.engines.LexicalEntriesParser;
 
 import java.io.File;
 import java.util.Arrays;
@@ -17,8 +16,11 @@ import java.util.List;
  */
 public class DictionaryMain {
 
+    private static final String CREATE_TRAINING_LEXICAL_ENTRIES = "createTrainingLexicalEntries";
+
+
     private static List<String> availableCommands = Arrays.asList(
-            "createTrainingLexicalEntries");
+            CREATE_TRAINING_LEXICAL_ENTRIES);
 
     /**
      * Arguments of the batch.
@@ -54,6 +56,7 @@ public class DictionaryMain {
     protected static void initProcess() {
         try {
             MockContext.setInitialContext(gbdArgs.getPath2grobidHome(), gbdArgs.getPath2grobidProperty());
+            LibraryLoader.load();
         } catch (final Exception exp) {
             System.err.println("Grobid initialisation failed: " + exp);
         }
@@ -169,14 +172,8 @@ public class DictionaryMain {
 
             long time = System.currentTimeMillis();
 
-            if (gbdArgs.getProcessMethodName().equals("processQuantities")) {
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRIES)) {
                 nb = lexicalEntriesParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), -1);
-//            } else if (gbdArgs.getProcessMethodName().equals("createTrainingQuantities")) {
-//                nb = quantityParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), -1);
-//            } else if(gbdArgs.getProcessMethodName().equals("generateTrainingUnits")){
-//                UnitTrainingDataGenerator unitTrainingDataGenerator = new UnitTrainingDataGenerator();
-//                unitTrainingDataGenerator.generateData(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
-//            }
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 
