@@ -66,4 +66,38 @@ public class LexicalEntriesParserTest {
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
         assertThat(layoutTokenization.getTokenization().size(), is(1606));
     }
+
+    @Test
+    public void testCreateTrainingData() throws Exception {
+
+        String pathFeatureMatrix = "/lexical";
+        String  input = "BasicEnglish.page1.sample.pdf";
+        String stringBuilder = target.createTrainingData(input,pathFeatureMatrix).toString();
+        assertThat(stringBuilder.isEmpty(),  is(false));
+
+
+    }
+
+
+    @Test
+    public void testCheckLineStatus() throws Exception {
+
+
+        String actualStatus1 = target.checkLineStatus("a","LINESTART","blabla")[1];
+        assertThat(actualStatus1,  is("LINEIN"));
+
+        String actualStatus2 = target.checkLineStatus("\n","LINESTART","blabla")[1];
+        assertThat(actualStatus2,  is("LINEEND"));
+
+        String actualStatus3 = target.checkLineStatus("\n","LINEIN","blabla")[1];
+        assertThat(actualStatus3,  is("LINEEND"));
+
+        String actualStatus4 = target.checkLineStatus("a","LINEIN","blabla")[1];
+        assertThat(actualStatus4,  is("LINEIN"));
+
+        String actualStatus5 = target.checkLineStatus("a","LINEEND","blabla")[1];
+        assertThat(actualStatus5,  is("LINESTART"));
+
+
+    }
 }

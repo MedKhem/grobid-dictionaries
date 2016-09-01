@@ -17,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -300,14 +298,14 @@ public class LexicalEntriesParser extends AbstractParser {
     }
 
 
-    public void createTrainingData(String inputFile,
+    public StringBuilder createTrainingData(String inputFile,
                                    String pathFeatureMatrix) {
 
         Writer writer = null;
         DocumentSource documentSource = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            File file = new File(inputFile);
+            File file = new File(this.getClass().getResource(inputFile).toURI());
             String PDFFileName = file.getName();
 
             documentSource = DocumentSource.fromPdf(file);
@@ -317,34 +315,16 @@ public class LexicalEntriesParser extends AbstractParser {
             LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
             String previousFont = null;
             String fontStatus = null;
-            String previousLine = null;
+            String previousTokenLineStatus = null;
             String lineStatus = null;
 
             for (LayoutToken layoutToken : tokens.getTokenization()) {
 
-                if (previousFont == null) {
-                    previousFont = layoutToken.getFont();
-                    fontStatus = "NEWFONT";
-                } else if (!previousFont.equals(layoutToken.getFont())) {
-                    previousFont = layoutToken.getFont();
-                    fontStatus = "NEWFONT";
-                } else {
-                    fontStatus = "SAMEFONT";
-                }
+                previousFont = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus)[0];
+                fontStatus = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus)[1];
 
-                if (previousLine == null) {
-                    lineStatus = "LINESTART";
-                    previousLine = "LINESTART";
-                } else if (layoutToken.getText().equals("\n")) {
-                    lineStatus = "LINEEND";
-                    previousLine = "LINEEND";
-                } else if (StringUtils.equals(previousLine, "LINEEND")) {
-                    lineStatus = "LINESTART";
-                    previousLine = "LINESTART";
-                } else if (StringUtils.equals(previousLine, "LINESTART") || StringUtils.equals(previousLine, "LINEIN")) {
-                    lineStatus = "LINEIN";
-                    previousLine = "LINEIN";
-                }
+                previousTokenLineStatus = checkLineStatus(layoutToken.getText(),  previousTokenLineStatus, lineStatus)[0];
+                lineStatus = checkLineStatus(layoutToken.getText(),  previousTokenLineStatus, lineStatus)[1];
 
                 FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
                 stringBuilder.append(vector.printVector()).append("\n");
@@ -367,6 +347,40 @@ public class LexicalEntriesParser extends AbstractParser {
 
             }
         }
+        return stringBuilder;
+    }
+
+    public String[] checkFontStatus(String currentFont, String previousFont, String fontStatus){
+
+        if (previousFont == null) {
+            previousFont = currentFont;
+            fontStatus = "NEWFONT";
+        } else if (!previousFont.equals(currentFont)) {
+            previousFont = currentFont;
+            fontStatus = "NEWFONT";
+        } else {
+            fontStatus = "SAMEFONT";
+        }
+        return new String[] { previousFont, fontStatus };
+    }
+
+
+    public String[] checkLineStatus(String str, String previousTokenLineStatus, String lineStatus){
+
+        if (previousTokenLineStatus == null) {
+            lineStatus = "LINESTART";
+            previousTokenLineStatus = "LINESTART";
+        } else if (str.equals("\n")) {
+            lineStatus = "LINEEND";
+            previousTokenLineStatus = "LINEEND";
+        } else if (StringUtils.equals(previousTokenLineStatus, "LINEEND")) {
+            lineStatus = "LINESTART";
+            previousTokenLineStatus = "LINESTART";
+        } else if (StringUtils.equals(previousTokenLineStatus, "LINESTART") || StringUtils.equals(previousTokenLineStatus, "LINEIN")) {
+            lineStatus = "LINEIN";
+            previousTokenLineStatus = "LINEIN";
+        }
+        return new String[] { previousTokenLineStatus, lineStatus };
     }
 
     @SuppressWarnings({"UnusedParameters"})
