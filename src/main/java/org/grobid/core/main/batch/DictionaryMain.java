@@ -173,7 +173,7 @@ public class DictionaryMain {
             long time = System.currentTimeMillis();
 
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRIES)) {
-                nb = lexicalEntriesParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), -1);
+                nb = lexicalEntriesParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 
