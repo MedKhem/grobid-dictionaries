@@ -4,15 +4,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentPointer;
 import org.grobid.core.document.DocumentSource;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
-import org.grobid.core.layout.Block;
-import org.grobid.core.layout.LayoutToken;
-import org.grobid.core.layout.LayoutTokenization;
-import org.grobid.core.utilities.TextUtilities;
+import org.grobid.core.features.enums.FontStatus;
+import org.grobid.core.features.enums.LineStatus;
+import org.grobid.core.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,281 +59,127 @@ public class LexicalEntriesParser extends AbstractParser {
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
 
         LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+
         String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
+
+
 
         return text;
     }
 
     LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
-        String currentFont = null;
-        int currentFontSize = -1;
-        boolean endblock;
-        boolean endPage = true;
-        boolean newPage = true;
-        //boolean start = true;
-        int mm = 0; // page position
-        int nn = 0; // document position
-        double lineStartX = Double.NaN;
-        boolean indented = false;
-        int fulltextLength = 0;
-        int pageLength = 0; // length of the current page
-        double lowestPos = 0.0;
-        double spacingPreviousBlock = 0.0;
-        int currentPage = 0;
+
 
 
         List<LayoutToken> layoutTokens = new ArrayList<>();
 
-        List<Block> blocks = doc.getBlocks();
-        if ((blocks == null) || blocks.size() == 0) {
-            //TODO: should we return null?
-            return null;
-        }
+        for (Page page : doc.getPages()) {
+            //get the blocks
+            if ((page.getBlocks() == null) || (page.getBlocks().size() == 0))
+                continue;
 
-        for (DocumentPiece docPiece : documentBodyParts) {
-            DocumentPointer dp1 = docPiece.a;
-            DocumentPointer dp2 = docPiece.b;
-
-            //int blockPos = dp1.getBlockPtr();
-            for (int blockIndex = dp1.getBlockPtr(); blockIndex <= dp2.getBlockPtr(); blockIndex++) {
-                boolean graphicVector = false;
-                boolean graphicBitmap = false;
-                Block block = blocks.get(blockIndex);
-                // length of the page where the current block is
-                double pageHeight = block.getPage().getHeight();
-                int localPage = block.getPage().getNumber();
-                if (localPage != currentPage) {
-                    newPage = true;
-                    currentPage = localPage;
-                    mm = 0;
-                    lowestPos = 0.0;
-                    spacingPreviousBlock = 0.0;
-                }
-
-	            /*if (start) {
-                    newPage = true;
-	                start = false;
-	            }*/
-
-                boolean newline;
-                boolean previousNewline = false;
-                endblock = false;
-
-	            /*if (endPage) {
-                    newPage = true;
-	                mm = 0;
-					lowestPos = 0.0;
-	            }*/
-
-                if (lowestPos > block.getY()) {
-                    // we have a vertical shift, which can be due to a change of column or other particular layout formatting
-                    spacingPreviousBlock = doc.getMaxBlockSpacing() / 5.0; // default
-                } else
-                    spacingPreviousBlock = block.getY() - lowestPos;
+            for (int blockIndex = 0; blockIndex < page.getBlocks().size(); blockIndex++) {
+                Block block = page.getBlocks().get(blockIndex);
 
                 String localText = block.getText();
-                if (TextUtilities.filterLine(localText)) {
-                    continue;
-                }
-                /*if (localText != null) {
-                    if (localText.contains("@PAGE")) {
-	                    mm = 0;
-	                    // pageLength = 0;
-	                    endPage = true;
-	                    newPage = false;
-	                } else {
-	                    endPage = false;
-	                }
-	            }*/
-
-                // character density of the block
-                double density = 0.0;
-                if ((block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
-                        (localText != null) && (!localText.contains("@PAGE")) &&
-                        (!localText.contains("@IMAGE")))
-                    density = (double) localText.length() / (block.getHeight() * block.getWidth());
-
-
                 List<LayoutToken> tokens = block.getTokens();
-                if (tokens == null) {
-                    continue;
-                }
 
-                int n = 0;// token position in current block
-                if (blockIndex == dp1.getBlockPtr()) {
-//					n = dp1.getTokenDocPos() - block.getStartToken();
-                    n = dp1.getTokenBlockPos();
-                }
-                int lastPos = tokens.size();
-                // if it's a last block from a document piece, it may end earlier
-                if (blockIndex == dp2.getBlockPtr()) {
-                    lastPos = dp2.getTokenBlockPos();
-                    if (lastPos >= tokens.size()) {
-                        LOGGER.error("DocumentPointer for block " + blockIndex + " points to " +
-                                dp2.getTokenBlockPos() + " token, but block token size is " +
-                                tokens.size());
-                        lastPos = tokens.size();
-                    }
-                }
+                if (localText != null) {
+                    if (tokens != null) {
 
-                while (n < lastPos) {
-                    if (blockIndex == dp2.getBlockPtr()) {
-                        //if (n > block.getEndToken()) {
-                        if (n > dp2.getTokenDocPos() - block.getStartToken()) {
-                            break;
-                        }
-                    }
+                        String[] lines = localText.split("[\\n\\r]");
 
-                    LayoutToken token = tokens.get(n);
-                    layoutTokens.add(token);
+//                        //For each line of the block
+//                        for (int li = 0; li < lines.length; li++) {
+//                            String line = lines[li].trim();
+//
 
-                    double coordinateLineY = token.getY();
+                        // For each token of the block
+                        for (int k = 0; k < tokens.size(); k++) {
+                            //catch the line status here: now it's based on the position of the token in the block. Should be modified for the position in the line
+                            LayoutToken token = null;
 
-                    String text = token.getText();
-                    if ((text == null) || (text.length() == 0)) {
-                        n++;
-                        mm++;
-                        nn++;
-                        continue;
-                    }
-                    text = text.replace(" ", "");
-                    if (text.length() == 0) {
-                        n++;
-                        mm++;
-                        nn++;
-                        continue;
-                    }
-
-                    if (text.equals("\n") || text.equals("\r")) {
-                        newline = true;
-                        previousNewline = true;
-                        n++;
-                        mm++;
-                        nn++;
-                        continue;
-                    } else
-                        newline = false;
-
-                    if (TextUtilities.filterLine(text)) {
-                        n++;
-                        continue;
-                    }
-
-                    if (previousNewline) {
-                        newline = true;
-                        previousNewline = false;
-                        if ((token != null)) {
-                            double previousLineStartX = lineStartX;
-                            lineStartX = token.getX();
-                            double characterWidth = token.width / text.length();
-                            if (!Double.isNaN(previousLineStartX)) {
-                                if (previousLineStartX - lineStartX > characterWidth)
-                                    indented = false;
-                                else if (lineStartX - previousLineStartX > characterWidth)
-                                    indented = true;
-                                // Indentation ends if line start is > 1 character width to the left of previous line start
-                                // Indentation starts if line start is > 1 character width to the right of previous line start
-                                // Otherwise indentation is unchanged
-                            }
-                        }
-                    }
-
-
-                    if (n == 0) {
-                        if (token != null)
-                            lineStartX = token.getX();
-                    } else if (n == tokens.size() - 1) {
-                        previousNewline = true;
-                        endblock = true;
-                    } else {
-                        // look ahead...
-                        boolean endline = false;
-
-                        int ii = 1;
-                        boolean endloop = false;
-                        while ((n + ii < tokens.size()) && (!endloop)) {
-                            LayoutToken tok = tokens.get(n + ii);
-                            if (tok != null) {
-                                String toto = tok.getText();
-                                if (toto != null) {
-                                    if (toto.equals("\n")) {
-                                        endline = true;
-                                        endloop = true;
-                                    } else {
-                                        if ((toto.length() != 0)
-                                                && (!(toto.startsWith("@IMAGE")))
-                                                && (!(toto.startsWith("@PAGE")))
-                                                && (!text.contains(".pbm"))
-                                                && (!text.contains(".vec"))
-                                                && (!text.contains(".jpg"))) {
-                                            endloop = true;
-                                        }
-                                    }
-                                }
+                            token = tokens.get(k);
+                            if ((token.getText() == null) ||
+                                    (token.getText().trim().length() == 0) ||
+                                    (token.getText().trim().equals("\n")) ||
+                                    (token.getText().trim().equals("\r")) ||
+                                    (token.getText().trim().equals("\n\r")))
+                                continue;
+                            else if (token.isNewLineAfter() || (block.getEndToken() == k)) {
+                                token.setNewLineAfter(true);
                             }
 
-                            if (n + ii == tokens.size() - 1) {
-//                                endblock = true;
-                                endline = true;
-                            }
+                            layoutTokens.add(token);
 
-                            ii++;
+
                         }
 
                     }
 
-                    n++;
-//                    mm += text.length();
-//                    nn += text.length();
-                }
-                // lowest position of the block
-//                lowestPos = block.getY() + block.getHeight();
 
-                //blockPos++;
+                }
             }
         }
+
         return new LayoutTokenization(layoutTokens);
     }
 
 
-    public StringBuilder createTrainingData(String inputFile,
-                                   String pathFeatureMatrix) {
+    public StringBuilder createTrainingFeatureData(File inputFile) {
 
         Writer writer = null;
         DocumentSource documentSource = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            File file = new File(this.getClass().getResource(inputFile).toURI());
-            String PDFFileName = file.getName();
+            documentSource = DocumentSource.fromPdf(inputFile);
+            Document doc;
+            try {
+                 doc = new Document(documentSource);
+                doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
 
-            documentSource = DocumentSource.fromPdf(file);
-            Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, GrobidAnalysisConfig.defaultInstance());
+            }
+            finally {
+                if(GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
+                    DocumentSource.close(documentSource, false);
+                } else {
+                    DocumentSource.close(documentSource, true);
+                }
+            }
             SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-
             LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+
             String previousFont = null;
             String fontStatus = null;
             String previousTokenLineStatus = null;
             String lineStatus = null;
+            int nbToken = tokens.getTokenization().size();
+            int counter = 1;
+
 
             for (LayoutToken layoutToken : tokens.getTokenization()) {
 
-                previousFont = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus)[0];
-                fontStatus = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus)[1];
+                if (counter != nbToken){
 
-                previousTokenLineStatus = checkLineStatus(layoutToken.getText(),  previousTokenLineStatus, lineStatus)[0];
-                lineStatus = checkLineStatus(layoutToken.getText(),  previousTokenLineStatus, lineStatus)[1];
+                    String[] returnedStatus = checkLineStatus(layoutToken,  previousTokenLineStatus, lineStatus);
+                    previousTokenLineStatus = returnedStatus[0];
+                    lineStatus = returnedStatus[1];
 
+                    counter ++;
+                }
+                else{
+                    // The last token
+
+                    lineStatus = LineStatus.LINE_END.toString();
+                }
+
+                String[] returnedFont = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus);
+                previousFont = returnedFont[0];
+                fontStatus = returnedFont[1];
                 FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
                 stringBuilder.append(vector.printVector()).append("\n");
+
             }
-
-            // we write the features
-            String featureMatrix = pathFeatureMatrix + File.separator +
-                    PDFFileName.replace(".pdf", ".training.lexicalEntries");
-            writer = new OutputStreamWriter(new FileOutputStream(new File(pathFeatureMatrix), false), "UTF-8");
-
-            writer.write(stringBuilder + "\n");
         } catch (Exception e) {
             //TODO: something
         } finally {
@@ -354,39 +198,39 @@ public class LexicalEntriesParser extends AbstractParser {
 
         if (previousFont == null) {
             previousFont = currentFont;
-            fontStatus = "NEWFONT";
+            fontStatus = FontStatus.NEWFONT.toString();
         } else if (!previousFont.equals(currentFont)) {
             previousFont = currentFont;
-            fontStatus = "NEWFONT";
+            fontStatus = FontStatus.NEWFONT.toString();
         } else {
-            fontStatus = "SAMEFONT";
+            fontStatus = FontStatus.SAMEFONT.toString();
         }
         return new String[] { previousFont, fontStatus };
     }
 
 
-    public String[] checkLineStatus(String str, String previousTokenLineStatus, String lineStatus){
+    public String[] checkLineStatus(LayoutToken token, String previousTokenLineStatus, String lineStatus){
 
         if (previousTokenLineStatus == null) {
-            lineStatus = "LINESTART";
-            previousTokenLineStatus = "LINESTART";
-        } else if (str.equals("\n")) {
-            lineStatus = "LINEEND";
-            previousTokenLineStatus = "LINEEND";
-        } else if (StringUtils.equals(previousTokenLineStatus, "LINEEND")) {
-            lineStatus = "LINESTART";
-            previousTokenLineStatus = "LINESTART";
-        } else if (StringUtils.equals(previousTokenLineStatus, "LINESTART") || StringUtils.equals(previousTokenLineStatus, "LINEIN")) {
-            lineStatus = "LINEIN";
-            previousTokenLineStatus = "LINEIN";
+            lineStatus = LineStatus.LINE_START.toString();
+
+        } else if (token.isNewLineAfter()) {
+            // The second case, when the token is he last one, is handled outside this method
+            lineStatus =LineStatus.LINE_END.toString();
+
+        } else if (StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_END.toString())) {
+            lineStatus = LineStatus.LINE_START.toString();
+
+        } else if (StringUtils.equals(previousTokenLineStatus,LineStatus.LINE_START.toString()) || StringUtils.equals(previousTokenLineStatus,LineStatus.LINE_IN.toString())) {
+            lineStatus = LineStatus.LINE_IN.toString();
+
         }
+        previousTokenLineStatus = lineStatus;
         return new String[] { previousTokenLineStatus, lineStatus };
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory,
-                                   String outputDirectory,
-                                   int ind) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -399,42 +243,42 @@ public class LexicalEntriesParser extends AbstractParser {
             }
 
             // we process all pdf files in the directory
-            File[] refFiles = path.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    System.out.println(name);
-                    return name.endsWith(".pdf") || name.endsWith(".PDF"); //||
-//                            name.endsWith(".txt") || name.endsWith(".TXT") ||
-//                            name.endsWith(".xml") || name.endsWith(".tei") ||
-//                            name.endsWith(".XML") || name.endsWith(".TEI");
-                }
-            });
-
-            if (refFiles == null)
-                return 0;
-
-            System.out.println(refFiles.length + " files to be processed.");
 
             int n = 0;
-            if (ind == -1) {
-                // for undefined identifier (value at -1), we initialize it to 0
-                n = 1;
+
+            if (path.isDirectory()) {
+                for ( File fileEntry : path.listFiles()) {
+                    try {
+                        String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
+                        Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+                        writer.write(createTrainingFeatureData(fileEntry)+"\n");
+                        n++;
+                    } catch (final Exception exp) {
+                        LOGGER.error("An error occurred while processing the following pdf: "
+                                + fileEntry.getPath(), exp);
+                    }
+                }
             }
-            for (final File file : refFiles) {
+            else{
                 try {
-                    String featuresFile = outputDirectory + "/" + file.getName().substring(0, file.getName().length() - 4) + ".training";
-                    createTrainingData(file.getAbsolutePath(), featuresFile);
+                    String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
+                    Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+                    writer.write(createTrainingFeatureData(path).toString());
+                    n++;
                 } catch (final Exception exp) {
                     LOGGER.error("An error occurred while processing the following pdf: "
-                            + file.getPath(), exp);
+                            + path.getPath(), exp);
                 }
-                if (ind != -1)
-                    n++;
             }
 
-            return refFiles.length;
+            System.out.println(n + " files to be processed.");
+
+            return n;
         } catch (final Exception exp) {
             throw new GrobidException("An exception occurred while running Grobid batch.", exp);
         }
     }
+
+
 
 }

@@ -15,36 +15,13 @@ public class FeatureVectorLexicalEntry {
     public String label = null; // label if known
     // public String blockStatus = null; // one of BLOCKSTART, BLOCKIN, BLOCKEND
     public String lineStatus = null; // one of LINESTART, LINEIN, LINEEND
-
     public String fontStatus = null; // one of NEWFONT, SAMEFONT
     public String fontSize = null; // one of HIGHERFONT, SAMEFONTSIZE, LOWERFONT
     //  public String pageStatus = null; // one of PAGESTART, PAGEIN, PAGEEND
     public boolean bold = false;
     public boolean italic = false;
     public String capitalisation = null; // one of INITCAP, ALLCAPS, NOCAPS
-
-
     public String punctType = null;
-    //   public String digit;  // one of ALLDIGIT, CONTAINDIGIT, NODIGIT
-    //   public boolean singleChar = false;
-
-
-    //public boolean acronym = false;
- /*   public String punctType = null; // one of NOPUNCT, OPENBRACKET, ENDBRACKET, DOT, COMMA, HYPHEN, QUOTE, PUNCT (default)
-    public int relativeDocumentPosition = -1;
-    public int relativePagePosition = -1;
-    public int relativePagePositionChar = -1; // not used
-    public String punctuationProfile = null; // the punctuations of the current line of the token
-    public boolean firstPageBlock = false;
-    public boolean lastPageBlock = false;
-    public int lineLength = 0;
-
-    public boolean repetitivePattern = false; // if true, the textual pattern is repeated at the same position on other pages
-    public boolean firstRepetitivePattern = false; // if true, this is a repetitive textual pattern and this is its first occurrence in the doc
-
-    public int spacingWithPreviousBlock = 0; // discretized
-    public int wordDensity = 0; // discretized */
-
 
     public FeatureVectorLexicalEntry() {
     }
@@ -169,7 +146,6 @@ public class FeatureVectorLexicalEntry {
         res.append(" ").append(italic);
         res.append(" ").append(capitalisation);
         res.append(" ").append(punctType);
-
         res.append(" ").append(lineStatus);
         res.append(" ").append(fontStatus);
         res.append(" ").append(label);

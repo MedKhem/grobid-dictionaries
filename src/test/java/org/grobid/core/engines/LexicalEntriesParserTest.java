@@ -4,6 +4,7 @@ import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentSource;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
@@ -64,40 +65,26 @@ public class LexicalEntriesParserTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(doc, documentBodyParts);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(1606));
+        assertThat(layoutTokenization.getTokenization().size(), is(827));
     }
 
-    @Test
-    public void testCreateTrainingData() throws Exception {
-
-        String pathFeatureMatrix = "/lexical";
-        String  input = "BasicEnglish.page1.sample.pdf";
-        String stringBuilder = target.createTrainingData(input,pathFeatureMatrix).toString();
-        assertThat(stringBuilder.isEmpty(),  is(false));
-
-
-    }
 
 
     @Test
     public void testCheckLineStatus() throws Exception {
+        LayoutToken l = new LayoutToken("a");
 
-
-        String actualStatus1 = target.checkLineStatus("a","LINESTART","blabla")[1];
+        String actualStatus1 = target.checkLineStatus(l,"LINESTART","blabla")[1];
         assertThat(actualStatus1,  is("LINEIN"));
 
-        String actualStatus2 = target.checkLineStatus("\n","LINESTART","blabla")[1];
-        assertThat(actualStatus2,  is("LINEEND"));
-
-        String actualStatus3 = target.checkLineStatus("\n","LINEIN","blabla")[1];
-        assertThat(actualStatus3,  is("LINEEND"));
-
-        String actualStatus4 = target.checkLineStatus("a","LINEIN","blabla")[1];
+        String actualStatus4 = target.checkLineStatus(l,"LINEIN","blabla")[1];
         assertThat(actualStatus4,  is("LINEIN"));
 
-        String actualStatus5 = target.checkLineStatus("a","LINEEND","blabla")[1];
+        String actualStatus5 = target.checkLineStatus(l,"LINEEND","blabla")[1];
         assertThat(actualStatus5,  is("LINESTART"));
 
 
     }
+
+
 }
