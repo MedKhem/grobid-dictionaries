@@ -21,6 +21,19 @@ public class LexicalEntryTrainer extends AbstractTrainer {
         super(GrobidModels.DICTIONARIES);
     }
 
+    /**
+     * Command line execution.
+     *
+     * @param args Command line arguments.
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        MockContext.setInitialContext();
+        GrobidProperties.getInstance();
+        AbstractTrainer.runTraining(new LexicalEntryTrainer());
+        AbstractTrainer.runEvaluation(new LexicalEntryTrainer());
+        MockContext.destroyInitialContext();
+    }
 
     @Override
     public int createCRFPPData(File corpusPath, File outputFile) {
@@ -103,9 +116,8 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                 // we can now add the features
                 // we open the featured file
                 BufferedReader featuresFileBR = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(
-                                sourceLexicalEntriesPathFeatures + File.separator +
-                                        name.replace(".tei.xml", "")), "UTF8"));
+                        new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
+                                                                          name.replace(".tei.xml", "")), "UTF8"));
 
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
@@ -114,7 +126,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                 while ((line = featuresFileBR.readLine()) != null) {
                     String token = getFirstToken(line);
                     String label = getLabelByToken(token, counterStart, labeled);
-                    trainingDataLineBuilder.append(line).append(" ").append(label).append("\n");
+                    trainingDataLineBuilder.append(line).append(" ").append(label);
                     counterStart++;
                 }
                 featuresFileBR.close();
@@ -154,17 +166,20 @@ public class LexicalEntryTrainer extends AbstractTrainer {
     }
 
     /**
-     * Searching for the label in the labelled data file for the same token
+     * Searching for the label in the labelled data file of the token in the feature file
      */
-    protected String getLabelByToken(String token, int counterStart, List<String> labeled) {
+    protected String getLabelByToken(String featureFileToken, int counterStart, List<String> labeled) {
 
         for (int indexLabeled = counterStart; indexLabeled < labeled.size(); indexLabeled++) {
-            String localLine = labeled.get(indexLabeled);
-            StringTokenizer st = new StringTokenizer(localLine, " ");
+            String tokenPlusLabel = labeled.get(indexLabeled);
+            StringTokenizer st = new StringTokenizer(tokenPlusLabel, " ");
             if (st.hasMoreTokens()) {
-                String localToken = st.nextToken();
+                String labelFileToken = st.nextToken();
 
-                if (localToken.equals(token)) {
+                if(featureFileToken.equals("@BULLET")){
+                    String tag = st.nextToken();
+                    return tag;
+                } else if (labelFileToken.equals(featureFileToken)) {
                     String tag = st.nextToken();
                     return tag;
                 }
@@ -175,19 +190,5 @@ public class LexicalEntryTrainer extends AbstractTrainer {
         }
 
         return null;
-    }
-
-    /**
-     * Command line execution.
-     *
-     * @param args Command line arguments.
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
-        GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new LexicalEntryTrainer());
-        AbstractTrainer.runEvaluation(new LexicalEntryTrainer());
-        MockContext.destroyInitialContext();
     }
 }

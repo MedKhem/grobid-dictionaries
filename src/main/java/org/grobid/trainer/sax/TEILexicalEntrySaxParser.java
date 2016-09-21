@@ -135,11 +135,11 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                     continue;
 
                 if (tok.equals("+L+")) {
-                    labeled.add("@newline\n");
+                    //labeled.add("@newline\n");
                 }
                 else if (tok.equals("+PAGE+")) {
                     // page break should be a distinct feature
-                    labeled.add("@newpage\n");
+                    //labeled.add("@newpage\n");
                 }
                 else {
                     String content = tok;

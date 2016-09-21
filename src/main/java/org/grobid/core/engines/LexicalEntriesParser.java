@@ -1,6 +1,7 @@
 package org.grobid.core.engines;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
@@ -10,12 +11,17 @@ import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.enums.FontStatus;
 import org.grobid.core.features.enums.LineStatus;
-import org.grobid.core.layout.*;
+import org.grobid.core.layout.Block;
+import org.grobid.core.layout.LayoutToken;
+import org.grobid.core.layout.LayoutTokenization;
+import org.grobid.core.layout.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 /**
@@ -23,9 +29,14 @@ import java.util.stream.Collectors;
  */
 public class LexicalEntriesParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LexicalEntriesParser.class);
-
-    private String lexEntries;
     private static volatile LexicalEntriesParser instance;
+    private String lexEntries;
+
+    //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
+    // depending how many sub models will be created.
+    public LexicalEntriesParser() {
+        super(GrobidModels.DICTIONARIES);
+    }
 
     public static LexicalEntriesParser getInstance() {
         if (instance == null) {
@@ -41,15 +52,9 @@ public class LexicalEntriesParser extends AbstractParser {
         instance = new LexicalEntriesParser();
     }
 
-    //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
-    // depending how many sub models will be created.
-    public LexicalEntriesParser() {
-        super(GrobidModels.SEGMENTATION);
-    }
-
-
     public String process(File originFile) {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
+
 
         // Segment the document to identify the document's block
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
@@ -63,12 +68,10 @@ public class LexicalEntriesParser extends AbstractParser {
         String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
 
 
-
         return text;
     }
 
     LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
-
 
 
         List<LayoutToken> layoutTokens = new ArrayList<>();
@@ -128,73 +131,61 @@ public class LexicalEntriesParser extends AbstractParser {
 
     public StringBuilder createTrainingFeatureData(File inputFile) {
 
-        Writer writer = null;
+
         DocumentSource documentSource = null;
         StringBuilder stringBuilder = new StringBuilder();
+
+        documentSource = DocumentSource.fromPdf(inputFile);
+        Document doc;
         try {
-            documentSource = DocumentSource.fromPdf(inputFile);
-            Document doc;
-            try {
-                 doc = new Document(documentSource);
-                doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
+            doc = new Document(documentSource);
+            doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
 
-            }
-            finally {
-                if(GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
-                    DocumentSource.close(documentSource, false);
-                } else {
-                    DocumentSource.close(documentSource, true);
-                }
-            }
-            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-            LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
-
-            String previousFont = null;
-            String fontStatus = null;
-            String previousTokenLineStatus = null;
-            String lineStatus = null;
-            int nbToken = tokens.getTokenization().size();
-            int counter = 1;
-
-
-            for (LayoutToken layoutToken : tokens.getTokenization()) {
-
-                if (counter != nbToken){
-
-                    String[] returnedStatus = checkLineStatus(layoutToken,  previousTokenLineStatus, lineStatus);
-                    previousTokenLineStatus = returnedStatus[0];
-                    lineStatus = returnedStatus[1];
-
-                    counter ++;
-                }
-                else{
-                    // The last token
-
-                    lineStatus = LineStatus.LINE_END.toString();
-                }
-
-                String[] returnedFont = checkFontStatus(layoutToken.getFont(),  previousFont, fontStatus);
-                previousFont = returnedFont[0];
-                fontStatus = returnedFont[1];
-                FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
-                stringBuilder.append(vector.printVector()).append("\n");
-
-            }
-        } catch (Exception e) {
-            //TODO: something
         } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-
+            if (GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
+                DocumentSource.close(documentSource, false);
+            } else {
+                DocumentSource.close(documentSource, true);
             }
         }
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+        LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+
+        String previousFont = null;
+        String fontStatus = null;
+        String previousTokenLineStatus = null;
+        String lineStatus = null;
+        int nbToken = tokens.getTokenization().size();
+        int counter = 1;
+
+
+        for (LayoutToken layoutToken : tokens.getTokenization()) {
+
+            if (counter != nbToken) {
+
+                String[] returnedStatus = checkLineStatus(layoutToken, previousTokenLineStatus, lineStatus);
+                previousTokenLineStatus = returnedStatus[0];
+                lineStatus = returnedStatus[1];
+
+                counter++;
+            } else {
+                // The last token
+
+                lineStatus = LineStatus.LINE_END.toString();
+            }
+
+            String[] returnedFont = checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
+            previousFont = returnedFont[0];
+            fontStatus = returnedFont[1];
+            FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
+            stringBuilder.append(vector.printVector()).append("\n");
+
+        }
+
         return stringBuilder;
     }
 
-    public String[] checkFontStatus(String currentFont, String previousFont, String fontStatus){
+    public String[] checkFontStatus(String currentFont, String previousFont, String fontStatus) {
 
         if (previousFont == null) {
             previousFont = currentFont;
@@ -205,28 +196,28 @@ public class LexicalEntriesParser extends AbstractParser {
         } else {
             fontStatus = FontStatus.SAMEFONT.toString();
         }
-        return new String[] { previousFont, fontStatus };
+        return new String[]{previousFont, fontStatus};
     }
 
 
-    public String[] checkLineStatus(LayoutToken token, String previousTokenLineStatus, String lineStatus){
+    public String[] checkLineStatus(LayoutToken token, String previousTokenLineStatus, String lineStatus) {
 
         if (previousTokenLineStatus == null) {
             lineStatus = LineStatus.LINE_START.toString();
 
         } else if (token.isNewLineAfter()) {
             // The second case, when the token is he last one, is handled outside this method
-            lineStatus =LineStatus.LINE_END.toString();
+            lineStatus = LineStatus.LINE_END.toString();
 
         } else if (StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_END.toString())) {
             lineStatus = LineStatus.LINE_START.toString();
 
-        } else if (StringUtils.equals(previousTokenLineStatus,LineStatus.LINE_START.toString()) || StringUtils.equals(previousTokenLineStatus,LineStatus.LINE_IN.toString())) {
+        } else if (StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_START.toString()) || StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_IN.toString())) {
             lineStatus = LineStatus.LINE_IN.toString();
 
         }
         previousTokenLineStatus = lineStatus;
-        return new String[] { previousTokenLineStatus, lineStatus };
+        return new String[]{previousTokenLineStatus, lineStatus};
     }
 
     @SuppressWarnings({"UnusedParameters"})
@@ -247,28 +238,20 @@ public class LexicalEntriesParser extends AbstractParser {
             int n = 0;
 
             if (path.isDirectory()) {
-                for ( File fileEntry : path.listFiles()) {
-                    try {
-                        String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
-                        Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                        writer.write(createTrainingFeatureData(fileEntry)+"\n");
-                        n++;
-                    } catch (final Exception exp) {
-                        LOGGER.error("An error occurred while processing the following pdf: "
-                                + fileEntry.getPath(), exp);
-                    }
-                }
-            }
-            else{
-                try {
-                    String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
+                for (File fileEntry : path.listFiles()) {
+                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                    writer.write(createTrainingFeatureData(path).toString());
+                    writer.write(createTrainingFeatureData(fileEntry) + "\n");
+                    IOUtils.closeWhileHandlingException(writer);
                     n++;
-                } catch (final Exception exp) {
-                    LOGGER.error("An error occurred while processing the following pdf: "
-                            + path.getPath(), exp);
                 }
+
+            } else {
+                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
+                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+                writer.write(createTrainingFeatureData(path).toString());
+                IOUtils.closeWhileHandlingException(writer);
+                n++;
             }
 
             System.out.println(n + " files to be processed.");
@@ -278,7 +261,6 @@ public class LexicalEntriesParser extends AbstractParser {
             throw new GrobidException("An exception occurred while running Grobid batch.", exp);
         }
     }
-
 
 
 }
