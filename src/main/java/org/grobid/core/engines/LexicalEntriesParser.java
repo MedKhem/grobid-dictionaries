@@ -35,7 +35,7 @@ public class LexicalEntriesParser extends AbstractParser {
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
     // depending how many sub models will be created.
     public LexicalEntriesParser() {
-        super(GrobidModels.DICTIONARIES);
+        super(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES);
     }
 
     public static LexicalEntriesParser getInstance() {
