@@ -55,6 +55,15 @@ public class LexicalEntriesParserTest {
     }
 
     @Test
+    public void textCreateFromPDF() throws Exception {
+        File input = new File(this.getClass().getResource("BasicEnglish.pdf").toURI());
+
+        String output = target.createFeaturesFromPDF(input).toString();
+
+        assertThat(output, notNullValue());
+    }
+
+    @Test
     public void testGetLayoutTokenizations() throws Exception {
         File input = new File(this.getClass().getResource("BasicEnglish.page1.sample.pdf").toURI());
 

@@ -2,6 +2,7 @@ package org.grobid.core.engines;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
+import org.grobid.core.Document.TEIDictionaryFormatter;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
@@ -22,7 +23,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.stream.Collectors;
 
 /**
  * Created by med on 02.08.16.
@@ -54,26 +54,58 @@ public class LexicalEntriesParser extends AbstractParser {
 
     public String process(File originFile) {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
+//
+//        // Segment the document to identify the document's block
+//        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+////        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+//        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+//
+//        //only body please :)
+//        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+//
+//        LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
+//
+//        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
+        String bodyLexicalEntry = null;
+        Document doc = getDocFromPDF(originFile);
+        String featSeg = createFeaturesFromPDF(originFile).toString();
+        String labeledFeatures = null;
 
 
-        // Segment the document to identify the document's block
-        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
-        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+        // if featSeg is null, it usually means that no body segment is found in the
 
-        //only body please :)
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+            labeledFeatures = label(featSeg);
+            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormat(config, null, labeledFeatures, getLayoutTokenizations(doc, null)).toString();
+        }
 
-        LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
-
-        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
-
-
-        return text;
+        return bodyLexicalEntry;
     }
 
-    LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
+    private Document getDocFromPDF(File originFile) {
+        DocumentSource documentSource = null;
 
 
+        documentSource = DocumentSource.fromPdf(originFile);
+        Document doc;
+        try {
+            doc = new Document(documentSource);
+            doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
+
+        } finally {
+            if (GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
+                DocumentSource.close(documentSource, false);
+            } else {
+                DocumentSource.close(documentSource, true);
+            }
+        }
+        return doc;
+    }
+
+
+    public LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
+
+        // thedocuemtn is not used for the time being. This should be fixed
         List<LayoutToken> layoutTokens = new ArrayList<>();
 
         for (Page page : doc.getPages()) {
@@ -128,26 +160,11 @@ public class LexicalEntriesParser extends AbstractParser {
         return new LayoutTokenization(layoutTokens);
     }
 
+    // This is a key method. It is required by the trainer (to generate the training data) as well as by the parser (by the process() method)
+    public StringBuilder createFeaturesFromPDF(File inputFile) {
 
-    public StringBuilder createTrainingFeatureData(File inputFile) {
-
-
-        DocumentSource documentSource = null;
         StringBuilder stringBuilder = new StringBuilder();
-
-        documentSource = DocumentSource.fromPdf(inputFile);
-        Document doc;
-        try {
-            doc = new Document(documentSource);
-            doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
-
-        } finally {
-            if (GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
-                DocumentSource.close(documentSource, false);
-            } else {
-                DocumentSource.close(documentSource, true);
-            }
-        }
+        Document doc = getDocFromPDF(inputFile);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
         LayoutTokenization tokens = getLayoutTokenizations(doc, documentBodyParts);
 
@@ -178,7 +195,8 @@ public class LexicalEntriesParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
             FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
-            stringBuilder.append(vector.printVector()).append("\n");
+            String featureVector = vector.printVector();
+            stringBuilder.append(featureVector + "\n");
 
         }
 
@@ -241,7 +259,7 @@ public class LexicalEntriesParser extends AbstractParser {
                 for (File fileEntry : path.listFiles()) {
                     String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                    writer.write(createTrainingFeatureData(fileEntry) + "\n");
+                    writer.write(createFeaturesFromPDF(fileEntry) + "\n");
                     IOUtils.closeWhileHandlingException(writer);
                     n++;
                 }
@@ -249,7 +267,7 @@ public class LexicalEntriesParser extends AbstractParser {
             } else {
                 String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(createTrainingFeatureData(path).toString());
+                writer.write(createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
             }
