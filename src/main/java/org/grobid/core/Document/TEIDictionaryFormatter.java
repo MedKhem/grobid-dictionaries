@@ -137,7 +137,16 @@ public class TEIDictionaryFormatter {
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
             Engine.getCntManager().i(clusterLabel);
 
-            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(cluster.concatTokens()));
+//            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(cluster.concatTokens()));
+            StringBuilder clusterContentBuilder = new StringBuilder();
+            String clusterContent;
+            List<LayoutToken> lisLayoutTokens = cluster.concatTokens();
+            for (LayoutToken layoutToken : lisLayoutTokens) {
+
+                clusterContentBuilder.append(" ").append(layoutToken.getText());
+            }
+            clusterContent = clusterContentBuilder.toString();
+
 
             switch (clusterLabel) {
                 case DIC_ENTRY:
