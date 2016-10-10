@@ -2,16 +2,16 @@ package org.grobid.core.Document;
 
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
-import org.grobid.core.engines.Engine;
 import org.grobid.core.engines.TaggingLabel;
+import org.grobid.core.engines.TaggingLabels;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.enums.PossibleTags;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.KeyGen;
-import org.grobid.core.utilities.LayoutTokensUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -119,7 +119,7 @@ public class TEIDictionaryFormatter {
     public StringBuilder toTEIBodyLexicalEntries(String bodyContentFeatured, LayoutTokenization layoutTokenization) {
 
         StringBuilder buffer = new StringBuilder();
-        TaggingLabel lastClusterLabel = null;
+        TaggingLabels lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, bodyContentFeatured, tokenizations);
@@ -135,8 +135,9 @@ public class TEIDictionaryFormatter {
                 continue;
             }
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i(clusterLabel);
+//            Engine.getCntManager().i((TaggingLabels)clusterLabel);
 
+            // Problem with Grobid Normalisation
 //            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(cluster.concatTokens()));
             StringBuilder clusterContentBuilder = new StringBuilder();
             String clusterContent;
@@ -147,37 +148,27 @@ public class TEIDictionaryFormatter {
             }
             clusterContent = clusterContentBuilder.toString();
 
-
-            switch (clusterLabel) {
-                case DIC_ENTRY:
-                    buffer.append(createMyXMLString("entry", clusterContent));
-                    break;
-                case DIC_FORM:
-                    buffer.append(createMyXMLString("form", clusterContent));
-                    break;
-
-                case DIC_ETYM:
-                    buffer.append(createMyXMLString("etym", clusterContent));
-                    break;
-
-                case DIC_SENSE:
-                    buffer.append(createMyXMLString("sense", clusterContent));
-                    break;
-
-                case DIC_METAMARK:
-                    buffer.append(createMyXMLString("metamark", clusterContent));
-                    break;
-
-                case DIC_RE:
-                    buffer.append(createMyXMLString("re", clusterContent));
-                    break;
-
-                case DIC_NOTE:
-                    buffer.append(createMyXMLString("note", clusterContent));
-                    break;
+            String tagLabel = clusterLabel.getLabel();
 
 
+            if (tagLabel.equals(PossibleTags.ENTRY.toString())) {
+                buffer.append(createMyXMLString("entry", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.FORM.toString())) {
+                buffer.append(createMyXMLString("form", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.SENSE.toString())) {
+                buffer.append(createMyXMLString("sense", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.METAMARK.toString())) {
+                buffer.append(createMyXMLString("metamark", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.ETYM.toString())) {
+                buffer.append(createMyXMLString("etym", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.RE.toString())) {
+                buffer.append(createMyXMLString("re", clusterContent));
+            } else if (tagLabel.equals(PossibleTags.NOTE.toString())) {
+                buffer.append(createMyXMLString("note", clusterContent));
+            } else {
+                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
+
 
         }
 

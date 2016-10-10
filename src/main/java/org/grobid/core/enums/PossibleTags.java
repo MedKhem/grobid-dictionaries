@@ -7,24 +7,23 @@ public enum PossibleTags {
 
 
 
-    ENTRY("entry"),
-    FORM("form"),
-    ETYM("etym"),
-    SENSE("sense"),
-    METAMARK("metamark"),
-    RE("re"),
-    FRONT("front"),
-    NOTE("note");
+    ENTRY("<entry>"),
+    FORM("<form>"),
+    ETYM("<etym>"),
+    SENSE("<sense>"),
+    RE("<re>"),
+    METAMARK("<metamark>"),
+    NOTE("<note>");
 
 
     private final String tag;
 
-    private PossibleTags(String s) {
+    PossibleTags(String s) {
         tag = s;
     }
 
     public boolean equalsName(String otherName) {
-        return (otherName == null) ? false : tag.equals(otherName);
+        return otherName != null && tag.equals(otherName);
     }
 
     public String toString() {
