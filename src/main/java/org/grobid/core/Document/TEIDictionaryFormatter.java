@@ -2,8 +2,9 @@ package org.grobid.core.Document;
 
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
+import org.grobid.core.engines.Engine;
 import org.grobid.core.engines.TaggingLabel;
-import org.grobid.core.engines.TaggingLabels;
+import org.grobid.core.engines.TaggingLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.enums.PossibleTags;
 import org.grobid.core.layout.LayoutToken;
@@ -12,6 +13,7 @@ import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.KeyGen;
+import org.grobid.core.utilities.LayoutTokensUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -119,7 +121,7 @@ public class TEIDictionaryFormatter {
     public StringBuilder toTEIBodyLexicalEntries(String bodyContentFeatured, LayoutTokenization layoutTokenization) {
 
         StringBuilder buffer = new StringBuilder();
-        TaggingLabels lastClusterLabel = null;
+        TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, bodyContentFeatured, tokenizations);
@@ -135,18 +137,20 @@ public class TEIDictionaryFormatter {
                 continue;
             }
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
-//            Engine.getCntManager().i((TaggingLabels)clusterLabel);
+            Engine.getCntManager().i((TaggingLabel)clusterLabel);
 
             // Problem with Grobid Normalisation
-//            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(cluster.concatTokens()));
-            StringBuilder clusterContentBuilder = new StringBuilder();
-            String clusterContent;
-            List<LayoutToken> lisLayoutTokens = cluster.concatTokens();
-            for (LayoutToken layoutToken : lisLayoutTokens) {
-
-                clusterContentBuilder.append(" ").append(layoutToken.getText());
-            }
-            clusterContent = clusterContentBuilder.toString();
+            List<LayoutToken> list1 = cluster.concatTokens();
+            String str1 = LayoutTokensUtil.toText(list1);
+            String clusterContent = LayoutTokensUtil.normalizeText(str1);
+//            StringBuilder clusterContentBuilder = new StringBuilder();
+//            String clusterContent;
+//            List<LayoutToken> lisLayoutTokens = cluster.concatTokens();
+//            for (LayoutToken layoutToken : lisLayoutTokens) {
+//
+//                clusterContentBuilder.append(" ").append(layoutToken.getText());
+//            }
+//            clusterContent = clusterContentBuilder.toString();
 
             String tagLabel = clusterLabel.getLabel();
 

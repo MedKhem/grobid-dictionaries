@@ -2,7 +2,7 @@ package org.grobid.core.Document;
 
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.Document;
-import org.grobid.core.engines.TaggingLabels;
+import org.grobid.core.engines.TaggingLabel;
 import org.grobid.core.enums.PossibleTags;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
@@ -38,11 +38,11 @@ public class TEIFormatterTest {
     // Method to extend the labels in "org.grobid.core.engines.TaggingLabels" enum with list of possible tags specifc to grobid-dictionary project.
     // To be  run just once
 
-    @Test
-    public void toTEIFormat() throws Exception {
-        for (PossibleTags tags : PossibleTags.values()) {
-            TaggingLabels.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
-        }
-
-    }
+//    @Test
+//    public void toTEIFormat() throws Exception {
+//        for (PossibleTags tags : PossibleTags.values()) {
+//            TaggingLabel.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
+//        }
+//
+//    }
 }
