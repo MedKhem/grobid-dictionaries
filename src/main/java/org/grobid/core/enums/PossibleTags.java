@@ -16,7 +16,7 @@ public enum PossibleTags {
     NOTE("<note>");
 
 
-    private final String tag;
+    private String tag;
 
     PossibleTags(String s) {
         tag = s;
@@ -26,7 +26,8 @@ public enum PossibleTags {
         return otherName != null && tag.equals(otherName);
     }
 
-    public String toString() {
+
+    public String getTag() {
         return this.tag;
     }
 

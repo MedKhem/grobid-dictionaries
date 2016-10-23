@@ -1,15 +1,15 @@
-package org.grobid.core.Document;
+package org.grobid.core.document;
 
-import org.grobid.core.GrobidModels;
-import org.grobid.core.document.Document;
-import org.grobid.core.engines.TaggingLabel;
-import org.grobid.core.enums.PossibleTags;
+import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
+import java.net.URISyntaxException;
 
 /**
  * Created by med on 05.10.16.
@@ -18,6 +18,11 @@ public class TEIFormatterTest {
 
     TEIDictionaryFormatter target;
     Document doc;
+
+    @Before
+    public void setUp() throws Exception {
+        target = new TEIDictionaryFormatter(doc);
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -30,10 +35,6 @@ public class TEIFormatterTest {
         MockContext.destroyInitialContext();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        target = new TEIDictionaryFormatter(doc);
-    }
 
     // Method to extend the labels in "org.grobid.core.engines.TaggingLabels" enum with list of possible tags specifc to grobid-dictionary project.
     // To be  run just once

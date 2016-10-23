@@ -1,8 +1,21 @@
 package org.grobid.core.features;
 
+import org.grobid.core.document.Document;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentSource;
+import org.grobid.core.document.DocumentUtils;
+import org.grobid.core.engines.EngineParsers;
+import org.grobid.core.engines.SegmentationLabel;
+import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.features.enums.CapitalisationType;
+import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
+import org.grobid.core.layout.LayoutTokenization;
+import org.grobid.core.utilities.TextUtilities;
+
+import java.io.File;
+import java.util.SortedSet;
 
 /**
  * Created by med on 19.07.16.
@@ -26,7 +39,7 @@ public class FeatureVectorLexicalEntry {
     public FeatureVectorLexicalEntry() {
     }
 
-    static public FeatureVectorLexicalEntry addFeaturesLexicalEntries(LayoutToken layoutToken,
+    public static FeatureVectorLexicalEntry addFeaturesLexicalEntries(LayoutToken layoutToken,
                                                                       String label, String lineStatus, String fontStatus) {
 
         FeatureFactory featureFactory = FeatureFactory.getInstance();
@@ -80,6 +93,77 @@ public class FeatureVectorLexicalEntry {
 
         return featuresVector;
     }
+
+
+    // This is a key method. It is required by the dictionary parser (by the process() method)
+    public static StringBuilder createFeaturesFromLayoutTokens(LayoutTokenization tokens) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String previousFont = null;
+        String fontStatus = null;
+        String previousTokenLineStatus = null;
+        String lineStatus = null;
+        int nbToken = tokens.getTokenization().size();
+        int counter = 1;
+
+
+        for (LayoutToken layoutToken : tokens.getTokenization()) {
+            String text = layoutToken.getText();
+            text = text.replace(" ", "");
+
+            if (TextUtilities.filterLine(text) || (text == null) || (text.length() == 0)) {
+                counter++;
+                continue;
+            }
+            if (text.equals("\n") || text.equals("\r")) {
+                counter++;
+                continue;
+            }
+
+
+            if (counter != nbToken) {
+
+                String[] returnedStatus = FeaturesUtils.checkLineStatus(layoutToken, previousTokenLineStatus, lineStatus);
+                previousTokenLineStatus = returnedStatus[0];
+                lineStatus = returnedStatus[1];
+
+                counter++;
+            } else {
+                // The last token
+
+                lineStatus = LineStatus.LINE_END.toString();
+            }
+
+            String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
+            previousFont = returnedFont[0];
+            fontStatus = returnedFont[1];
+            FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
+            String featureVector = vector.printVector();
+            stringBuilder.append(featureVector + "\n");
+
+        }
+
+        return stringBuilder;
+    }
+
+    // This is a key method. It is required by the dictionary trainer (to generate the training data from a PDF file)
+    // similar to createFeaturesFromLayoutTokens() but more independent from the parser
+    public static StringBuilder createFeaturesFromPDF(File inputFile) {
+
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        DocumentSource documentSource = DocumentSource.fromPdf(inputFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+
+        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+        StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens);
+
+        return stringBuilder;
+    }
+
 
     public String printVector() {
         if (string == null) return null;
@@ -153,5 +237,6 @@ public class FeatureVectorLexicalEntry {
 
         return res.toString();
     }
+
 
 }

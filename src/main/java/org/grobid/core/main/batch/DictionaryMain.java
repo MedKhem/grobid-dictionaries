@@ -1,6 +1,6 @@
 package org.grobid.core.main.batch;
 
-import org.grobid.core.engines.LexicalEntriesParser;
+import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
@@ -168,12 +168,12 @@ public class DictionaryMain {
             inferParamsNotSet();
             initProcess();
             int nb = 0;
-            LexicalEntriesParser lexicalEntriesParser = LexicalEntriesParser.getInstance();
+            DictionaryParser dictionaryParser = DictionaryParser.getInstance();
 
             long time = System.currentTimeMillis();
 
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRIES)) {
-                nb = lexicalEntriesParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = dictionaryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 

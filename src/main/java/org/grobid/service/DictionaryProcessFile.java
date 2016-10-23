@@ -1,7 +1,7 @@
 package org.grobid.service;
 
+import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.engines.Engine;
-import org.grobid.core.engines.LexicalEntriesParser;
 import org.grobid.core.utilities.IOUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class DictionaryProcessFile {
         Engine engine = null;
 
          /*
-            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [LexicalEntriesParser] -> List<LexicalEntries>
+            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [DictionaryParser] -> List<LexicalEntries>
          */
         try {
             LOGGER.debug(">> set raw text for stateless quantity service'...");
@@ -47,7 +47,7 @@ public class DictionaryProcessFile {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } else {
                 // starts conversion process - single thread! :)
-                LexicalEntriesParser lexEntriesParser = new LexicalEntriesParser();
+                DictionaryParser lexEntriesParser = new DictionaryParser();
 
                 response = Response.ok(lexEntriesParser.process(originFile)).build();
             }

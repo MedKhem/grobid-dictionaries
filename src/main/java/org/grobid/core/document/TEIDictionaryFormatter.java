@@ -1,9 +1,7 @@
-package org.grobid.core.Document;
+package org.grobid.core.document;
 
 import org.grobid.core.GrobidModels;
-import org.grobid.core.document.Document;
 import org.grobid.core.engines.Engine;
-import org.grobid.core.engines.TaggingLabel;
 import org.grobid.core.engines.TaggingLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.enums.PossibleTags;
@@ -155,19 +153,19 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(PossibleTags.ENTRY.toString())) {
+            if (tagLabel.equals(PossibleTags.ENTRY.getTag())) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.FORM.toString())) {
+            } else if (tagLabel.equals(PossibleTags.FORM.getTag())) {
                 buffer.append(createMyXMLString("form", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.SENSE.toString())) {
+            } else if (tagLabel.equals(PossibleTags.SENSE.getTag())) {
                 buffer.append(createMyXMLString("sense", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.METAMARK.toString())) {
+            } else if (tagLabel.equals(PossibleTags.METAMARK.getTag())) {
                 buffer.append(createMyXMLString("metamark", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.ETYM.toString())) {
+            } else if (tagLabel.equals(PossibleTags.ETYM.getTag())) {
                 buffer.append(createMyXMLString("etym", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.RE.toString())) {
+            } else if (tagLabel.equals(PossibleTags.RE.getTag())) {
                 buffer.append(createMyXMLString("re", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.NOTE.toString())) {
+            } else if (tagLabel.equals(PossibleTags.NOTE.getTag())) {
                 buffer.append(createMyXMLString("note", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
