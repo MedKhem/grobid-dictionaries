@@ -33,6 +33,10 @@ public class TestFullTextParser {
 
     FullTextParser target;
 
+    @Before
+    public void setUp() throws Exception {
+        target = new Engine().getParsers().getFullTextParser();
+    }
     @BeforeClass
     public static void beforeClass() throws Exception {
         LibraryLoader.load();
@@ -44,10 +48,7 @@ public class TestFullTextParser {
         MockContext.destroyInitialContext();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        target = new Engine().getParsers().getFullTextParser();
-    }
+
 
     @Test
     public void testGetBodyFeaturedWithItsLayoutTokenization() throws Exception {
@@ -56,6 +57,7 @@ public class TestFullTextParser {
         assertThat(output, notNullValue());
         Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
         assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(23825));
+        System.out.println("hi"+featuresAndLayoutTokens.a);
 
 
     }

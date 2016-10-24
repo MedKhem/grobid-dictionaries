@@ -8,7 +8,6 @@ import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.features.enums.CapitalisationType;
-import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
@@ -102,38 +101,35 @@ public class FeatureVectorLexicalEntry {
 
         String previousFont = null;
         String fontStatus = null;
-        String previousTokenLineStatus = null;
+
         String lineStatus = null;
         int nbToken = tokens.getTokenization().size();
-        int counter = 1;
+        int counter = 0;
 
 
         for (LayoutToken layoutToken : tokens.getTokenization()) {
+            // Feature Vector won't contain the space between tokens, although it's considered as a separate layoutToken
             String text = layoutToken.getText();
             text = text.replace(" ", "");
-
+            counter++;
             if (TextUtilities.filterLine(text) || (text == null) || (text.length() == 0)) {
-                counter++;
                 continue;
             }
             if (text.equals("\n") || text.equals("\r")) {
-                counter++;
                 continue;
             }
 
+            // Last token
+            if (counter == nbToken ) {
+                lineStatus = "LINEEND";
 
-            if (counter != nbToken) {
-
-                String[] returnedStatus = FeaturesUtils.checkLineStatus(layoutToken, previousTokenLineStatus, lineStatus);
-                previousTokenLineStatus = returnedStatus[0];
-                lineStatus = returnedStatus[1];
-
-                counter++;
-            } else {
-                // The last token
-
-                lineStatus = LineStatus.LINE_END.toString();
             }
+            else {
+                Boolean followingTokenLineStatusIsStart = tokens.getTokenization().get(counter).isNewLineAfter();
+                lineStatus = FeaturesUtils.checkLineStatus(layoutToken, followingTokenLineStatusIsStart);
+            }
+
+
 
             String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
             previousFont = returnedFont[0];

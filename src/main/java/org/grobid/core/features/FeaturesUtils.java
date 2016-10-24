@@ -35,24 +35,22 @@ public class FeaturesUtils {
     }
 
 
-    public static String[] checkLineStatus(LayoutToken token, String previousTokenLineStatus, String lineStatus) {
+    public static String checkLineStatus(LayoutToken token, Boolean followingTokenLineStatusIsStart) {
 
-        if (previousTokenLineStatus == null) {
+     String lineStatus;
+
+     if (token.isNewLineAfter()) {
             lineStatus = LineStatus.LINE_START.toString();
 
-        } else if (token.isNewLineAfter()) {
-            // The second case, when the token is he last one, is handled outside this method
+        } else if ((!token.isNewLineAfter()) && followingTokenLineStatusIsStart) {
             lineStatus = LineStatus.LINE_END.toString();
 
-        } else if (StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_END.toString())) {
-            lineStatus = LineStatus.LINE_START.toString();
-
-        } else if (StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_START.toString()) || StringUtils.equals(previousTokenLineStatus, LineStatus.LINE_IN.toString())) {
+        } else  {
             lineStatus = LineStatus.LINE_IN.toString();
 
         }
-        previousTokenLineStatus = lineStatus;
-        return new String[]{previousTokenLineStatus, lineStatus};
+
+        return lineStatus;
     }
 
 

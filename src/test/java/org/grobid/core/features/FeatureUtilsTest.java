@@ -41,14 +41,23 @@ public class FeatureUtilsTest {
     public void testCheckLineStatus() throws Exception {
         LayoutToken l = new LayoutToken("a");
 
-        String actualStatus1 = target.checkLineStatus(l,"LINESTART","blabla")[1];
-        assertThat(actualStatus1,  is("LINEIN"));
+        l.setNewLineAfter(true);
+        String actualStatus1 = target.checkLineStatus(l,true);
+        assertThat(actualStatus1,  is("LINESTART"));
 
-        String actualStatus4 = target.checkLineStatus(l,"LINEIN","blabla")[1];
-        assertThat(actualStatus4,  is("LINEIN"));
 
-        String actualStatus5 = target.checkLineStatus(l,"LINEEND","blabla")[1];
+        l.setNewLineAfter(true);
+        String actualStatus5 = target.checkLineStatus(l,false);
         assertThat(actualStatus5,  is("LINESTART"));
+
+        l.setNewLineAfter(false);
+        String actualStatus6 = target.checkLineStatus(l,true);
+        assertThat(actualStatus6,  is("LINEEND"));
+
+        l.setNewLineAfter(false);
+        String actualStatus7 = target.checkLineStatus(l,false);
+        assertThat(actualStatus7,  is("LINEIN"));
+
 
 
     }

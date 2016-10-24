@@ -53,7 +53,8 @@ public class DocumentUtilsTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(23825));
+        assertThat(layoutTokenization.getTokenization().size(), is(23840));
+
     }
 
     @Test
@@ -63,7 +64,7 @@ public class DocumentUtilsTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(1549));
+        assertThat(layoutTokenization.getTokenization().size(), is(1550));
     }
 
     @Test
@@ -73,7 +74,7 @@ public class DocumentUtilsTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(4237));
+        assertThat(layoutTokenization.getTokenization().size(), is(4238));
     }
 
     @Test

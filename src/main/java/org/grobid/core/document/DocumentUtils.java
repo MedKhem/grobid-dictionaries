@@ -44,30 +44,36 @@ public class DocumentUtils {
 
     public static LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
 
+
         List<LayoutToken> layoutTokens = new ArrayList<>();
 
         if (documentBodyParts != null) {
 
 
             for (DocumentPiece docPiece : documentBodyParts) {
+                //Every document Piece contains two Parts
                 DocumentPointer dp1 = docPiece.a;
                 DocumentPointer dp2 = docPiece.b;
-
-                int tokens = dp1.getTokenDocPos();
-                int tokene = dp2.getTokenDocPos();
+                //The first part is identified by its first token. The second part is identified by its final token
+                int tokenStart = dp1.getTokenDocPos();
+                int tokenEnd = dp2.getTokenDocPos();
                 LayoutToken token = null;
-
-                for (int i = tokens; i < tokene; i++) {
+                Boolean isNewline = true;
+                for (int i = tokenStart; i <= tokenEnd; i++) {
                     token = doc.getTokenizations().get(i);
-                    if ((token.getText() == null) ||
-//                            (token.getText().trim().length() == 0) ||
-                            (token.getText().trim().equals("\n")) ||
-                            (token.getText().trim().equals("\r")) ||
-                            (token.getText().trim().equals("\n\r")))
+                    if ((token.getText() == null) || (token.getText().trim().equals("\n")) ||  (token.getText().trim().equals("\r")) ||  (token.getText().trim().equals("\n\r"))){
+                        isNewline = true;
                         continue;
-//                          else if (token.isNewLineAfter() || (block.getEndToken() == k)) {
-//                              token.setNewLineAfter(true);
-//                            }
+                    }
+                    if ( isNewline ) {
+                        // We use the token property "new line after" as it was a property for the actual token representing a new line and for the token that follows
+                        // Carefull with the understanding of this method
+                        token.setNewLineAfter(true);
+                        isNewline = false;
+                            }
+                    else{
+                        token.setNewLineAfter(false);
+                    }
                     layoutTokens.add(token);
                 }
             }
