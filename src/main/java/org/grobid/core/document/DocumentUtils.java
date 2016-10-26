@@ -61,19 +61,19 @@ public class DocumentUtils {
                 Boolean isNewline = true;
                 for (int i = tokenStart; i <= tokenEnd; i++) {
                     token = doc.getTokenizations().get(i);
-                    if ((token.getText() == null) || (token.getText().trim().equals("\n")) ||  (token.getText().trim().equals("\r")) ||  (token.getText().trim().equals("\n\r"))){
+                    if ((token.getText() == null) || (token.getText().equals("\n")) ||  (token.getText().equals("\r")) ||  (token.getText().equals("\n\r"))){
                         isNewline = true;
-                        continue;
-                    }
-                    if ( isNewline ) {
-                        // We use the token property "new line after" as it was a property for the actual token representing a new line and for the token that follows
-                        // Carefull with the understanding of this method
                         token.setNewLineAfter(true);
-                        isNewline = false;
+
+                    }else if ( isNewline ) {
+                                // We use the token property "new line after" as it was a property for the actual token representing a new line and for the token that follows
+                                // Carefull with the understanding of this method
+                                token.setNewLineAfter(true);
+                                isNewline = false;
                             }
-                    else{
-                        token.setNewLineAfter(false);
-                    }
+                            else{
+                                token.setNewLineAfter(false);
+                             }
                     layoutTokens.add(token);
                 }
             }

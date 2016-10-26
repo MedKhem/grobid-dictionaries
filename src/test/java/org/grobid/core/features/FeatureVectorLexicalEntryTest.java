@@ -90,6 +90,16 @@ public class FeatureVectorLexicalEntryTest {
     }
 
     @Test
+    public void testCreateFeaturesFromLayoutTokens2()throws Exception {
+        Pair<Document, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
+        LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
+        StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
+        assertThat(output, notNullValue());
+        System.out.println("hi"+output);
+
+    }
+
+    @Test
     public void testCreateFeaturesFromPDF() throws Exception {
         File input = new File(this.getClass().getResource("BasicEnglish.pdf").toURI());
         String output = target.createFeaturesFromPDF(input).toString();

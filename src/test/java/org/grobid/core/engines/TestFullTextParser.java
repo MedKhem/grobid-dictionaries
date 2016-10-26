@@ -62,6 +62,7 @@ public class TestFullTextParser {
 
     }
 
+
     @Test
     public void testGetBodyFeaturedWithItsLayoutTokenization1() throws Exception {
 
@@ -82,6 +83,18 @@ public class TestFullTextParser {
         assertThat(output, notNullValue());
         Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
         assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(4237));
+
+
+    }
+
+    @Test
+    public void testGetBodyFeaturedWithItsLayoutTokenization3() throws Exception {
+
+        Pair<Document, SortedSet<DocumentPiece>> output = prepare("LettreP-117082016.pdf");
+        assertThat(output, notNullValue());
+        Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
+//        assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(23825));
+        System.out.println("hi"+featuresAndLayoutTokens.a);
 
 
     }

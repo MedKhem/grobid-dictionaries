@@ -118,18 +118,24 @@ public class FeatureVectorLexicalEntry {
             if (text.equals("\n") || text.equals("\r")) {
                 continue;
             }
-
+            Boolean followingTokenLineStatusIsStart = tokens.getTokenization().get(counter).isNewLineAfter();
             // Last token
-            if (counter == nbToken ) {
+            if (counter == nbToken) {
                 lineStatus = "LINEEND";
 
-            }
-            else {
-                Boolean followingTokenLineStatusIsStart = tokens.getTokenization().get(counter).isNewLineAfter();
+            } else if (followingTokenLineStatusIsStart) {
                 lineStatus = FeaturesUtils.checkLineStatus(layoutToken, followingTokenLineStatusIsStart);
+            } else {
+                Boolean afterFollowingTokenLineStatusIsStart = false;
+                if (tokens.getTokenization().get(counter + 1) != null) {
+                    afterFollowingTokenLineStatusIsStart = tokens.getTokenization().get(counter + 1).isNewLineAfter();
+                }
+                // The condition is required in cases there is a space at the end of the line which doesn't let the previous check detect
+                // the back line token at that comes just after
+                // This causes the consideration of both, a hyphenized word and its dash, as end of line
+                Boolean oneOfTheTwoFollowingTokensIsNewLine = (followingTokenLineStatusIsStart || afterFollowingTokenLineStatusIsStart);
+                lineStatus = FeaturesUtils.checkLineStatus(layoutToken, oneOfTheTwoFollowingTokensIsNewLine);
             }
-
-
 
             String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
             previousFont = returnedFont[0];
