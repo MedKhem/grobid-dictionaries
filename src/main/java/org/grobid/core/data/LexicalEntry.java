@@ -1,4 +1,4 @@
-package org.grobid.data;
+package org.grobid.core.data;
 
 /**
  * Created by med on 02.08.16.
