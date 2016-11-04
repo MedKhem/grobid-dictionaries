@@ -4,7 +4,6 @@ import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentSource;
 import org.grobid.core.document.DocumentUtils;
-import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
@@ -34,13 +33,6 @@ public class FeatureVectorLexicalEntryTest {
     FeatureVectorLexicalEntry target;
     DocumentUtils target2;
 
-    @Before
-    public void setUp() throws Exception {
-        target = new FeatureVectorLexicalEntry();
-        target2 = new DocumentUtils();
-    }
-
-
     @BeforeClass
     public static void beforeClass() throws Exception {
         LibraryLoader.load();
@@ -51,9 +43,16 @@ public class FeatureVectorLexicalEntryTest {
     public static void afterClass() throws Exception {
         MockContext.destroyInitialContext();
     }
+
+    @Before
+    public void setUp() throws Exception {
+        target = new FeatureVectorLexicalEntry();
+        target2 = new DocumentUtils();
+    }
+
     @Test
     public void testAddFeaturesLemma() throws Exception {
-        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("text"), "LE","LINESTART","NEWFONT");
+        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("text"), "LE", "LINESTART", "NEWFONT");
 
         assertNotNull(output.string);
         assertNotNull(output.label);
@@ -72,7 +71,7 @@ public class FeatureVectorLexicalEntryTest {
 
     @Test
     public void testPrintVector_sample1() throws Exception {
-        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("Text"), "LE","LINESTART","NEWFONT");
+        FeatureVectorLexicalEntry output = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(new LayoutToken("Text"), "LE", "LINESTART", "NEWFONT");
         String outputString = output.printVector();
 
         assertThat(outputString, is("Text text T Te Tex Text t xt ext Text 0.0 false false INITCAP NOPUNCT LINESTART NEWFONT LE"));
@@ -80,22 +79,22 @@ public class FeatureVectorLexicalEntryTest {
 
 
     @Test
-    public void testCreateFeaturesFromLayoutTokens()throws Exception {
+    public void testCreateFeaturesFromLayoutTokens() throws Exception {
         Pair<Document, SortedSet<DocumentPiece>> input = prepare("BasicEnglish.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
-        System.out.println("hi"+output);
+//        System.out.println(output);
 
     }
 
     @Test
-    public void testCreateFeaturesFromLayoutTokens2()throws Exception {
+    public void testCreateFeaturesFromLayoutTokens2() throws Exception {
         Pair<Document, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
-        System.out.println("hi"+output);
+//        System.out.println(output);
 
     }
 

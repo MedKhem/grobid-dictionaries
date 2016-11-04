@@ -8,6 +8,7 @@ import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.features.enums.CapitalisationType;
+import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
@@ -108,34 +109,49 @@ public class FeatureVectorLexicalEntry {
 
 
         for (LayoutToken layoutToken : tokens.getTokenization()) {
-            // Feature Vector won't contain the space between tokens, although it's considered as a separate layoutToken
+            // Feature Vector won't contain the space between tokens neither the different line breaks, although they are considered as a separate layoutToken
             String text = layoutToken.getText();
             text = text.replace(" ", "");
-            counter++;
-            if (TextUtilities.filterLine(text) || (text == null) || (text.length() == 0)) {
-                continue;
-            }
-            if (text.equals("\n") || text.equals("\r")) {
-                continue;
-            }
-            Boolean followingTokenLineStatusIsStart = tokens.getTokenization().get(counter).isNewLineAfter();
-            // Last token
-            if (counter == nbToken) {
-                lineStatus = "LINEEND";
 
-            } else if (followingTokenLineStatusIsStart) {
-                lineStatus = FeaturesUtils.checkLineStatus(layoutToken, followingTokenLineStatusIsStart);
-            } else {
-                Boolean afterFollowingTokenLineStatusIsStart = false;
-                if (tokens.getTokenization().get(counter + 1) != null) {
-                    afterFollowingTokenLineStatusIsStart = tokens.getTokenization().get(counter + 1).isNewLineAfter();
-                }
-                // The condition is required in cases there is a space at the end of the line which doesn't let the previous check detect
-                // the back line token at that comes just after
-                // This causes the consideration of both, a hyphenized word and its dash, as end of line
-                Boolean oneOfTheTwoFollowingTokensIsNewLine = (followingTokenLineStatusIsStart || afterFollowingTokenLineStatusIsStart);
-                lineStatus = FeaturesUtils.checkLineStatus(layoutToken, oneOfTheTwoFollowingTokensIsNewLine);
+            if (TextUtilities.filterLine(text) || (text == null) || (text.length() == 0)) {
+                counter++;
+                continue;
             }
+            if (text.equals("\n") || text.equals("\r") || (text.equals("\n\r"))) {
+                counter++;
+                continue;
+            }
+
+            // First token
+            if (counter - 1 < 0) {
+                lineStatus = LineStatus.LINE_START.toString();
+            } else if (counter + 1 == nbToken) {
+                // Last token
+                lineStatus = LineStatus.LINE_END.toString();
+
+            } else {
+                String previousTokenText;
+                Boolean previousTokenIsNewLineAfter;
+                String nextTokenText;
+                Boolean nextTokenIsNewLineAfter;
+                Boolean afterNextTokenIsNewLineAfter = false;
+
+                //The existence of the previousToken and nextToken is already check.
+                previousTokenText = tokens.getTokenization().get(counter - 1).getText();
+                previousTokenIsNewLineAfter = tokens.getTokenization().get(counter - 1).isNewLineAfter();
+                nextTokenText = tokens.getTokenization().get(counter + 1).getText();
+                nextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 1).isNewLineAfter();
+
+                // Check the existence of the afterNextToken
+                if (tokens.getTokenization().get(counter + 2) != null) {
+                    afterNextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 2).isNewLineAfter();
+                }
+
+                lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
+
+
+            }
+            counter++;
 
             String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
             previousFont = returnedFont[0];
