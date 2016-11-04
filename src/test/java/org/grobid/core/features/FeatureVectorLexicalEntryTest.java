@@ -7,6 +7,7 @@ import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
@@ -84,7 +85,7 @@ public class FeatureVectorLexicalEntryTest {
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
-//        System.out.println(output);
+        System.out.println(output);
 
     }
 
@@ -107,7 +108,22 @@ public class FeatureVectorLexicalEntryTest {
         assertThat(output, notNullValue());
     }
 
+    @Test
+    public void testCheckPonctuationType() throws Exception {
 
+        String output = target.checkPonctuationType("ab");
+        assertThat(output, is(PonctuationType.NOPUNCT.toString()));
+
+        String output2 = target.checkPonctuationType("(");
+        assertThat(output2, is(PonctuationType.OPENBRACKET.toString()));
+
+        String output3 = target.checkPonctuationType("%");
+        assertThat(output3, is(PonctuationType.PUNCT.toString()));
+
+        String output4 = target.checkPonctuationType("}");
+        assertThat(output4, is(PonctuationType.ENDBRACKET.toString()));
+
+    }
     Pair<Document, SortedSet<DocumentPiece>> prepare(String file) {
 
         File input = null;

@@ -16,6 +16,8 @@ import org.grobid.core.utilities.TextUtilities;
 
 import java.io.File;
 import java.util.SortedSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by med on 19.07.16.
@@ -66,26 +68,8 @@ public class FeatureVectorLexicalEntry {
             featuresVector.capitalisation = CapitalisationType.NOCAPS.toString();
         }
 
-        //Ponctuation
-        if (word.equals("(") || word.equals("[") || word.equals("{")) {
-            featuresVector.punctType = PonctuationType.OPENBRACKET.toString();
-        } else if (word.equals(")") || word.equals("]") || word.equals("}")) {
-            featuresVector.punctType = PonctuationType.ENDBRACKET.toString();
-        } else if (word.equals(".") || word.equals("·")) {
-            featuresVector.punctType = PonctuationType.DOT.toString();
-        } else if (word.equals(",")) {
-            featuresVector.punctType = PonctuationType.COMMA.toString();
-        } else if (word.equals("-")) {
-            featuresVector.punctType = PonctuationType.HYPHEN.toString();
-        } else if (word.equals("\"") || word.equals("\'") || word.equals("`")) {
-            featuresVector.punctType = PonctuationType.QUOTE.toString();
-        } else if (word.equals("/")) {
-            featuresVector.punctType = PonctuationType.SLASH.toString();
-        } else if (word.equals("^")) {
-            featuresVector.punctType = PonctuationType.EXPONENT.toString();
-        } else {
-            featuresVector.punctType = PonctuationType.NOPUNCT.toString();
-        }
+        featuresVector.punctType = checkPonctuationType(word);
+
 
         //Get line and font status as parameters from the line level (upper level class)
         featuresVector.lineStatus = lineStatus;
@@ -182,6 +166,35 @@ public class FeatureVectorLexicalEntry {
         return stringBuilder;
     }
 
+    public static String checkPonctuationType(String token) {
+        //Ponctuation: Only the categorization of different value of a ponctuation type matters to be captured for the features
+        String ponctuationType;
+
+        Pattern ponctuationPattern = Pattern.compile("\\p{Punct}");
+        Matcher mP = ponctuationPattern.matcher(token);
+        boolean isPonctuationCharacter = mP.matches();
+
+
+        if (isPonctuationCharacter) {
+            Pattern openBracketPattern = Pattern.compile("[\\[\\(\\{]");
+            Matcher mOB = openBracketPattern.matcher(token);
+            boolean isOpenBracket = mOB.matches();
+            Pattern closeBracketPattern = Pattern.compile("[\\]\\)\\}]");
+            Matcher mCB = closeBracketPattern.matcher(token);
+            boolean isCloseBracket = mCB.matches();
+            if (isOpenBracket) {
+                ponctuationType = PonctuationType.OPENBRACKET.toString();
+            } else if (isCloseBracket) {
+                ponctuationType = PonctuationType.ENDBRACKET.toString();
+            } else {
+                ponctuationType = PonctuationType.PUNCT.toString();
+            }
+        } else {
+            ponctuationType = PonctuationType.NOPUNCT.toString();
+        }
+
+        return ponctuationType;
+    }
 
     public String printVector() {
         if (string == null) return null;

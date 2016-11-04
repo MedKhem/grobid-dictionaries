@@ -7,12 +7,7 @@ public enum PonctuationType {
 
     OPENBRACKET("OPENBRACKET"),
     ENDBRACKET("ENDBRACKET"),
-    DOT("DOT"),
-    COMMA("COMMA"),
-    HYPHEN("HYPHEN"),
-    QUOTE("QUOTE"),
-    SLASH("SLASH"),
-    EXPONENT("EXPONENT"),
+    PUNCT("PUNCT"),
     NOPUNCT("NOPUNCT");
 
     private final String name;
