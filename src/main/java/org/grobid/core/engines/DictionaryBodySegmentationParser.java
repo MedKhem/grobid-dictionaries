@@ -17,17 +17,17 @@ import java.util.SortedSet;
  * Created by med on 02.08.16.
  */
 public class DictionaryBodySegmentationParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
-    private static volatile DictionarySegmentationParser instance;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryBodySegmentationParser.class);
+    private static volatile DictionaryBodySegmentationParser instance;
     private String lexEntries;
 
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
     // depending how many sub models will be created.
     public DictionaryBodySegmentationParser() {
-        super(GrobidModels.DICTIONARY_SEGMENTATION);
+        super(GrobidModels.DICTIONARY_BODY_SEGMENTATION);
     }
 
-    public static DictionarySegmentationParser getInstance() {
+    public static DictionaryBodySegmentationParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -38,7 +38,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
      * Create a new instance.
      */
     private static synchronized void getNewInstance() {
-        instance = new DictionarySegmentationParser();
+        instance = new DictionaryBodySegmentationParser();
     }
 
     public String process(File originFile) {
