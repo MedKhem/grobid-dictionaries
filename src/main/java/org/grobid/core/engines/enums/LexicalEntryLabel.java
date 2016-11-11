@@ -7,7 +7,13 @@ public enum LexicalEntryLabel {
 
 
 
-    ENTRY("<entry>");
+    ENTRY("<entry>"),
+    FORM("<form>"),
+    ETYM("<etym>"),
+    SENSE("<sense>"),
+    METAMARK("<metamark>"),
+    RE("<re>"),
+    NOTE("<note>");
 
 
     private String tag;

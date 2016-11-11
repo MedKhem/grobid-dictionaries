@@ -4,7 +4,7 @@ import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.Engine;
 import org.grobid.core.engines.TaggingLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.enums.PossibleTags;
+import org.grobid.core.engines.enums.LexicalEntryLabel;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
@@ -122,7 +122,7 @@ public class TEIDictionaryFormatter {
         TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, bodyContentFeatured, tokenizations);
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.LEXICAL_ENTRY, bodyContentFeatured, tokenizations);
 
         String tokenLabel = null;
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -153,19 +153,19 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(PossibleTags.ENTRY.getTag())) {
+            if (tagLabel.equals(LexicalEntryLabel.ENTRY.getLabel())) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.FORM.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.FORM.getLabel())) {
                 buffer.append(createMyXMLString("form", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.SENSE.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.SENSE.getLabel())) {
                 buffer.append(createMyXMLString("sense", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.METAMARK.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.METAMARK.getLabel())) {
                 buffer.append(createMyXMLString("metamark", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.ETYM.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.ETYM.getLabel())) {
                 buffer.append(createMyXMLString("etym", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.RE.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.RE.getLabel())) {
                 buffer.append(createMyXMLString("re", clusterContent));
-            } else if (tagLabel.equals(PossibleTags.NOTE.getTag())) {
+            } else if (tagLabel.equals(LexicalEntryLabel.NOTE.getLabel())) {
                 buffer.append(createMyXMLString("note", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");

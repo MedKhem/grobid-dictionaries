@@ -49,7 +49,7 @@ public class DictionaryRestService implements DictionaryPaths {
     }
 
 
-    @Path(PATH_ENTRIES)
+    @Path(PATH_LEXICAL_ENTRY)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST

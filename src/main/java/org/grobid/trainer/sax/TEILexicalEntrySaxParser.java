@@ -14,7 +14,7 @@ import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import  org.grobid.core.enums.PossibleTags;
+import org.grobid.core.engines.enums.LexicalEntryLabel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     private String output = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
-    private PossibleTags possibleTag;
+    private LexicalEntryLabel possibleTag;
 
     private boolean figureBlock = false;
     private boolean tableBlock = false;

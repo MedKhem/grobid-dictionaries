@@ -1,15 +1,10 @@
 package org.grobid.core.document;
 
-import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.io.File;
-import java.net.URISyntaxException;
 
 /**
  * Created by med on 05.10.16.
@@ -41,7 +36,7 @@ public class TEIFormatterTest {
 
 //    @Test
 //    public void toTEIFormat() throws Exception {
-//        for (PossibleTags tags : PossibleTags.values()) {
+//        for (LexicalEntryLabel tags : LexicalEntryLabel.values()) {
 //            TaggingLabel.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
 //        }
 //

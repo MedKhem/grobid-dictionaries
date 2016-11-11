@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by lfoppiano on 11/08/16.
  */
-public class LexicalParserTest {
+public class LexicalEntryParserTest {
 
     LexicalEntryParser target;
 

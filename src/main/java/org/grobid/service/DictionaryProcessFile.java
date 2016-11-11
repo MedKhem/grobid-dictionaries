@@ -1,7 +1,7 @@
 package org.grobid.service;
 
-import org.grobid.core.engines.DictionaryParser;
 import org.grobid.core.engines.Engine;
+import org.grobid.core.engines.LexicalEntryParser;
 import org.grobid.core.utilities.IOUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class DictionaryProcessFile {
         Engine engine = null;
 
          /*
-            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [DictionaryParser] -> List<LexicalEntries>
+            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [DictionarySegmentationParser] -> List<LexicalEntries>
          */
         try {
             LOGGER.debug(">> set raw text for stateless quantity service'...");
@@ -47,9 +47,9 @@ public class DictionaryProcessFile {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } else {
                 // starts conversion process - single thread! :)
-                DictionaryParser lexEntriesParser = new DictionaryParser();
+                LexicalEntryParser lexEntryParser = new LexicalEntryParser();
 
-                response = Response.ok(lexEntriesParser.process(originFile)).build();
+                response = Response.ok(lexEntryParser.process(originFile)).build();
             }
         } catch (NoSuchElementException nseExp) {
             LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);

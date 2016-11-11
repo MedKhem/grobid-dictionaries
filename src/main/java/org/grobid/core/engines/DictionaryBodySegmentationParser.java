@@ -4,7 +4,6 @@ import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.layout.LayoutTokenization;
@@ -18,8 +17,8 @@ import java.util.SortedSet;
  * Created by med on 02.08.16.
  */
 public class DictionaryBodySegmentationParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryParser.class);
-    private static volatile DictionaryParser instance;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
+    private static volatile DictionarySegmentationParser instance;
     private String lexEntries;
 
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
@@ -28,7 +27,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         super(GrobidModels.DICTIONARY_SEGMENTATION);
     }
 
-    public static DictionaryParser getInstance() {
+    public static DictionarySegmentationParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -39,7 +38,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
      * Create a new instance.
      */
     private static synchronized void getNewInstance() {
-        instance = new DictionaryParser();
+        instance = new DictionarySegmentationParser();
     }
 
     public String process(File originFile) {

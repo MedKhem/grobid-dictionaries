@@ -15,5 +15,5 @@ public interface DictionaryPaths {
     /**
      * path extension for processing dictionary entries.
      */
-    public static final String PATH_ENTRIES = "processLexicalEntries";
+    public static final String PATH_LEXICAL_ENTRY = "processLexicalEntries";
 }
