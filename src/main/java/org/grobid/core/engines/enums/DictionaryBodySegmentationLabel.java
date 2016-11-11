@@ -3,19 +3,15 @@ package org.grobid.core.engines.enums;
 /**
  * Created by med on 08.11.16.
  */
-public enum LexicalEntrySegmentationLabel {
+public enum DictionaryBodySegmentationLabel {
 
 
-    FORM("<form>"),
-    ETYM("<etym>"),
-    SENSE("<sense>"),
-    RE("<re>"),
-    NOTE("<note>");
+    ENTRY("<entry>");
 
 
     private String tag;
 
-    LexicalEntrySegmentationLabel(String s) {
+    DictionaryBodySegmentationLabel(String s) {
         tag = s;
     }
 
