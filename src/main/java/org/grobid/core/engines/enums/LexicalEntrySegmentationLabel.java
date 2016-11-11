@@ -1,24 +1,21 @@
-package org.grobid.core.enums;
+package org.grobid.core.engines.enums;
 
 /**
- * Created by med on 26.08.16.
+ * Created by med on 08.11.16.
  */
-public enum PossibleTags {
+public enum LexicalEntrySegmentationLabel {
 
 
-
-    ENTRY("<entry>"),
     FORM("<form>"),
     ETYM("<etym>"),
     SENSE("<sense>"),
     RE("<re>"),
-    METAMARK("<metamark>"),
     NOTE("<note>");
 
 
     private String tag;
 
-    PossibleTags(String s) {
+    LexicalEntrySegmentationLabel(String s) {
         tag = s;
     }
 
@@ -27,8 +24,7 @@ public enum PossibleTags {
     }
 
 
-    public String getTag() {
+    public String getLabel() {
         return this.tag;
     }
-
 }

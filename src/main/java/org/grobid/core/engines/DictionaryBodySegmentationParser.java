@@ -4,6 +4,7 @@ import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.enums.DictionarySegmentationLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.layout.LayoutTokenization;
@@ -14,20 +15,20 @@ import java.io.*;
 import java.util.SortedSet;
 
 /**
- * Created by med on 26.10.16.
+ * Created by med on 02.08.16.
  */
-public class FirstDictionarySegmentation extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FirstDictionarySegmentation.class);
-    private static volatile FirstDictionarySegmentation instance;
+public class DictionaryBodySegmentationParser extends AbstractParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryParser.class);
+    private static volatile DictionaryParser instance;
     private String lexEntries;
 
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
     // depending how many sub models will be created.
-    public FirstDictionarySegmentation() {
-        super(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES);
+    public DictionaryBodySegmentationParser() {
+        super(GrobidModels.DICTIONARY_SEGMENTATION);
     }
 
-    public static FirstDictionarySegmentation getInstance() {
+    public static DictionaryParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -38,19 +39,21 @@ public class FirstDictionarySegmentation extends AbstractParser {
      * Create a new instance.
      */
     private static synchronized void getNewInstance() {
-        instance = new FirstDictionarySegmentation();
+        instance = new DictionaryParser();
     }
 
     public String process(File originFile) {
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        //Old BODY from document
         Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
-        //Get only the body from the document
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-//
+       //New body from document
+//        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().processing(documentSource, config);
+//        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+
         LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
-//
 //        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
         String bodyLexicalEntry = null;
 //        Document doc = getDocFromPDF(originFile);
@@ -88,7 +91,7 @@ public class FirstDictionarySegmentation extends AbstractParser {
 
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
-                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
+                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.dictionary";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                     writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
                     IOUtils.closeWhileHandlingException(writer);
@@ -96,7 +99,7 @@ public class FirstDictionarySegmentation extends AbstractParser {
                 }
 
             } else {
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
+                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionary";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                 writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);

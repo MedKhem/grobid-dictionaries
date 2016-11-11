@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 public class LexicalEntryTrainer extends AbstractTrainer {
 
     public LexicalEntryTrainer() {
-        super(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES);
+        super(GrobidModels.LEXICAL_ENTRY);
     }
 
     /**

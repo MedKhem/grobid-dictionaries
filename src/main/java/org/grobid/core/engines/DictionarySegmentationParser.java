@@ -16,18 +16,18 @@ import java.util.SortedSet;
 /**
  * Created by med on 02.08.16.
  */
-public class DictionaryParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryParser.class);
-    private static volatile DictionaryParser instance;
+public class DictionarySegmentationParser extends AbstractParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
+    private static volatile DictionarySegmentationParser instance;
     private String lexEntries;
 
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
     // depending how many sub models will be created.
-    public DictionaryParser() {
-        super(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES);
+    public DictionarySegmentationParser() {
+        super(GrobidModels.DICTIONARY_SEGMENTATION);
     }
 
-    public static DictionaryParser getInstance() {
+    public static DictionarySegmentationParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -38,7 +38,7 @@ public class DictionaryParser extends AbstractParser {
      * Create a new instance.
      */
     private static synchronized void getNewInstance() {
-        instance = new DictionaryParser();
+        instance = new DictionarySegmentationParser();
     }
 
     public String process(File originFile) {
@@ -88,7 +88,7 @@ public class DictionaryParser extends AbstractParser {
 
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
-                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntries";
+                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntry";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                     writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
                     IOUtils.closeWhileHandlingException(writer);
@@ -96,7 +96,7 @@ public class DictionaryParser extends AbstractParser {
                 }
 
             } else {
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntries";
+                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                 writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);

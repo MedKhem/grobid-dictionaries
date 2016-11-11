@@ -23,13 +23,13 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by lfoppiano on 11/08/16.
  */
-public class DictionaryParserTest {
+public class LexicalParserTest {
 
-    DictionaryParser target;
+    LexicalEntryParser target;
 
     @Before
     public void setUp() throws Exception {
-        target = new DictionaryParser();
+        target = new LexicalEntryParser();
     }
 
 
