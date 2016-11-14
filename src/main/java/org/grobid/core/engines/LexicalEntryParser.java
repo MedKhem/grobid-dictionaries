@@ -86,7 +86,7 @@ public class LexicalEntryParser extends AbstractParser {
 
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
-                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.dictionary";
+                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntry";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                     writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
                     IOUtils.closeWhileHandlingException(writer);
@@ -94,7 +94,7 @@ public class LexicalEntryParser extends AbstractParser {
                 }
 
             } else {
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionary";
+                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                 writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);
