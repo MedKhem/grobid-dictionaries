@@ -49,6 +49,22 @@ public class DictionaryRestService implements DictionaryPaths {
     }
 
 
+    @Path(PATH_DICTIONARY_SEGMENTATATION)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processDictionarySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processLexicalEntries(inputStream);
+    }
+
+    @Path(PATH_DICTIONARY_BODY_SEGMENTATATION)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processLexicalEntries(inputStream);
+    }
+
     @Path(PATH_LEXICAL_ENTRY)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
