@@ -98,9 +98,9 @@ public class TEIDictionaryFormatter {
             String divID = KeyGen.getKey().substring(0, 7);
             tei.append(" xml:id=\"_" + divID + "\"");
         }
-        tei.append(">");
-
-
+        tei.append("/>");
+        tei.append("\n\t\t\t</titleStmt>\n");
+        tei.append("\n\t\t</fileDesc>\n");
         tei.append("\t</teiHeader>\n");
 
         if (doc.getLanguage() != null) {
@@ -108,10 +108,11 @@ public class TEIDictionaryFormatter {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append("\t<body>\n");
+        tei.append("\t\t<body>\n");
         tei.append(toTEIBodyLexicalEntries(bodyContentFeatured, layoutTokenization));
-        tei.append("\t</body>\n");
+        tei.append("\t\t</body>\n");
         tei.append("\t</text>\n");
+        tei.append("</TEI>\n");
 
         return tei;
     }
