@@ -32,7 +32,7 @@ var grobid = (function($) {
         $('#consolidateBlock').show();
 
         createInputFile();
-        setBaseUrl('processLexicalEntries');
+        setBaseUrl('processLexicalEntry');
 
         $('#selectedService').change(function() {
             processChange();
@@ -181,15 +181,20 @@ var grobid = (function($) {
     function processChange() {
         var selected = $('#selectedService option:selected').attr('value');
 
-        if (selected == 'processHeaderDocument') {
+       if (selected == 'processDictionarySegmentation') {
             createInputFile(selected);
             $('#consolidateBlock').show();
-            setBaseUrl('processHeaderDocument');
+            setBaseUrl('processDictionarySegmentation');
         }
-        else if (selected == 'processLexicalEntries') {
+        else if (selected == 'processDictionaryBodySegmentation') {
+           createInputFile(selected);
+           $('#consolidateBlock').show();
+           setBaseUrl('processDictionaryBodySegmentation');
+       }
+        else if (selected == 'processLexicalEntry') {
             createInputFile(selected);
             $('#consolidateBlock').show();
-            setBaseUrl('processLexicalEntries');
+            setBaseUrl('processLexicalEntry');
         }
         else if (selected == 'processDate') {
             createInputTextArea('date');
