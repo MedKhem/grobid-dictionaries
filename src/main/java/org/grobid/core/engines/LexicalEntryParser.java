@@ -1,11 +1,13 @@
 package org.grobid.core.engines;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
+import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +42,8 @@ public class LexicalEntryParser extends AbstractParser {
     public String process(File originFile) {
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        Document doc = DocumentUtils.docPrepare(originFile);
         //Old BODY from document
-        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
         //New body from document
 //        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().processing(documentSource, config);
@@ -99,7 +100,24 @@ public class LexicalEntryParser extends AbstractParser {
                 writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
+
+                // also write the raw text as seen before segmentation
+                Document doc = DocumentUtils.docPrepare(path);
+                LayoutTokenization tokens = DocumentUtils.getLayoutTokenizationsIndiferrentFromBodyPart(doc);
+                StringBuilder bodytxt = DocumentUtils.getDictionarySegmentationTEIToAnnotate(null,doc);
+                StringBuffer rawtxt = DocumentUtils.getRawTextFromDoc(doc);
+//
+//                for(LayoutToken txtline : tokens.getTokenization()) {
+//                    rawtxt.append(txtline.getText());
+//                }
+
+                String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
+                FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+
+                String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
+                FileUtils.writeStringToFile(new File(outTei), bodytxt.toString(), "UTF-8");
             }
+
 
             System.out.println(n + " files to be processed.");
 

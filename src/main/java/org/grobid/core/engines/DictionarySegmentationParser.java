@@ -1,11 +1,13 @@
 package org.grobid.core.engines;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
+import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +104,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
             }
+
 
             System.out.println(n + " files to be processed.");
 
