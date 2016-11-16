@@ -230,9 +230,9 @@ public class DocumentUtils {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append("\t\t<body>\n");
+        tei.append("\t\t<body>");
         tei.append(getRawTextFromDoc(doc));
-        tei.append("\t\t</body>\n");
+        tei.append("</body>\n");
         tei.append("\t</text>\n");
         tei.append("</TEI>\n");
 

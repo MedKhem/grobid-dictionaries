@@ -35,7 +35,7 @@ public class TEIFormatterTest {
     // To be  run just once
 
 //    @Test
-//    public void toTEIFormat() throws Exception {
+//    public void toTEIFormatLexicalEntry() throws Exception {
 //        for (LexicalEntryLabel tags : LexicalEntryLabel.values()) {
 //            TaggingLabel.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
 //        }

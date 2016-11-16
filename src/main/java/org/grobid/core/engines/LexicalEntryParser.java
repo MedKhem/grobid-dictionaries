@@ -1,13 +1,14 @@
 package org.grobid.core.engines;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
-import org.grobid.core.document.*;
+import org.grobid.core.document.Document;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentUtils;
+import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
-import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class LexicalEntryParser extends AbstractParser {
         }
         return instance;
     }
+
     /**
      * Create a new instance.
      */
@@ -61,7 +63,7 @@ public class LexicalEntryParser extends AbstractParser {
 
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
-            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormat(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
+            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
         }
 
         return bodyLexicalEntry;
@@ -101,21 +103,6 @@ public class LexicalEntryParser extends AbstractParser {
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
 
-                // also write the raw text as seen before segmentation
-                Document doc = DocumentUtils.docPrepare(path);
-                LayoutTokenization tokens = DocumentUtils.getLayoutTokenizationsIndiferrentFromBodyPart(doc);
-                StringBuilder bodytxt = DocumentUtils.getDictionarySegmentationTEIToAnnotate(null,doc);
-                StringBuffer rawtxt = DocumentUtils.getRawTextFromDoc(doc);
-//
-//                for(LayoutToken txtline : tokens.getTokenization()) {
-//                    rawtxt.append(txtline.getText());
-//                }
-
-                String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
-                FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
-
-                String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
-                FileUtils.writeStringToFile(new File(outTei), bodytxt.toString(), "UTF-8");
             }
 
 
@@ -126,7 +113,6 @@ public class LexicalEntryParser extends AbstractParser {
             throw new GrobidException("An exception occurred while running Grobid batch.", exp);
         }
     }
-
 
 
 }

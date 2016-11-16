@@ -64,7 +64,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
-            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormat(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
+            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
         }
 
         return bodyLexicalEntry;

@@ -9,8 +9,8 @@ import java.util.SortedSet;
  */
 public class DictionaryDocument extends Document {
 
-    public DictionaryDocument(DocumentSource document){
-        super (document);
+    public DictionaryDocument(Document document){
+        super (document.documentSource);
 
     }
 

@@ -15,7 +15,7 @@ public interface DictionaryPaths {
     /**
      * path extension for processing dictionary entries.
      */
-    public static final String PATH_DICTIONARY_SEGMENTATATION = "processDictionary";
-    public static final String PATH_DICTIONARY_BODY_SEGMENTATATION = "processDictionaryBody";
+    public static final String PATH_DICTIONARY_SEGMENTATATION = "processDictionarySegmentation";
+    public static final String PATH_DICTIONARY_BODY_SEGMENTATATION = "processDictionaryBodySegmentation";
     public static final String PATH_LEXICAL_ENTRY = "processLexicalEntry";
 }

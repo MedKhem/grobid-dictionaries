@@ -7,13 +7,11 @@ import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
-import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.SortedSet;
 
 /**
  * Created by med on 02.08.16.
@@ -47,11 +45,17 @@ public class DictionarySegmentationParser extends AbstractParser {
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
-        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+//        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
         //Get only the body from the document
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-//
-        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+        Document document = new Document(documentSource);
+        document.addTokenizedDocument(config);
+
+        DictionaryDocument doc = new DictionaryDocument(document);
+        doc.addTokenizedDocument(config);
+
+
+//        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().processing(documentSource, config);
+        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
 //
 //        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
         String bodyLexicalEntry = null;
@@ -64,7 +68,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
-            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormat(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
+            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
         }
 
         return bodyLexicalEntry;
@@ -103,6 +107,8 @@ public class DictionarySegmentationParser extends AbstractParser {
                 writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
+
+                createTrainingDictionary(path, outputDirectory);
             }
 
 
@@ -114,5 +120,23 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
     }
 
+    public void createTrainingDictionary(File path, String outputDirectory) throws IOException {
+
+        //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
+        String bodytxt = process(path);
+
+//        //Naive method to prepare wrap the body
+//        StringBuilder bodytxt = DocumentUtils.getDictionarySegmentationTEIToAnnotate(null,doc);
+
+
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
+        FileUtils.writeStringToFile(new File(outTei), bodytxt, "UTF-8");
+
+        // also write the raw text as seen before segmentation
+        Document doc = DocumentUtils.docPrepare(path);
+        StringBuffer rawtxt = DocumentUtils.getRawTextFromDoc(doc);
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
+        FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+    }
 
 }
