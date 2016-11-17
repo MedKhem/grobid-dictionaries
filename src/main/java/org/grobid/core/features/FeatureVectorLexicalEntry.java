@@ -127,7 +127,7 @@ public class FeatureVectorLexicalEntry {
                 nextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if (tokens.getTokenization().get(counter + 2) != null) {
+                if ((nbToken > counter+2) && (tokens.getTokenization().get(counter + 2) != null)) {
                     afterNextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 2).isNewLineAfter();
                 }
 
