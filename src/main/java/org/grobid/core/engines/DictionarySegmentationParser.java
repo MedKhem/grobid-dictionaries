@@ -98,6 +98,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                     writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
                     IOUtils.closeWhileHandlingException(writer);
+                    createTrainingDictionary(fileEntry, outputDirectory);
                     n++;
                 }
 
