@@ -44,7 +44,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     public String process(File originFile) {
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
 //        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
         //Get only the body from the document
         Document document = new Document(documentSource);

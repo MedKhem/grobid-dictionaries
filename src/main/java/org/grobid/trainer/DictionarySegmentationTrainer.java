@@ -116,8 +116,8 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
                 // we can now add the features
                 // we open the featured file
                 BufferedReader featuresFileBR = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(sourceDictionarySegmentationPathFeatures + File.separator +
-                                                                          name.replace(".tei.xml", "")), "UTF8"));
+                        new InputStreamReader(new FileInputStream(sourceDictionarySegmentationPathFeatures + 
+							File.separator +  name.replace(".tei.xml", "")), "UTF8"));
 
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
@@ -131,7 +131,7 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
                 }
                 featuresFileBR.close();
                 // Add the training data with suffixed label
-                writer2.write(trainingDataLineBuilder.toString() + "\n");
+                writer2.write(trainingDataLineBuilder.toString() + "\n\n");
             }
 
         } catch (Exception e) {

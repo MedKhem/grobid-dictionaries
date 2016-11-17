@@ -38,9 +38,9 @@ public class DocumentUtils {
 
         } finally {
             if (GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
-                DocumentSource.close(documentSource, false);
+                documentSource.close(true, true);
             } else {
-                DocumentSource.close(documentSource, true);
+                documentSource.close(false, true);
             }
         }
         return doc;
@@ -145,7 +145,7 @@ public class DocumentUtils {
 
         // Method to create raw for the whole document. Useful for the DictionarySegmentation model
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
         //Old BODY from document
         Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
 

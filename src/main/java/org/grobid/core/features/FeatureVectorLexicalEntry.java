@@ -154,7 +154,7 @@ public class FeatureVectorLexicalEntry {
     public static StringBuilder createFeaturesFromPDF(File inputFile) {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DocumentSource documentSource = DocumentSource.fromPdf(inputFile, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        DocumentSource documentSource = DocumentSource.fromPdf(inputFile, config.getStartPage(), config.getEndPage());
         Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
 
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
