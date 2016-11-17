@@ -108,7 +108,7 @@ public class TestFullTextParser {
             e.printStackTrace();
         }
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DocumentSource documentSource = DocumentSource.fromPdf(input, config.getStartPage(), config.getEndPage(), config.getPdfAssetPath() != null);
+        DocumentSource documentSource = DocumentSource.fromPdf(input, config.getStartPage(), config.getEndPage());
         Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
 
