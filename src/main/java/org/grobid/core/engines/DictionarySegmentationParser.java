@@ -34,10 +34,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class DictionarySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     private static volatile DictionarySegmentationParser instance;
-    private String lexEntries;
 
-    //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
-    // depending how many sub models will be created.
     public DictionarySegmentationParser() {
         super(GrobidModels.DICTIONARY_SEGMENTATION);
     }
@@ -56,13 +53,79 @@ public class DictionarySegmentationParser extends AbstractParser {
         instance = new DictionarySegmentationParser();
     }
 
+    public String process(File originFile) {
+        // GrobidConfig needs to be always initiated before calling initiateProcessing()
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
+        DictionaryDocument doc = initiateProcessing(originFile, config);
+
+        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
+        String segmentedDictionary = null;
+
+        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
+        String labeledFeatures = null;
+
+        // if featSeg is null, it usually means that no body segment is found in the
+
+        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+            labeledFeatures = label(featSeg);
+            segmentedDictionary = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
+        }
+
+        return segmentedDictionary;
+    }
+
+    public DictionaryDocument initiateProcessing(File originFile, GrobidAnalysisConfig config) {
+        // This method is to be called by an following parser to perform first level segmentation: Headnote, Body and Footnote
+        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
+        try {
+
+            //Prepare
+            Document document = new Document(documentSource);
+            document.addTokenizedDocument(config);
+            document.produceStatistics();
+            //Transform the doc to a dictionary doc
+            DictionaryDocument doc = new DictionaryDocument(document);
+            doc.addTokenizedDocument(config);
+            doc = prepareDocument(doc);
+
+            return doc;
+        } finally {
+            // keep it clean when leaving...
+            if (config.getPdfAssetPath() == null) {
+                // remove the pdf2xml tmp file
+                DocumentSource.close(documentSource, false, true);
+            } else {
+                // remove the pdf2xml tmp files, including the sub-directories
+                DocumentSource.close(documentSource, true, true);
+            }
+        }
+    }
+
+    public DictionaryDocument prepareDocument(DictionaryDocument doc) {
+
+        //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
+        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
+        List<LayoutToken> tokenizations = doc.getTokenizations();
+        if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
+            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
+                                      GrobidExceptionStatus.TOO_MANY_TOKENS);
+        }
+        String content = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
+        if (isNotEmpty(trim(content))) {
+            String labelledResult = label(content);
+            // set the different sections of the Document object
+            doc = generalResultSegmentation(doc, labelledResult, tokenizations);
+
+        }
+
+        return doc;
+    }
+
     static public DictionaryDocument generalResultSegmentation(DictionaryDocument doc, String labeledResult, List<LayoutToken> documentTokens) {
         List<Pair<String, String>> labeledTokens = GenericTaggerUtils.getTokensAndLabels(labeledResult);
 
         SortedSetMultimap<String, DocumentPiece> labeledBlocks = TreeMultimap.create();
         doc.setLabeledBlocks(labeledBlocks);
-
-
         List<Block> docBlocks = doc.getBlocks();
         int indexLine = 0;
         int blockIndex = 0;
@@ -223,76 +286,6 @@ public class DictionarySegmentationParser extends AbstractParser {
                     //System.out.println("add segment for: " + lastPlainLabel + ", until " + (currentLineStartPos-2));
                 }
             }
-        }
-
-        return doc;
-    }
-
-    public String process(File originFile) {
-
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DictionaryDocument doc = initiateProcessing(originFile, config);
-
-        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
-        String dictionaryBody = null;
-
-        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
-        String labeledFeatures = null;
-
-        // if featSeg is null, it usually means that no body segment is found in the
-
-        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-            labeledFeatures = label(featSeg);
-            dictionaryBody = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
-
-        }
-
-        return dictionaryBody;
-    }
-
-    public DictionaryDocument initiateProcessing(File originFile, GrobidAnalysisConfig config) {
-        // This method is to be called by an following parser to perform first level segmentation: Headnote, Body and Footnote
-        DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
-        try {
-
-            //Prepare
-            Document document = new Document(documentSource);
-            document.addTokenizedDocument(config);
-            document.produceStatistics();
-            //Transform the doc to a dictionary doc
-            DictionaryDocument doc = new DictionaryDocument(document);
-            doc.addTokenizedDocument(config);
-            doc = prepareDocument(doc);
-
-            return doc;
-        } finally {
-            // keep it clean when leaving...
-            if (config.getPdfAssetPath() == null) {
-                // remove the pdf2xml tmp file
-                DocumentSource.close(documentSource, false, true);
-            } else {
-                // remove the pdf2xml tmp files, including the sub-directories
-                DocumentSource.close(documentSource, true, true);
-            }
-        }
-    }
-
-    public DictionaryDocument prepareDocument(DictionaryDocument doc) {
-
-        //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
-        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
-        List<LayoutToken> tokenizations = doc.getTokenizations();
-        if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
-            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
-                                      GrobidExceptionStatus.TOO_MANY_TOKENS);
-        }
-
-        String content = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
-        if (isNotEmpty(trim(content))) {
-            String labelledResult = label(content);
-            // set the different sections of the Document object
-            doc = generalResultSegmentation(doc, labelledResult, tokenizations);
-
         }
 
         return doc;
