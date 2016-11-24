@@ -13,7 +13,7 @@ public interface DictionaryPaths {
     public static final String PATH_DICTIONARY = "/";
 
     /**
-     * path extension for processing dictionary entries.
+     * path extension for initiateProcessing dictionary entries.
      */
     public static final String PATH_DICTIONARY_SEGMENTATATION = "processDictionarySegmentation";
     public static final String PATH_DICTIONARY_BODY_SEGMENTATATION = "processDictionaryBodySegmentation";

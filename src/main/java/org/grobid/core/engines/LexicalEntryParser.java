@@ -43,28 +43,28 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String process(File originFile) {
         //Prepare
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        Document doc = DocumentUtils.docPrepare(originFile);
-        //Old BODY from document
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-        //New body from document
-//        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().processing(documentSource, config);
-//        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
-
-        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+//        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
+//        Document doc = DocumentUtils.docPrepare(originFile);
+//        //Old BODY from document
+//        SortedSet<DocumentPiece> documentBodyParts = doc.DictionarySegmentationLabel(SegmentationLabel.BODY);
+//        //New body from document
+////        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().initiateProcessing(documentSource, config);
+////        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+//
+//        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 //        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());
         String bodyLexicalEntry = null;
 //        Document doc = getDocFromPDF(originFile);
-        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
-        String labeledFeatures = null;
-
-
-        // if featSeg is null, it usually means that no body segment is found in the
-
-        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-            labeledFeatures = label(featSeg);
-            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
-        }
+//        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
+//        String labeledFeatures = null;
+//
+//
+//        // if featSeg is null, it usually means that no body segment is found in the
+//
+//        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+//            labeledFeatures = label(featSeg);
+//            bodyLexicalEntry = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, labeledFeatures, DocumentUtils.getLayoutTokenizations(doc, documentBodyParts)).toString();
+//        }
 
         return bodyLexicalEntry;
     }

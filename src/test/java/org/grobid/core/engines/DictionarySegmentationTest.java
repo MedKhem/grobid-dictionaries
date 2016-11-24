@@ -47,5 +47,13 @@ public class DictionarySegmentationTest {
 //        assertFalse(n == 0);
 //    }
 
+        @Test
+    public void testProcess() throws Exception {
+            File input = new File(this.getClass().getResource("BasicEnglish.pdf").toURI());
+            String body = target.process(input);
+            assertThat(body, notNullValue());
+
+    }
+
 
 }

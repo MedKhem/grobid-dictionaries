@@ -192,7 +192,7 @@
       <xsl:if test="not(parent::*)"><br /><xsl:text>&#xA;</xsl:text></xsl:if>
    </xsl:template>
 
-   <!-- processing instructions -->
+   <!-- initiateProcessing instructions -->
    <xsl:template match="processing-instruction()" mode="xmlverb">
       <xsl:text>&lt;?</xsl:text>
       <span class="xmlverb-pi-name">

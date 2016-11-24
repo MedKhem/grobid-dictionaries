@@ -1,12 +1,11 @@
 package org.grobid.core.features;
 
-import org.grobid.core.document.Document;
-import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentSource;
-import org.grobid.core.document.DocumentUtils;
+import org.grobid.core.document.*;
+import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.enums.DictionarySegmentationLabel;
 import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
@@ -81,7 +80,7 @@ public class FeatureVectorLexicalEntryTest {
 
     @Test
     public void testCreateFeaturesFromLayoutTokens() throws Exception {
-        Pair<Document, SortedSet<DocumentPiece>> input = prepare("BasicEnglish.pdf");
+        Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("BasicEnglish.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
@@ -91,7 +90,7 @@ public class FeatureVectorLexicalEntryTest {
 
     @Test
     public void testCreateFeaturesFromLayoutTokens2() throws Exception {
-        Pair<Document, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
+        Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
@@ -124,7 +123,7 @@ public class FeatureVectorLexicalEntryTest {
         assertThat(output4, is(PonctuationType.ENDBRACKET.toString()));
 
     }
-    Pair<Document, SortedSet<DocumentPiece>> prepare(String file) {
+    Pair<DictionaryDocument, SortedSet<DocumentPiece>> prepare(String file) {
 
         File input = null;
         try {
@@ -133,9 +132,9 @@ public class FeatureVectorLexicalEntryTest {
             e.printStackTrace();
         }
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DocumentSource documentSource = DocumentSource.fromPdf(input, config.getStartPage(), config.getEndPage());
-        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
+        DictionarySegmentationParser parser = new DictionarySegmentationParser();
+        DictionaryDocument doc =  parser.initiateProcessing(input, config);
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
 
         return new Pair<>(doc, documentBodyParts);
 

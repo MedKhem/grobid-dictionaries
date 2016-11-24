@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The entrance point for starting grobid-dictionaries from command line and perform batch processing
+ * The entrance point for starting grobid-dictionaries from command line and perform batch initiateProcessing
  * <p>
  * Created by med on 27.07.16.
  */
@@ -79,7 +79,7 @@ public class DictionaryMain {
         help.append("-dIn: gives the path to the directory where the files to be processed are located, to be used only when the called method needs it.\n");
         help.append("-dOut: gives the path to the directory where the result files will be saved. The default output directory is the curent directory.\n");
         help.append("-s: is the parameter used for process using string as input and not file.\n");
-        help.append("-r: recursive directory processing, default processing is not recursive.\n");
+        help.append("-r: recursive directory initiateProcessing, default initiateProcessing is not recursive.\n");
         help.append("-ignoreAssets: do not extract and save the PDF assets (bitmaps, vector graphics), by default the assets are extracted and saved.\n");
         help.append("-exe: gives the command to execute. The value should be one of these:\n");
         help.append("\t" + availableCommands + "\n");

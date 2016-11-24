@@ -1,9 +1,7 @@
 package org.grobid.core.features;
 
-import org.grobid.core.document.Document;
-import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentSource;
-import org.grobid.core.document.DocumentUtils;
+import org.grobid.core.document.*;
+import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.EngineParsers;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
@@ -154,13 +152,10 @@ public class FeatureVectorLexicalEntry {
     public static StringBuilder createFeaturesFromPDF(File inputFile) {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DocumentSource documentSource = DocumentSource.fromPdf(inputFile, config.getStartPage(), config.getEndPage());
-        Document doc = new EngineParsers().getSegmentationParser().processing(documentSource, config);
+        DictionarySegmentationParser parser = new DictionarySegmentationParser();
+        DictionaryDocument doc =  parser.initiateProcessing(inputFile, config);
 
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentPart(SegmentationLabel.BODY);
-
-        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
-
+        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
         StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens);
 
         return stringBuilder;

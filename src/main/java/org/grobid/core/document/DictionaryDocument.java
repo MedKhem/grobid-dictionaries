@@ -26,4 +26,6 @@ public class DictionaryDocument extends Document {
             return this.labeledBlocks.get(segmentationLabel.getLabel());
         }
     }
+
+
 }

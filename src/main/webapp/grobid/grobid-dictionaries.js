@@ -201,51 +201,7 @@ var grobid = (function($) {
             $('#consolidateBlock').hide();
             setBaseUrl('processDate');
         }
-        else if (selected == 'processHeaderNames') {
-            createInputTextArea('names');
-            $('#consolidateBlock').hide();
-            setBaseUrl('processHeaderNames');
-        }
-        else if (selected == 'processCitationNames') {
-            createInputTextArea('names');
-            $('#consolidateBlock').hide();
-            setBaseUrl('processCitationNames');
-        }
-        else if (selected == 'processReferences') {
-            createInputFile(selected);
-            $('#consolidateBlock').show();
-            setBaseUrl('processReferences');
-        }
-        else if (selected == 'processAffiliations') {
-            createInputTextArea('affiliations');
-            $('#consolidateBlock').hide();
-            setBaseUrl('processAffiliations');
-        }
-        else if (selected == 'processCitation') {
-            createInputTextArea('citations');
-            $('#consolidateBlock').show();
-            setBaseUrl('processCitation');
-        }
-        else if (selected == 'processCitationPatentTEI') {
-            createInputFile(selected);
-            $('#consolidateBlock').show();
-            setBaseUrl('processCitationPatentTEI');
-        }
-        else if (selected == 'processCitationPatentST36') {
-            createInputFile(selected);
-            $('#consolidateBlock').show();
-            setBaseUrl('processCitationPatentST36');
-        }
-        else if (selected == 'processCitationPatentPDF') {
-            createInputFile(selected);
-            $('#consolidateBlock').show();
-            setBaseUrl('processCitationPatentPDF');
-        }
-        else if (selected == 'processCitationPatentTXT') {
-            createInputTextArea('text');
-            $('#consolidateBlock').show();
-            setBaseUrl('processCitationPatentTXT');
-        }
+  
     }
 
     function createInputFile(selected) {

@@ -46,7 +46,7 @@ public class DocumentUtils {
         return doc;
     }
 
-    public static LayoutTokenization getLayoutTokenizations(Document doc, SortedSet<DocumentPiece> documentBodyParts) {
+    public static LayoutTokenization getLayoutTokenizations(DictionaryDocument doc, SortedSet<DocumentPiece> documentBodyParts) {
 
 
         List<LayoutToken> layoutTokens = new ArrayList<>();
@@ -79,7 +79,7 @@ public class DocumentUtils {
         return new LayoutTokenization(layoutTokens);
     }
 
-    public static LayoutTokenization getLayoutTokenizationsIndiferrentFromBodyPart(Document doc) {
+    public static LayoutTokenization getLayoutTokenizationsIndiferrentFromBodyPart(DictionaryDocument doc) {
 
         // Method to create layoutTokneizations for the whole document. Useful for the DictionarySegmentation model
         List<LayoutToken> layoutTokens = new ArrayList<>();
@@ -110,7 +110,7 @@ public class DocumentUtils {
 
         return new LayoutTokenization(layoutTokens);
     }
-    public static StringBuffer getRawTextFromDoc(Document doc) {
+    public static StringBuffer getRawTextFromDoc(DictionaryDocument doc) {
 
         // Method to create raw for the whole document. Useful for the DictionarySegmentation model
         List<LayoutToken> layoutTokens = new ArrayList<>();
@@ -152,7 +152,7 @@ public class DocumentUtils {
         return doc;
     }
 
-    public static StringBuilder getDictionarySegmentationTEIToAnnotate(TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration, Document doc) {
+    public static StringBuilder getBodyTEI(TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration, DictionaryDocument doc, String bodytext) {
 
         // Method to create raw for the whole document. Useful for the DictionarySegmentation model
         List<LayoutToken> layoutTokens = new ArrayList<>();
