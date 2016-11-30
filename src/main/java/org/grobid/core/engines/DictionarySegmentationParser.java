@@ -122,6 +122,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     }
 
     static public DictionaryDocument generalResultSegmentation(DictionaryDocument doc, String labeledResult, List<LayoutToken> documentTokens) {
+
         List<Pair<String, String>> labeledTokens = GenericTaggerUtils.getTokensAndLabels(labeledResult);
 
         SortedSetMultimap<String, DocumentPiece> labeledBlocks = TreeMultimap.create();

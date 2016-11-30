@@ -4,6 +4,7 @@ import org.grobid.core.GrobidModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.trainer.sax.TEIDictionarySegmentationSaxParser;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -104,7 +105,7 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
                 String name = tf.getName();
                 System.out.println(name);
 
-                TEILexicalEntrySaxParser parser2 = new TEILexicalEntrySaxParser();
+                TEIDictionarySegmentationSaxParser parser2 = new TEIDictionarySegmentationSaxParser();
                 //parser2.setMode(TEILexicalEntrySaxParser.FULLTEXT);
 
                 //get a new instance of parser
@@ -115,23 +116,41 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
 
                 // we can now add the features
                 // we open the featured file
-                BufferedReader featuresFileBR = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(sourceDictionaryBodySegmentationPathFeatures + File.separator +
-                                                                          name.replace(".tei.xml", "")), "UTF8"));
+                BufferedReader bis = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(sourceDictionaryBodySegmentationPathFeatures +
+                                                                          File.separator +  name.replace(".tei.xml", "")), "UTF8"));
 
+                int q = 0;
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
-                int counterStart = 0;
                 String line;
-                while ((line = featuresFileBR.readLine()) != null) {
-                    String token = getFirstToken(line);
-                    String label = getLabelByToken(token, counterStart, labeled);
-                    trainingDataLineBuilder.append(line).append(" ").append(label);
-                    counterStart++;
+                while ((line = bis.readLine()) != null) {
+                    int ii = line.indexOf(' ');
+                    String token = null;
+                    if (ii != -1)
+                        token = line.substring(0, ii);
+                    // we get the label in the labelled data file for the same token
+                    for (int pp = q; pp < labeled.size(); pp++) {
+                        String localLine = labeled.get(pp);
+                        StringTokenizer st = new StringTokenizer(localLine, " ");
+                        if (st.hasMoreTokens()) {
+                            String localToken = st.nextToken();
+                            if (localToken.equals(token)) {
+                                String tag = st.nextToken();
+                                trainingDataLineBuilder.append(line).append(" ").append(tag);
+                                q = pp + 1;
+                                pp = q + 10;
+                            }
+                        }
+                        if (pp - q > 5) {
+                            break;
+                        }
+                    }
                 }
-                featuresFileBR.close();
+                bis.close();
+
                 // Add the training data with suffixed label
-                writer2.write(trainingDataLineBuilder.toString() + "\n");
+                writer2.write(trainingDataLineBuilder.toString() + "\n\n");
             }
 
         } catch (Exception e) {

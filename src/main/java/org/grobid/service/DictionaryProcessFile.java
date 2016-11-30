@@ -1,5 +1,6 @@
 package org.grobid.service;
 
+import org.grobid.core.engines.DictionaryBodySegmentationParser;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.Engine;
 import org.grobid.core.engines.LexicalEntryParser;
@@ -91,6 +92,46 @@ public class DictionaryProcessFile {
                 DictionarySegmentationParser dictionarySegmentationParser = new DictionarySegmentationParser();
 
                 response = Response.ok(dictionarySegmentationParser.process(originFile)).build();
+            }
+        } catch (NoSuchElementException nseExp) {
+            LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);
+            response = Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        } catch (Exception e) {
+            LOGGER.error("An unexpected exception occurs. ", e);
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getCause().getMessage()).build();
+        } finally {
+            IOUtilities.removeTempFile(originFile);
+        }
+        LOGGER.debug(methodLogOut());
+        return response;
+    }
+
+    public static Response processDictionaryBodySegmentation(final InputStream inputStream) {
+        LOGGER.debug(methodLogIn());
+        Response response = null;
+        String retVal;
+        // Does GrobidServiceProperties need to be imported or use properties as in DictionaryRestService class?
+//        boolean isparallelExec = GrobidServiceProperties.isParallelExec();
+        File originFile = null;
+        Engine engine = null;
+
+         /*
+            PDF -> [pdf2xml] -> XML -> [GROBID Segmenter model] ->  Segmented document -> [DictionarySegmentationParser] -> List<LexicalEntries>
+         */
+        try {
+            LOGGER.debug(">> set raw text for stateless quantity service'...");
+            long start = System.currentTimeMillis();
+
+            // Does GrobidRestUtils need to be imported ?
+            originFile = IOUtilities.writeInputFile(inputStream);
+
+            if (originFile == null) {
+                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            } else {
+                // starts conversion process - single thread! :)
+                DictionaryBodySegmentationParser dictionaryBodySegmentationParser = new DictionaryBodySegmentationParser();
+
+                response = Response.ok(dictionaryBodySegmentationParser.process(originFile)).build();
             }
         } catch (NoSuchElementException nseExp) {
             LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);

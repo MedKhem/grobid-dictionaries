@@ -55,7 +55,7 @@ public class DocumentUtilsTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(23471));
+        assertThat(layoutTokenization.getTokenization().size(), is(23474));
 
     }
 

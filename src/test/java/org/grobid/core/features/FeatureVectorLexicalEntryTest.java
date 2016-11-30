@@ -84,7 +84,7 @@ public class FeatureVectorLexicalEntryTest {
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
         assertThat(output, notNullValue());
-        System.out.println(output);
+//        System.out.println(output);
 
     }
 
