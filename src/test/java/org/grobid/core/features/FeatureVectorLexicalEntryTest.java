@@ -2,10 +2,8 @@ package org.grobid.core.features;
 
 import org.grobid.core.document.*;
 import org.grobid.core.engines.DictionarySegmentationParser;
-import org.grobid.core.engines.EngineParsers;
-import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
@@ -134,7 +132,7 @@ public class FeatureVectorLexicalEntryTest {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
         DictionaryDocument doc =  parser.initiateProcessing(input, config);
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return new Pair<>(doc, documentBodyParts);
 

@@ -1,6 +1,6 @@
 package org.grobid.trainer.sax;
 
-import org.grobid.core.engines.enums.LexicalEntryLabel;
+import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -23,7 +23,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
     private String output = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
-    private LexicalEntryLabel possibleTag;
+    private LexicalEntryLabels possibleTag;
 
     private boolean figureBlock = false;
     private boolean tableBlock = false;

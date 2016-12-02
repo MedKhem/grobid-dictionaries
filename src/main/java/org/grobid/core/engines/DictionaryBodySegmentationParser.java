@@ -2,10 +2,9 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
-import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.layout.LayoutTokenization;
@@ -26,7 +25,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     //Might be needed to have several LEXICALENTRIES_XYZ models, based on the function,
     // depending how many sub models will be created.
     public DictionaryBodySegmentationParser() {
-        super(GrobidModels.DICTIONARY_BODY_SEGMENTATION);
+        super(DictionaryModels.DICTIONARY_BODY_SEGMENTATION);
     }
 
     public static DictionaryBodySegmentationParser getInstance() {
@@ -49,7 +48,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
         DictionaryDocument doc = parser.initiateProcessing(originFile, config);
         //Get Body
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
         //Get tokens from the body
         LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 

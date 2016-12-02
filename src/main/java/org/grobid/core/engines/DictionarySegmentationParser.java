@@ -36,7 +36,8 @@ public class DictionarySegmentationParser extends AbstractParser {
     private static volatile DictionarySegmentationParser instance;
 
     public DictionarySegmentationParser() {
-        super(GrobidModels.DICTIONARY_SEGMENTATION);
+
+        super(DictionaryModels.DICTIONARY_SEGMENTATION);
     }
 
     public static DictionarySegmentationParser getInstance() {

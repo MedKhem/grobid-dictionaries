@@ -1,11 +1,8 @@
 package org.grobid.core.document;
 
 import org.grobid.core.engines.DictionarySegmentationParser;
-import org.grobid.core.engines.EngineParsers;
-import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
-import org.grobid.core.features.FeaturesUtils;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
@@ -55,7 +52,7 @@ public class DocumentUtilsTest {
 
         LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
         assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(23474));
+        assertThat(layoutTokenization.getTokenization().size(), is(23471));
 
     }
 
@@ -93,7 +90,7 @@ public class DocumentUtilsTest {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
         DictionaryDocument doc =  parser.initiateProcessing(input, config);
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return new Pair<>(doc, documentBodyParts);
 

@@ -1,12 +1,12 @@
 package org.grobid.core.document;
 
-import org.grobid.core.GrobidModels;
+import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.engines.Engine;
-import org.grobid.core.engines.TaggingLabel;
+import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionaryBodySegmentationLabel;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
-import org.grobid.core.engines.enums.LexicalEntryLabel;
+import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
+import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
@@ -214,7 +214,7 @@ public class TEIDictionaryFormatter {
         TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
 
         String tokenLabel = null;
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -235,7 +235,7 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(DictionaryBodySegmentationLabel.ENTRY.getLabel())) {
+            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -251,7 +251,7 @@ public class TEIDictionaryFormatter {
         TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.DICTIONARY_SEGMENTATION, contentFeatured, tokenizations);
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_SEGMENTATION, contentFeatured, tokenizations);
 
         String tokenLabel = null;
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -272,11 +272,11 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(DictionarySegmentationLabel.BODY.getLabel())) {
+            if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL)) {
                 buffer.append(createMyXMLString("body", clusterContent));
-            } else if (tagLabel.equals(DictionarySegmentationLabel.HEADNOTE.getLabel())) {
+            } else if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)) {
                 buffer.append(createMyXMLString("headnote", clusterContent));
-            }else if (tagLabel.equals(DictionarySegmentationLabel.FOOTNOTE.getLabel())) {
+            }else if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)) {
                 buffer.append(createMyXMLString("footnote", clusterContent));
             }else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -382,7 +382,7 @@ public class TEIDictionaryFormatter {
         TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(GrobidModels.LEXICAL_ENTRY, bodyContentFeatured, tokenizations);
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY, bodyContentFeatured, tokenizations);
 
         String tokenLabel = null;
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -413,19 +413,19 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(LexicalEntryLabel.ENTRY.getLabel())) {
+            if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_ENTRY)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.FORM.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_FORM)) {
                 buffer.append(createMyXMLString("form", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.SENSE.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_SENSE)) {
                 buffer.append(createMyXMLString("sense", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.METAMARK.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_METAMARK)) {
                 buffer.append(createMyXMLString("metamark", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.ETYM.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_METAMARK)) {
                 buffer.append(createMyXMLString("etym", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.RE.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_RE)) {
                 buffer.append(createMyXMLString("re", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabel.NOTE.getLabel())) {
+            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_NOTE)) {
                 buffer.append(createMyXMLString("note", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");

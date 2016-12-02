@@ -1,6 +1,7 @@
 package org.grobid.trainer;
 
 import org.grobid.core.GrobidModels;
+import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
@@ -19,7 +20,7 @@ import java.util.StringTokenizer;
 public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
 
     public DictionaryBodySegmentationTrainer() {
-        super(GrobidModels.DICTIONARY_BODY_SEGMENTATION);
+        super(DictionaryModels.DICTIONARY_BODY_SEGMENTATION);
     }
 
     /**

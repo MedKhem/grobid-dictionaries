@@ -24,7 +24,7 @@ public class LexicalEntryParser extends AbstractParser {
     private static volatile LexicalEntryParser instance;
 
     public LexicalEntryParser() {
-        super(GrobidModels.LEXICAL_ENTRY);
+        super(DictionaryModels.LEXICAL_ENTRY);
     }
 
     public static LexicalEntryParser getInstance() {
@@ -46,10 +46,10 @@ public class LexicalEntryParser extends AbstractParser {
 //        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
 //        Document doc = DocumentUtils.docPrepare(originFile);
 //        //Old BODY from document
-//        SortedSet<DocumentPiece> documentBodyParts = doc.DictionarySegmentationLabel(SegmentationLabel.BODY);
+//        SortedSet<DocumentPiece> documentBodyParts = doc.DictionarySegmentationLabels(SegmentationLabel.BODY);
 //        //New body from document
 ////        DictionaryDocument doc = (DictionaryDocument) new EngineParsers().getSegmentationParser().initiateProcessing(documentSource, config);
-////        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+////        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.BODY);
 //
 //        LayoutTokenization tokens = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 //        String text = tokens.getTokenization().stream().map(LayoutToken::getText).collect(Collectors.joining());

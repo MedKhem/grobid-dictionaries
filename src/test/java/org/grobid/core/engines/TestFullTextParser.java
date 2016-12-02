@@ -1,11 +1,9 @@
 package org.grobid.core.engines;
 
 import org.grobid.core.document.DictionaryDocument;
-import org.grobid.core.document.Document;
 import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentSource;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
@@ -113,7 +111,7 @@ public class TestFullTextParser {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
         DictionaryDocument doc = parser.initiateProcessing(input, config);
-        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabel.BODY);
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return new Pair<>(doc, documentBodyParts);
     }

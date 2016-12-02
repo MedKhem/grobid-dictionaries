@@ -1,7 +1,5 @@
 package org.grobid.core.document;
 
-import org.grobid.core.engines.enums.DictionarySegmentationLabel;
-
 import java.util.SortedSet;
 
 /**
@@ -9,21 +7,21 @@ import java.util.SortedSet;
  */
 public class DictionaryDocument extends Document {
 
-    public DictionaryDocument(Document document){
-        super (document.documentSource);
+    public DictionaryDocument(Document document) {
+        super(document.documentSource);
 
     }
 
-    public SortedSet<DocumentPiece> getDocumentDictionaryPart(DictionarySegmentationLabel segmentationLabel) {
-        if(this.labeledBlocks == null) {
+    public SortedSet<DocumentPiece> getDocumentDictionaryPart(String segmentationLabel) {
+        if (this.labeledBlocks == null) {
             LOGGER.debug("labeledBlocks is null");
             return null;
         } else {
-            if(segmentationLabel.getLabel() == null) {
-                System.out.println("DictionarySegmentationLabel.getLabel()  is null");
+            if (segmentationLabel == null) {
+                System.out.println("DictionarySegmentationLabels.getLabel()  is null");
             }
 
-            return this.labeledBlocks.get(segmentationLabel.getLabel());
+            return this.labeledBlocks.get(segmentationLabel);
         }
     }
 

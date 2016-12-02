@@ -31,12 +31,12 @@ public class TEIFormatterTest {
     }
 
 
-    // Method to extend the labels in "org.grobid.core.engines.TaggingLabels" enum with list of possible tags specifc to grobid-dictionary project.
+    // Method to extend the labels in "org.grobid.core.engines.label.TaggingLabels" enum with list of possible tags specifc to grobid-dictionary project.
     // To be  run just once
 
 //    @Test
 //    public void toTEIFormatLexicalEntry() throws Exception {
-//        for (LexicalEntryLabel tags : LexicalEntryLabel.values()) {
+//        for (LexicalEntryLabels tags : LexicalEntryLabels.values()) {
 //            TaggingLabel.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
 //        }
 //
