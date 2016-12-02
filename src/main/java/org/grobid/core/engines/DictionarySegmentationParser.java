@@ -66,7 +66,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         String labeledFeatures = null;
 
         // if featSeg is null, it usually means that no body segment is found in the
-
+        // hi
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
             segmentedDictionary = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
