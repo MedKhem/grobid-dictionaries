@@ -1,5 +1,7 @@
 package org.grobid.core.document;
 
+import org.grobid.core.engines.SegmentationLabel;
+
 import java.util.SortedSet;
 
 /**
@@ -22,6 +24,14 @@ public class DictionaryDocument extends Document {
             }
 
             return this.labeledBlocks.get(segmentationLabel);
+        }
+    }
+    public String getDictionaryDocumentPartText(String segmentationLabel) {
+        SortedSet<DocumentPiece> pieces = getDocumentDictionaryPart(segmentationLabel);
+        if (pieces == null) {
+            return null;
+        } else {
+            return getDocumentPieceText(getDocumentDictionaryPart(segmentationLabel));
         }
     }
 

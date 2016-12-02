@@ -3,6 +3,7 @@ package org.grobid.core.engines;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
+import eugfc.imageio.plugins.PNMRegistry;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
@@ -11,19 +12,22 @@ import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.tagging.GenericTaggerUtils;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.exceptions.GrobidExceptionStatus;
+import org.grobid.core.features.FeatureFactory;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
-import org.grobid.core.layout.Block;
-import org.grobid.core.layout.LayoutToken;
-import org.grobid.core.layout.LayoutTokenization;
+import org.grobid.core.features.FeaturesVectorSegmentation;
+import org.grobid.core.layout.*;
 import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.LanguageUtilities;
 import org.grobid.core.utilities.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.trim;
@@ -34,6 +38,21 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class DictionarySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     private static volatile DictionarySegmentationParser instance;
+
+    // default bins for relative position
+    private static final int NBBINS_POSITION = 12;
+
+    // default bins for inter-block spacing
+    private static final int NBBINS_SPACE = 5;
+
+    // default bins for block character density
+    private static final int NBBINS_DENSITY = 5;
+
+    // projection scale for line length
+    private static final int LINESCALE = 10;
+
+    private LanguageUtilities languageUtilities = LanguageUtilities.getInstance();
+    private FeatureFactory featureFactory = FeatureFactory.getInstance();
 
     public DictionarySegmentationParser() {
 
@@ -62,11 +81,11 @@ public class DictionarySegmentationParser extends AbstractParser {
         LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
         String segmentedDictionary = null;
 
-        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
+        String featSeg = getAllLinesFeatured(doc);
         String labeledFeatures = null;
 
         // if featSeg is null, it usually means that no body segment is found in the
-        // hi
+
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
             segmentedDictionary = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
@@ -76,19 +95,24 @@ public class DictionarySegmentationParser extends AbstractParser {
     }
 
     public DictionaryDocument initiateProcessing(File originFile, GrobidAnalysisConfig config) {
-        // This method is to be called by an following parser to perform first level segmentation: Headnote, Body and Footnote
+        // This method is to be called by any parser to perform first level segmentation: Headnote, Body and Footnote
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
         try {
-
-            //Prepare
             Document document = new Document(documentSource);
-            document.addTokenizedDocument(config);
-            document.produceStatistics();
+
             //Transform the doc to a dictionary doc
             DictionaryDocument doc = new DictionaryDocument(document);
             doc.addTokenizedDocument(config);
+            doc.produceStatistics();
             doc = prepareDocument(doc);
 
+            // if assets is true, the images are still there under directory pathXML+"_data"
+            // we copy them to the assetPath directory
+
+            File assetFile = config.getPdfAssetPath();
+            if (assetFile != null) {
+                dealWithImages(documentSource, doc, assetFile, config);
+            }
             return doc;
         } finally {
             // keep it clean when leaving...
@@ -102,24 +126,516 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
     }
 
+    private void dealWithImages(DocumentSource documentSource, Document doc, File assetFile, GrobidAnalysisConfig config) {
+        if (assetFile != null) {
+            // copy the files under the directory pathXML+"_data"
+            // we copy the asset files into the path specified by assetPath
+
+            if (!assetFile.exists()) {
+                // we create it
+                if (assetFile.mkdir()) {
+                    LOGGER.debug("Directory created: " + assetFile.getPath());
+                } else {
+                    LOGGER.error("Failed to create directory: " + assetFile.getPath());
+                }
+            }
+            PNMRegistry.registerAllServicesProviders();
+
+            // filter all .jpg and .png files
+            File directoryPath = new File(documentSource.getXmlFile().getAbsolutePath() + "_data");
+            if (directoryPath.exists()) {
+                File[] files = directoryPath.listFiles();
+                if (files != null) {
+                    for (final File currFile : files) {
+                        String toLowerCaseName = currFile.getName().toLowerCase();
+                        if (toLowerCaseName.endsWith(".png") || !config.isPreprocessImages()) {
+                            try {
+                                if (toLowerCaseName.endsWith(".vec")) {
+                                    continue;
+                                }
+                                FileUtils.copyFileToDirectory(currFile, assetFile);
+                            } catch (IOException e) {
+                                LOGGER.error("Cannot copy file " + currFile.getAbsolutePath() + " to " + assetFile.getAbsolutePath(), e);
+                            }
+                        } else if (toLowerCaseName.endsWith(".jpg")
+                                || toLowerCaseName.endsWith(".ppm")
+                            //	|| currFile.getName().toLowerCase().endsWith(".pbm")
+                                ) {
+
+                            String outputFilePath = "";
+                            try {
+                                final BufferedImage bi = ImageIO.read(currFile);
+
+                                if (toLowerCaseName.endsWith(".jpg")) {
+                                    outputFilePath = assetFile.getPath() + File.separator +
+                                            toLowerCaseName.replace(".jpg", ".png");
+                                }
+                                /*else if (currFile.getName().toLowerCase().endsWith(".pbm")) {
+                                    outputFilePath = assetFile.getPath() + File.separator +
+                                         currFile.getName().toLowerCase().replace(".pbm",".png");
+                                }*/
+                                else {
+                                    outputFilePath = assetFile.getPath() + File.separator +
+                                            toLowerCaseName.replace(".ppm", ".png");
+                                }
+                                ImageIO.write(bi, "png", new File(outputFilePath));
+                            } catch (IOException e) {
+                                LOGGER.error("Cannot convert file " + currFile.getAbsolutePath() + " to " + outputFilePath, e);
+                            }
+                        }
+                    }
+                }
+            }
+            // update the path of the image description stored in Document
+
+            if (config.isPreprocessImages()) {
+                List<GraphicObject> images = doc.getImages();
+                if (images != null) {
+                    String subPath = assetFile.getPath();
+                    int ind = subPath.lastIndexOf("/");
+                    if (ind != -1)
+                        subPath = subPath.substring(ind + 1, subPath.length());
+                    for (GraphicObject image : images) {
+                        String fileImage = image.getFilePath();
+                        if (fileImage == null) {
+                            continue;
+                        }
+                        fileImage = fileImage.replace(".ppm", ".png")
+                                .replace(".jpg", ".png");
+                        ind = fileImage.indexOf("/");
+                        image.setFilePath(subPath + fileImage.substring(ind, fileImage.length()));
+                    }
+                }
+            }
+        }
+    }
+
+
     public DictionaryDocument prepareDocument(DictionaryDocument doc) {
 
         //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
-        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
         List<LayoutToken> tokenizations = doc.getTokenizations();
         if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
             throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
                                       GrobidExceptionStatus.TOO_MANY_TOKENS);
         }
-        String content = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokens).toString();
+
+        doc.produceStatistics();
+        String content = getAllLinesFeatured(doc);
         if (isNotEmpty(trim(content))) {
             String labelledResult = label(content);
             // set the different sections of the Document object
+            // the method is originally implemented in BasicStructureBuilder class but it reimplemented here to be able to use DictionaryDocument object
             doc = generalResultSegmentation(doc, labelledResult, tokenizations);
+        }
+        return doc;
+    }
 
+    /**
+     * Addition of the features at line level for the complete document.
+     * <p/>
+     * This is an alternative to the token level, where the unit for labeling is the line - so allowing faster
+     * processing and involving less features.
+     * Lexical features becomes line prefix and suffix, the feature text unit is the first 10 characters of the
+     * line without space.
+     * The dictionary flags are at line level (i.e. the line contains a name mention, a place mention, a year, etc.)
+     * Regarding layout features: font, size and style are the one associated to the first token of the line.
+     */
+    public String getAllLinesFeatured(Document doc) {
+
+        List<Block> blocks = doc.getBlocks();
+        if ((blocks == null) || blocks.size() == 0) {
+            return null;
         }
 
-        return doc;
+        //guaranteeing quality of service. Otherwise, there are some PDF that may contain 300k blocks and thousands of extracted "images" that ruins the performance
+        if (blocks.size() > GrobidProperties.getPdfBlocksMax()) {
+            throw new GrobidException("Postprocessed document is too big, contains: " + blocks.size(), GrobidExceptionStatus.TOO_MANY_BLOCKS);
+        }
+
+        boolean graphicVector = false;
+        boolean graphicBitmap = false;
+
+        // list of textual patterns at the head and foot of pages which can be re-occur on several pages
+        // (typically indicating a publisher foot or head notes)
+        Map<String, Integer> patterns = new TreeMap<String, Integer>();
+        Map<String, Boolean> firstTimePattern = new TreeMap<String, Boolean>();
+
+        for (Page page : doc.getPages()) {
+            // we just look at the two first and last blocks of the page
+            if ((page.getBlocks() != null) && (page.getBlocks().size() > 0)) {
+                for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
+                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                        Block block = page.getBlocks().get(blockIndex);
+                        String localText = block.getText();
+                        if ((localText != null) && (localText.length() > 0)) {
+                            String[] lines = localText.split("[\\n\\r]");
+                            if (lines.length > 0) {
+                                String line = lines[0];
+                                String pattern = featureFactory.getPattern(line);
+                                if (pattern.length() > 8) {
+                                    Integer nb = patterns.get(pattern);
+                                    if (nb == null) {
+                                        patterns.put(pattern, new Integer(1));
+                                        firstTimePattern.put(pattern, false);
+                                    }
+                                    else
+                                        patterns.put(pattern, new Integer(nb+1));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String featuresAsString = getFeatureVectorsAsString(doc,
+                                                            graphicVector, graphicBitmap, patterns, firstTimePattern);
+
+        return featuresAsString;
+    }
+
+    private String getFeatureVectorsAsString(Document doc, boolean graphicVector,
+                                             boolean graphicBitmap, Map<String, Integer> patterns,
+                                             Map<String, Boolean> firstTimePattern) {
+        StringBuilder fulltext = new StringBuilder();
+        int documentLength = doc.getDocumentLenghtChar();
+
+        String currentFont = null;
+        int currentFontSize = -1;
+
+        boolean newPage;
+        boolean start = true;
+        int mm = 0; // page position
+        int nn = 0; // document position
+        int pageLength = 0; // length of the current page
+        double pageHeight = 0.0;
+
+        // vector for features
+        FeaturesVectorSegmentation features;
+        FeaturesVectorSegmentation previousFeatures = null;
+
+        for (Page page : doc.getPages()) {
+            pageHeight = page.getHeight();
+            newPage = true;
+            double spacingPreviousBlock = 0.0; // discretized
+            double lowestPos = 0.0;
+            pageLength = page.getPageLengthChar();
+            BoundingBox pageBoundingBox = page.getMainArea();
+            mm = 0;
+            //endPage = true;
+
+            if ((page.getBlocks() == null) || (page.getBlocks().size() == 0))
+                continue;
+
+            for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
+                Block block = page.getBlocks().get(blockIndex);
+                /*if (start) {
+                    newPage = true;
+                    start = false;
+                }*/
+                boolean lastPageBlock = false;
+                boolean firstPageBlock = false;
+                if (blockIndex == page.getBlocks().size()-1) {
+                    lastPageBlock = true;
+                }
+
+                if (blockIndex == 0) {
+                    firstPageBlock = true;
+                }
+
+                //endblock = false;
+
+                /*if (endPage) {
+                    newPage = true;
+                    mm = 0;
+                }*/
+
+                // check if we have a graphical object connected to the current block
+                List<GraphicObject> localImages = Document.getConnectedGraphics(block, doc);
+                if (localImages != null) {
+                    for(GraphicObject localImage : localImages) {
+                        if (localImage.getType() == GraphicObjectType.BITMAP)
+                            graphicVector = true;
+                        if (localImage.getType() == GraphicObjectType.VECTOR)
+                            graphicBitmap = true;
+                    }
+                }
+
+                if (lowestPos >  block.getY()) {
+                    // we have a vertical shift, which can be due to a change of column or other particular layout formatting
+                    spacingPreviousBlock = doc.getMaxBlockSpacing() / 5.0; // default
+                } else
+                    spacingPreviousBlock = block.getY() - lowestPos;
+
+                String localText = block.getText();
+                if (localText == null)
+                    continue;
+
+                // character density of the block
+                double density = 0.0;
+                if ( (block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
+                        (block.getText() != null) && (!block.getText().contains("@PAGE")) &&
+                        (!block.getText().contains("@IMAGE")) )
+                    density = (double)block.getText().length() / (block.getHeight() * block.getWidth());
+
+                // is the current block in the main area of the page or not?
+                boolean inPageMainArea = true;
+                BoundingBox blockBoundingBox = BoundingBox.fromPointAndDimensions(page.getNumber(),
+                                                                                  block.getX(), block.getY(), block.getWidth(), block.getHeight());
+                if (pageBoundingBox == null || (!pageBoundingBox.contains(blockBoundingBox) && !pageBoundingBox.intersect(blockBoundingBox)))
+                    inPageMainArea = false;
+
+                String[] lines = localText.split("[\\n\\r]");
+                // set the max length of the lines in the block, in number of characters
+                int maxLineLength = 0;
+                for(int p=0; p<lines.length; p++) {
+                    if (lines[p].length() > maxLineLength)
+                        maxLineLength = lines[p].length();
+                }
+                List<LayoutToken> tokens = block.getTokens();
+                if ((tokens == null) || (tokens.size() == 0)) {
+                    continue;
+                }
+                for (int li = 0; li < lines.length; li++) {
+                    String line = lines[li];
+                    /*boolean firstPageBlock = false;
+                    boolean lastPageBlock = false;
+
+                    if (newPage)
+                        firstPageBlock = true;
+                    if (endPage)
+                        lastPageBlock = true;
+                    */
+
+                    // for the layout information of the block, we take simply the first layout token
+                    LayoutToken token = null;
+                    if (tokens.size() > 0)
+                        token = tokens.get(0);
+
+                    double coordinateLineY = token.getY();
+
+                    features = new FeaturesVectorSegmentation();
+                    features.token = token;
+                    features.line = line;
+
+                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                        String pattern = featureFactory.getPattern(line);
+                        Integer nb = patterns.get(pattern);
+                        if ((nb != null) && (nb > 1)) {
+                            features.repetitivePattern = true;
+
+                            Boolean firstTimeDone = firstTimePattern.get(pattern);
+                            if ((firstTimeDone != null) && !firstTimeDone) {
+                                features.firstRepetitivePattern = true;
+                                firstTimePattern.put(pattern, true);
+                            }
+                        }
+                    }
+
+                    StringTokenizer st2 = new StringTokenizer(line, " \t");
+                    String text = null;
+                    String text2 = null;
+                    if (st2.hasMoreTokens())
+                        text = st2.nextToken();
+                    if (st2.hasMoreTokens())
+                        text2 = st2.nextToken();
+                    if ((text == null) ||
+                            (text.trim().length() == 0) ||
+                            (text.trim().equals("\n")) ||
+                            (text.trim().equals("\r")) ||
+                            (text.trim().equals("\n\r")) ||
+                            (TextUtilities.filterLine(line))) {
+                        continue;
+                    }
+
+                    text = text.trim();
+
+                    features.string = text;
+                    features.secondString = text2;
+
+                    features.firstPageBlock = firstPageBlock;
+                    features.lastPageBlock = lastPageBlock;
+                    //features.lineLength = line.length() / LINESCALE;
+                    features.lineLength = featureFactory
+                            .linearScaling(line.length(), maxLineLength, LINESCALE);
+
+                    features.punctuationProfile = TextUtilities.punctuationProfile(line);
+
+                    if (graphicBitmap) {
+                        features.bitmapAround = true;
+                    }
+                    if (graphicVector) {
+                        features.vectorAround = true;
+                    }
+
+                    features.lineStatus = null;
+                    features.punctType = null;
+
+                    if ((li == 0) ||
+                            ((previousFeatures != null) && previousFeatures.blockStatus.equals("BLOCKEND"))) {
+                        features.blockStatus = "BLOCKSTART";
+                    } else if (li == lines.length - 1) {
+                        features.blockStatus = "BLOCKEND";
+                        //endblock = true;
+                    } else if (features.blockStatus == null) {
+                        features.blockStatus = "BLOCKIN";
+                    }
+
+                    if (newPage) {
+                        features.pageStatus = "PAGESTART";
+                        newPage = false;
+                        //endPage = false;
+                        if (previousFeatures != null)
+                            previousFeatures.pageStatus = "PAGEEND";
+                    } else {
+                        features.pageStatus = "PAGEIN";
+                        newPage = false;
+                        //endPage = false;
+                    }
+
+                    if (text.length() == 1) {
+                        features.singleChar = true;
+                    }
+
+                    if (Character.isUpperCase(text.charAt(0))) {
+                        features.capitalisation = "INITCAP";
+                    }
+
+                    if (featureFactory.test_all_capital(text)) {
+                        features.capitalisation = "ALLCAP";
+                    }
+
+                    if (featureFactory.test_digit(text)) {
+                        features.digit = "CONTAINSDIGITS";
+                    }
+
+                    if (featureFactory.test_common(text)) {
+                        features.commonName = true;
+                    }
+
+                    if (featureFactory.test_names(text)) {
+                        features.properName = true;
+                    }
+
+                    if (featureFactory.test_month(text)) {
+                        features.month = true;
+                    }
+
+                    Matcher m = featureFactory.isDigit.matcher(text);
+                    if (m.find()) {
+                        features.digit = "ALLDIGIT";
+                    }
+
+                    Matcher m2 = featureFactory.YEAR.matcher(text);
+                    if (m2.find()) {
+                        features.year = true;
+                    }
+
+                    Matcher m3 = featureFactory.EMAIL.matcher(text);
+                    if (m3.find()) {
+                        features.email = true;
+                    }
+
+                    Matcher m4 = featureFactory.HTTP.matcher(text);
+                    if (m4.find()) {
+                        features.http = true;
+                    }
+
+                    if (currentFont == null) {
+                        currentFont = token.getFont();
+                        features.fontStatus = "NEWFONT";
+                    } else if (!currentFont.equals(token.getFont())) {
+                        currentFont = token.getFont();
+                        features.fontStatus = "NEWFONT";
+                    } else
+                        features.fontStatus = "SAMEFONT";
+
+                    int newFontSize = (int) token.getFontSize();
+                    if (currentFontSize == -1) {
+                        currentFontSize = newFontSize;
+                        features.fontSize = "HIGHERFONT";
+                    } else if (currentFontSize == newFontSize) {
+                        features.fontSize = "SAMEFONTSIZE";
+                    } else if (currentFontSize < newFontSize) {
+                        features.fontSize = "HIGHERFONT";
+                        currentFontSize = newFontSize;
+                    } else if (currentFontSize > newFontSize) {
+                        features.fontSize = "LOWERFONT";
+                        currentFontSize = newFontSize;
+                    }
+
+                    if (token.getBold())
+                        features.bold = true;
+
+                    if (token.getItalic())
+                        features.italic = true;
+
+                    // HERE horizontal information
+                    // CENTERED
+                    // LEFTAJUSTED
+                    // CENTERED
+
+                    if (features.capitalisation == null)
+                        features.capitalisation = "NOCAPS";
+
+                    if (features.digit == null)
+                        features.digit = "NODIGIT";
+
+                    //if (features.punctType == null)
+                    //    features.punctType = "NOPUNCT";
+
+                    features.relativeDocumentPosition = featureFactory
+                            .linearScaling(nn, documentLength, NBBINS_POSITION);
+//System.out.println(nn + " " + documentLength + " " + NBBINS_POSITION + " " + features.relativeDocumentPosition);
+                    features.relativePagePositionChar = featureFactory
+                            .linearScaling(mm, pageLength, NBBINS_POSITION);
+//System.out.println(mm + " " + pageLength + " " + NBBINS_POSITION + " " + features.relativePagePositionChar);
+                    int pagePos = featureFactory
+                            .linearScaling(coordinateLineY, pageHeight, NBBINS_POSITION);
+//System.out.println(coordinateLineY + " " + pageHeight + " " + NBBINS_POSITION + " " + pagePos);
+                    if (pagePos > NBBINS_POSITION)
+                        pagePos = NBBINS_POSITION;
+                    features.relativePagePosition = pagePos;
+//System.out.println(coordinateLineY + "\t" + pageHeight);
+
+                    if (spacingPreviousBlock != 0.0) {
+                        features.spacingWithPreviousBlock = featureFactory
+                                .linearScaling(spacingPreviousBlock-doc.getMinBlockSpacing(), doc.getMaxBlockSpacing()-doc.getMinBlockSpacing(), NBBINS_SPACE);
+                    }
+
+                    features.inMainArea = inPageMainArea;
+
+                    if (density != -1.0) {
+                        features.characterDensity = featureFactory
+                                .linearScaling(density-doc.getMinCharacterDensity(), doc.getMaxCharacterDensity()-doc.getMinCharacterDensity(), NBBINS_DENSITY);
+//System.out.println((density-doc.getMinCharacterDensity()) + " " + (doc.getMaxCharacterDensity()-doc.getMinCharacterDensity()) + " " + NBBINS_DENSITY + " " + features.characterDensity);
+                    }
+
+                    if (previousFeatures != null) {
+                        String vector = previousFeatures.printVector();
+                        fulltext.append(vector);
+                    }
+                    previousFeatures = features;
+                }
+
+//System.out.println((spacingPreviousBlock-doc.getMinBlockSpacing()) + " " + (doc.getMaxBlockSpacing()-doc.getMinBlockSpacing()) + " " + NBBINS_SPACE + " "
+//    + featureFactory.linearScaling(spacingPreviousBlock-doc.getMinBlockSpacing(), doc.getMaxBlockSpacing()-doc.getMinBlockSpacing(), NBBINS_SPACE));
+
+                // lowest position of the block
+                lowestPos = block.getY() + block.getHeight();
+
+                // update page-level and document-level positions
+                if (tokens != null) {
+                    mm += tokens.size();
+                    nn += tokens.size();
+                }
+            }
+        }
+        if (previousFeatures != null)
+            fulltext.append(previousFeatures.printVector());
+
+        return fulltext.toString();
     }
 
     static public DictionaryDocument generalResultSegmentation(DictionaryDocument doc, String labeledResult, List<LayoutToken> documentTokens) {
@@ -296,6 +812,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
+        DocumentSource documentSource = null;
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -313,18 +830,39 @@ public class DictionarySegmentationParser extends AbstractParser {
 
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
+                    documentSource = DocumentSource.fromPdf(fileEntry);
+                    Document doc = new Document(documentSource);
+
+                    String PDFFileName = fileEntry.getName();
+                    doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
+
+                    if (doc.getBlocks() == null) {
+                        throw new Exception("PDF parsing resulted in empty content");
+                    }
+                    doc.produceStatistics();
+
                     String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.dictionarySegmentation";
                     Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                    writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
+                    writer.write(getAllLinesFeatured(doc));
                     IOUtils.closeWhileHandlingException(writer);
                     createTrainingDictionary(fileEntry, outputDirectory);
                     n++;
                 }
 
             } else {
+                Document doc = new Document(documentSource);
+
+                String PDFFileName = path.getName();
+                doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
+
+                if (doc.getBlocks() == null) {
+                    throw new Exception("PDF parsing resulted in empty content");
+                }
+                doc.produceStatistics();
+
                 String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
+                writer.write(getAllLinesFeatured(doc));
                 IOUtils.closeWhileHandlingException(writer);
                 n++;
 
@@ -335,8 +873,11 @@ public class DictionarySegmentationParser extends AbstractParser {
             System.out.println(n + " files to be processed.");
 
             return n;
-        } catch (final Exception exp) {
-            throw new GrobidException("An exception occurred while running Grobid batch.", exp);
+        } catch (Exception e) {
+            throw new GrobidException("An exception occured while running Grobid training" +
+                                              " data generation for segmentation model.", e);
+        } finally {
+            DocumentSource.close(documentSource, true, true);
         }
     }
 

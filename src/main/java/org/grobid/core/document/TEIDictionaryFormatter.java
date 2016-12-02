@@ -25,9 +25,9 @@ import java.util.TimeZone;
  */
 public class TEIDictionaryFormatter {
 
-    private Document doc = null;
+    private DictionaryDocument doc = null;
 
-    public TEIDictionaryFormatter(Document document) {
+    public TEIDictionaryFormatter(DictionaryDocument document) {
         doc = document;
     }
 
@@ -111,9 +111,16 @@ public class TEIDictionaryFormatter {
         } else {
             tei.append("\t<text>\n");
         }
-//        tei.append("\t\t<body>\n");
-        tei.append(toTEIDictionarySegmentation(featuredDictionary, layoutTokenization));
-//        tei.append("\t\t</body>\n");
+        tei.append("\t\t<headnote>");
+        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL));
+        tei.append("\t\t</headnote>\n");
+        tei.append("\t\t<body>");
+        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL));
+//        tei.append(toTEIDictionarySegmentation(featuredDictionary, layoutTokenization));
+        tei.append("\t\t</body>\n");
+        tei.append("\t\t<footnote>");
+        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL));
+        tei.append("\t\t</footnote>\n");
         tei.append("\t</text>\n");
         tei.append("</TEI>\n");
 
@@ -235,7 +242,7 @@ public class TEIDictionaryFormatter {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY)) {
+            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");

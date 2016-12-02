@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 public class TEIFormatterTest {
 
     TEIDictionaryFormatter target;
-    Document doc;
+    DictionaryDocument doc;
 
     @Before
     public void setUp() throws Exception {

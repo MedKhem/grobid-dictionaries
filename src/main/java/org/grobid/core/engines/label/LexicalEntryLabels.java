@@ -14,13 +14,13 @@ public class LexicalEntryLabels extends TaggingLabels {
         super();
     }
 
-    private static final String DICTIONARY_ENTRY_LABEL = "<entry>";
-    private static final String DICTIONARY_FORM_LABEL = "<form>";
-    private static final String DICTIONARY_ETYM_LABEL = "<etym>";
-    private static final String DICTIONARY_SENSE_LABEL = "<sense>";
-    private static final String DICTIONARY_METAMARK_LABEL = "<metamark>";
-    private static final String DICTIONARY_RE_LABEL = "<re>";
-    private static final String DICTIONARY_NOTE_LABEL = "<note>";
+    public static final String DICTIONARY_ENTRY_LABEL = "<entry>";
+    public static final String DICTIONARY_FORM_LABEL = "<form>";
+    public static final String DICTIONARY_ETYM_LABEL = "<etym>";
+    public static final String DICTIONARY_SENSE_LABEL = "<sense>";
+    public static final String DICTIONARY_METAMARK_LABEL = "<metamark>";
+    public static final String DICTIONARY_RE_LABEL = "<re>";
+    public static final String DICTIONARY_NOTE_LABEL = "<note>";
 
     public static final TaggingLabel DICTIONARY_ENTRY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_ENTRY_LABEL);
     public static final TaggingLabel DICTIONARY_FORM = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_FORM_LABEL);
