@@ -112,15 +112,15 @@ public class TEIDictionaryFormatter {
             tei.append("\t<text>\n");
         }
         tei.append("\t\t<headnote>");
-        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL));
-        tei.append("\t\t</headnote>\n");
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
+        tei.append("</headnote>\n");
         tei.append("\t\t<body>");
-        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL));
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL)));
 //        tei.append(toTEIDictionarySegmentation(featuredDictionary, layoutTokenization));
-        tei.append("\t\t</body>\n");
+        tei.append("</body>\n");
         tei.append("\t\t<footnote>");
-        tei.append(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL));
-        tei.append("\t\t</footnote>\n");
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
+        tei.append("</footnote>\n");
         tei.append("\t</text>\n");
         tei.append("</TEI>\n");
 

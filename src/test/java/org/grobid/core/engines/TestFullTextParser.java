@@ -56,7 +56,7 @@ public class TestFullTextParser {
         Pair<DictionaryDocument, SortedSet<DocumentPiece>> output = prepare("BasicEnglish.pdf");
         assertThat(output, notNullValue());
         Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
-        assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(16948));
+        assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(24159));
 //        System.out.println("hi"+featuresAndLayoutTokens.a);
 
 

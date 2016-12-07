@@ -5,6 +5,7 @@ import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.trainer.sax.TEIDictionaryBodySegmentationSaxParser;
 import org.grobid.trainer.sax.TEIDictionarySegmentationSaxParser;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
 
@@ -106,7 +107,7 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
                 String name = tf.getName();
                 System.out.println(name);
 
-                TEIDictionarySegmentationSaxParser parser2 = new TEIDictionarySegmentationSaxParser();
+                TEIDictionaryBodySegmentationSaxParser parser2 = new TEIDictionaryBodySegmentationSaxParser();
                 //parser2.setMode(TEILexicalEntrySaxParser.FULLTEXT);
 
                 //get a new instance of parser

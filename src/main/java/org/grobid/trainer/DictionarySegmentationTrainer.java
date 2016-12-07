@@ -20,25 +20,17 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
 
     public DictionarySegmentationTrainer() {
         super(DictionaryModels.DICTIONARY_SEGMENTATION);
+
+        // adjusting CRF training parameters for this model (only with Wapiti)
+        epsilon = 0.00001;
+        window = 20;
     }
 
-    /**
-     * Command line execution.
-     *
-     * @param args Command line arguments.
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
-        GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new DictionarySegmentationTrainer());
-        AbstractTrainer.runEvaluation(new DictionarySegmentationTrainer());
-        MockContext.destroyInitialContext();
-    }
+
 
     @Override
     public int createCRFPPData(File corpusPath, File outputFile) {
-        return addFeaturesDictionarySegmentation(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/raw", outputFile);
+        return addFeaturesDictionarySegmentation(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/raw", outputFile, null, 1.0);
     }
 
     /**
@@ -55,7 +47,11 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
                                final File trainingOutputPath,
                                final File evalOutputPath,
                                double splitRatio) {
-        return 0;
+        return addFeaturesDictionarySegmentation(corpusDir.getAbsolutePath() + "/tei",
+                corpusDir.getAbsolutePath() + "/raw",
+                trainingOutputPath,
+                evalOutputPath,
+                splitRatio);
     }
 
     /**
@@ -63,20 +59,25 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
      *
      * @param sourceTEIPathLabel               path to TEI files
      * @param sourceDictionarySegmentationPathFeatures path to fulltexts
-     * @param outputPath                       output train file
+     * @param evalOutputPath     path where to store the temporary evaluation data
+     * @param splitRatio         ratio to consider for separating training and evaluation data, e.g. 0.8 for 80%
      * @return number of examples
      */
     public int addFeaturesDictionarySegmentation(String sourceTEIPathLabel,
                                          String sourceDictionarySegmentationPathFeatures,
-                                         File outputPath) {
+                                                 final File trainingOutputPath,
+                                                 final File evalOutputPath,
+                                                 double splitRatio) {
         int totalExamples = 0;
         OutputStream os2 = null;
         Writer writer2 = null;
+        OutputStream os3 = null;
+        Writer writer3 = null;
 
         try {
             System.out.println("sourceTEIPathLabel: " + sourceTEIPathLabel);
             System.out.println("sourceDictionarySegmentationPathFeatures: " + sourceDictionarySegmentationPathFeatures);
-            System.out.println("outputPath: " + outputPath);
+            System.out.println("outputPath: " + trainingOutputPath);
 
             // we need first to generate the labeled files from the TEI annotated files
             File input = new File(sourceTEIPathLabel);
@@ -94,8 +95,14 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
             System.out.println(refFiles.length + " tei files");
 
             // the file for writing the training data
-            os2 = new FileOutputStream(outputPath);
+            os2 = new FileOutputStream(trainingOutputPath);
             writer2 = new OutputStreamWriter(os2, "UTF8");
+
+            // the file for writing the evaluation data
+            if (evalOutputPath != null) {
+                os3 = new FileOutputStream(evalOutputPath);
+                writer3 = new OutputStreamWriter(os3, "UTF8");
+            }
 
             // get a factory for SAX parser
             SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -164,6 +171,13 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
                 if (os2 != null) {
                     os2.close();
                 }
+                if (writer3 != null) {
+                    writer3.close();
+                }
+
+                if (os3 != null) {
+                    os3.close();
+                }
 
             } catch (Exception ex) {
                 throw new GrobidException("An exception occurred while closing file", ex);
@@ -210,4 +224,18 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
 
         return null;
     }
+    /**
+     * Command line execution.
+     *
+     * @param args Command line arguments.
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        MockContext.setInitialContext();
+        GrobidProperties.getInstance();
+        AbstractTrainer.runTraining(new DictionarySegmentationTrainer());
+        AbstractTrainer.runEvaluation(new DictionarySegmentationTrainer());
+        MockContext.destroyInitialContext();
+    }
+
 }

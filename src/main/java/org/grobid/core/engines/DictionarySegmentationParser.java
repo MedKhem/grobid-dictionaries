@@ -830,45 +830,18 @@ public class DictionarySegmentationParser extends AbstractParser {
 
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
-                    documentSource = DocumentSource.fromPdf(fileEntry);
-                    Document doc = new Document(documentSource);
 
-                    String PDFFileName = fileEntry.getName();
-                    doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
-
-                    if (doc.getBlocks() == null) {
-                        throw new Exception("PDF parsing resulted in empty content");
-                    }
-                    doc.produceStatistics();
-
-                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.dictionarySegmentation";
-                    Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                    writer.write(getAllLinesFeatured(doc));
-                    IOUtils.closeWhileHandlingException(writer);
+                    // Create the pre-annotated file and the raw text
                     createTrainingDictionary(fileEntry, outputDirectory);
                     n++;
                 }
 
             } else {
-                Document doc = new Document(documentSource);
-
-                String PDFFileName = path.getName();
-                doc.addTokenizedDocument(GrobidAnalysisConfig.defaultInstance());
-
-                if (doc.getBlocks() == null) {
-                    throw new Exception("PDF parsing resulted in empty content");
-                }
-                doc.produceStatistics();
-
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation";
-                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(getAllLinesFeatured(doc));
-                IOUtils.closeWhileHandlingException(writer);
-                n++;
 
                 createTrainingDictionary(path, outputDirectory);
-            }
+                n++;
 
+            }
 
             System.out.println(n + " files to be processed.");
 
@@ -881,27 +854,293 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
     }
 
-    public void createTrainingDictionary(File path, String outputDirectory) throws IOException {
+    public void createTrainingDictionary(File path, String outputDirectory) throws Exception {
+
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
+        DictionaryDocument doc = initiateProcessing(path, config);
+        if (doc.getBlocks() == null) {
+            throw new Exception("PDF parsing resulted in empty content");
+        }
+        List<LayoutToken> tokenizations = doc.getTokenizationsFulltext();
+
+        //Write the features file
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation";
+        Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+        String featuredText =  getAllLinesFeatured(doc);
+        writer.write(featuredText);
+        IOUtils.closeWhileHandlingException(writer);
+
+        // also write the raw text as seen before segmentation
+
+        StringBuffer rawtxt = new StringBuffer();
+        for(LayoutToken txtline : tokenizations) {
+            rawtxt.append(txtline.getText());
+        }
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
+        FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
         //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
 
+        if ((featuredText != null) && (featuredText.length() > 0)) {
+            String rese = label(featuredText);
+            StringBuffer bufferFulltext = trainingExtraction(rese, tokenizations, doc);
 
-        //Get the segmented dictionary
-        String segmentedDictionary = process(path);
+            // write the TEI file to reflect the extact layout of the text as extracted from the pdf
+            String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
+            writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+            writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                                 "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
 
-//        //Naive method to prepare wrap the body
-//        StringBuilder bodytxt = DocumentUtils.getDictionarySegmentationTEIToAnnotate(null,doc);
+            writer.write(bufferFulltext.toString());
+            writer.write("\n\t</text>\n</tei>\n");
+            writer.close();
+        }
+    }
 
+    /**
+     * Extract results from a labelled full text in the training format without any string modification.
+     *
+     * @param result        reult
+     * @param tokenizations toks
+     * @return extraction
+     */
+    private StringBuffer trainingExtraction(String result,
+                                            List<LayoutToken> tokenizations,
+                                            Document doc) {
+        // this is the main buffer for the whole full text
+        StringBuffer buffer = new StringBuffer();
+        try {
+            List<Block> blocks = doc.getBlocks();
+            int currentBlockIndex = 0;
+            int indexLine = 0;
 
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
-        FileUtils.writeStringToFile(new File(outTei), segmentedDictionary, "UTF-8");
+            StringTokenizer st = new StringTokenizer(result, "\n");
+            String s1 = null; // current label/tag
+            String s2 = null; // current lexical token
+            String s3 = null; // current second lexical token
+            String lastTag = null;
 
-        // also write the raw text as seen before segmentation
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DictionaryDocument doc = initiateProcessing(path, config);
-        StringBuffer rawtxt = DocumentUtils.getRawTextFromDoc(doc);
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
-        FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+            // current token position
+            int p = 0;
+            boolean start = true;
+
+            while (st.hasMoreTokens()) {
+                boolean addSpace = false;
+                String tok = st.nextToken().trim();
+                String line = null; // current line
+
+                if (tok.length() == 0) {
+                    continue;
+                }
+                StringTokenizer stt = new StringTokenizer(tok, " \t");
+                List<String> localFeatures = new ArrayList<String>();
+                int i = 0;
+
+                boolean newLine = true;
+                int ll = stt.countTokens();
+                while (stt.hasMoreTokens()) {
+                    String s = stt.nextToken().trim();
+                    if (i == 0) {
+                        s2 = TextUtilities.HTMLEncode(s); // lexical token
+                    } else if (i == 1) {
+                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
+                    } else if (i == ll - 1) {
+                        s1 = s; // current label
+                    } else {
+                        localFeatures.add(s); // we keep the feature values in case they appear useful
+                    }
+                    i++;
+                }
+
+                // as we process the document segmentation line by line, we don't use the usual
+                // tokenization to rebuild the text flow, but we get each line again from the
+                // text stored in the document blocks (similarly as when generating the features)
+                line = null;
+                while ((line == null) && (currentBlockIndex < blocks.size())) {
+                    Block block = blocks.get(currentBlockIndex);
+                    List<LayoutToken> tokens = block.getTokens();
+                    if (tokens == null) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    }
+                    String localText = block.getText();
+                    if ((localText == null) || (localText.trim().length() == 0)) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    }
+                    //String[] lines = localText.split("\n");
+                    String[] lines = localText.split("[\\n\\r]");
+                    if ((lines.length == 0) || (indexLine >= lines.length)) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    } else {
+                        line = lines[indexLine];
+                        indexLine++;
+                        if (line.trim().length() == 0) {
+                            line = null;
+                            continue;
+                        }
+
+                        if (TextUtilities.filterLine(line)) {
+                            line = null;
+                            continue;
+                        }
+                    }
+                }
+
+                line = TextUtilities.HTMLEncode(line);
+
+                if (newLine && !start) {
+                    buffer.append("<lb/>");
+                }
+
+                String lastTag0 = null;
+                if (lastTag != null) {
+                    if (lastTag.startsWith("I-")) {
+                        lastTag0 = lastTag.substring(2, lastTag.length());
+                    } else {
+                        lastTag0 = lastTag;
+                    }
+                }
+                String currentTag0 = null;
+                if (s1 != null) {
+                    if (s1.startsWith("I-")) {
+                        currentTag0 = s1.substring(2, s1.length());
+                    } else {
+                        currentTag0 = s1;
+                    }
+                }
+
+                //boolean closeParagraph = false;
+                if (lastTag != null) {
+                    //closeParagraph =
+                    testClosingTag(buffer, currentTag0, lastTag0, s1);
+                }
+
+                boolean output;
+
+                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<headnote>", addSpace, 3);
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
+                }
+
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
+                }
+
+                lastTag = s1;
+
+                if (!st.hasMoreTokens()) {
+                    if (lastTag != null) {
+                        testClosingTag(buffer, "", currentTag0, s1);
+                    }
+                }
+                if (start) {
+                    start = false;
+                }
+            }
+
+            return buffer;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occured while running Grobid.", e);
+        }
+    }
+
+    /**
+     * TODO some documentation...
+     *
+     * @param buffer
+     * @param s1
+     * @param lastTag0
+     * @param s2
+     * @param field
+     * @param outField
+     * @param addSpace
+     * @param nbIndent
+     * @return
+     */
+    private boolean writeField(StringBuffer buffer,
+                               String line,
+                               String s1,
+                               String lastTag0,
+                               String s2,
+                               String field,
+                               String outField,
+                               boolean addSpace,
+                               int nbIndent) {
+        boolean result = false;
+        // filter the output path
+        if ((s1.equals(field)) || (s1.equals("I-" + field))) {
+            result = true;
+            line = line.replace("@BULLET", "\u2022");
+            // if previous and current tag are the same, we output the token
+            if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
+                buffer.append(line);
+            }
+            else if (lastTag0 == null) {
+//                // if previous tagname is null, we output the opening xml tag
+//                for (int i = 0; i < nbIndent; i++) {
+//                    buffer.append("\t");
+//                }
+                buffer.append(outField).append(line);
+            } else if (!lastTag0.equals("<titlePage>")) {
+//                // if the previous tagname is not titlePage, we output the opening xml tag
+//                for (int i = 0; i < nbIndent; i++) {
+//                    buffer.append("\t");
+//                }
+                buffer.append(outField).append(line);
+            } else {
+                // otherwise we continue by ouputting the token
+                buffer.append(line);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * TODO some documentation
+     *
+     * @param buffer
+     * @param currentTag0
+     * @param lastTag0
+     * @param currentTag
+     * @return
+     */
+    private boolean testClosingTag(StringBuffer buffer,
+                                   String currentTag0,
+                                   String lastTag0,
+                                   String currentTag) {
+        boolean res = false;
+        // reference_marker and citation_marker are two exceptions because they can be embedded
+
+        if (!currentTag0.equals(lastTag0)) {
+            /*if (currentTag0.equals("<citation_marker>") || currentTag0.equals("<figure_marker>")) {
+                return res;
+            }*/
+
+            res = false;
+            // we close the current tag
+            if (lastTag0.equals("<headnote>")) {
+                buffer.append("</headnote>");
+            } else if (lastTag0.equals("<body>")) {
+                buffer.append("</body>");
+            }  else if (lastTag0.equals("<footnote>")) {
+                buffer.append("</footnote>");
+            } else {
+                res = false;
+            }
+
+        }
+        return res;
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        // ...
     }
 
 }

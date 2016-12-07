@@ -15,7 +15,7 @@ public class DictionaryBodySegmentationLabels extends TaggingLabels {
     }
 
     public static final String DICTIONARY_ENTRY_LABEL = "<entry>";
-    public static final TaggingLabel DICTIONARY_ENTRY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_ENTRY_LABEL);
+    public static final TaggingLabel DICTIONARY_ENTRY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, DICTIONARY_ENTRY_LABEL);
 
 
     static {
