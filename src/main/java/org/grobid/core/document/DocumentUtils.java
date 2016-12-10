@@ -239,4 +239,25 @@ public class DocumentUtils {
         return tei;
 
     }
+
+    public static List<Block> getBlocksFromDocumentPart(SortedSet<DocumentPiece> documentBodyParts, DictionaryDocument doc){
+
+        // Get all the blocks from the document
+        List<Block> blocks = doc.getBlocks();
+        // Extract just the blocks from the specific document part
+        List<Block> documentPartBlocks = null;
+
+        for (DocumentPiece docPiece : documentBodyParts) {
+            DocumentPointer dp1 = docPiece.a;
+            DocumentPointer dp2 = docPiece.b;
+
+            //int blockPos = dp1.getBlockPtr();
+            for (int blockIndex = dp1.getBlockPtr(); blockIndex <= dp2.getBlockPtr(); blockIndex++) {
+                documentPartBlocks.add(blocks.get(blockIndex));
+
+            }
+        }
+
+        return   documentPartBlocks;
+    }
 }

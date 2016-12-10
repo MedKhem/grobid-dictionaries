@@ -812,7 +812,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
-        DocumentSource documentSource = null;
+
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -849,8 +849,6 @@ public class DictionarySegmentationParser extends AbstractParser {
         } catch (Exception e) {
             throw new GrobidException("An exception occured while running Grobid training" +
                                               " data generation for segmentation model.", e);
-        } finally {
-            DocumentSource.close(documentSource, true, true);
         }
     }
 

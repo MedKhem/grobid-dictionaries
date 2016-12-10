@@ -23,10 +23,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
     private String output = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
-    private LexicalEntryLabels possibleTag;
 
-    private boolean figureBlock = false;
-    private boolean tableBlock = false;
 
     private List<String> labeled = null; // store line by line the labeled data
 
