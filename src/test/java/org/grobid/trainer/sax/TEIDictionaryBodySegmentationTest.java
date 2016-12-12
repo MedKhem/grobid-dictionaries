@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -36,8 +37,9 @@ public class TEIDictionaryBodySegmentationTest {
         List<String> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(127));
+//        assertThat(labeled.size(), is(127));
 
         assertThat(labeled.get(0), is("absolutely I-<entry>\n"));
+        assertThat(labeled.get(2), is("adverb <entry>\n"));
     }
 }

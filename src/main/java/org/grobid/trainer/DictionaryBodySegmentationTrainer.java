@@ -1,5 +1,6 @@
 package org.grobid.trainer;
 
+import org.apache.commons.io.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
@@ -152,25 +153,14 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
                 bis.close();
 
                 // Add the training data with suffixed label
-                writer2.write(trainingDataLineBuilder.toString() + "\n\n");
+                writer2.write(trainingDataLineBuilder.toString() + "");
             }
 
         } catch (Exception e) {
             throw new GrobidException("An exception occurred while running Grobid.", e);
         } finally {
-            try {
-                if (writer2 != null) {
-                    writer2.close();
-                }
-
-                if (os2 != null) {
-                    os2.close();
-                }
-
-            } catch (Exception ex) {
-                throw new GrobidException("An exception occurred while closing file", ex);
-            }
-
+            IOUtils.closeQuietly(writer2);
+            IOUtils.closeQuietly(os2);
         }
         return totalExamples;
     }
