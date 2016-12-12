@@ -11,6 +11,7 @@ import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureFactory;
+import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesVectorFulltext;
 import org.grobid.core.layout.*;
 import org.grobid.core.tokenization.TaggingTokenCluster;
@@ -96,25 +97,23 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             //Get Body
             SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
-            // full text processing
-            Pair<String, LayoutTokenization> featSeg = getBodyTextFeatured(doc, documentBodyParts);
-            String rese = null;
-            LayoutTokenization layoutTokenization = null;
-            List<Figure> figures = null;
-            List<Table> tables = null;
-            String structeredBody = null;
-            if (featSeg != null) {
-                // if featSeg is null, it usually means that no body segment is found in the
+            //Get tokens from the body
+            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();String labeledFeatures = null;
+
+
+            String structuredBody = null;
+            if (bodytextFeatured != null) {
+                // if bodytextFeatured is null, it usually means that no body segment is found in the
                 // document segmentation
-                String bodytextFeatured = featSeg.getA();
-                layoutTokenization = featSeg.getB();
 
                 if ( (bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0) ) {
-                    rese = label(bodytextFeatured);
+                    labeledFeatures = label(bodytextFeatured);
                 }
 
-                structeredBody = processLexicalEntries(layoutTokenization,rese);
-                doc.setLexicalEntries(structeredBody);
+                structuredBody = processLexicalEntries(layoutTokenization,labeledFeatures);
+                doc.setLexicalEntries(structuredBody);
             }
 
             return doc;
@@ -687,15 +686,18 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         //Get Body
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
-        // full text processing
-        Pair<String, LayoutTokenization> featSeg = getBodyTextFeatured(doc, documentBodyParts);
+        //Get tokens from the body
+        LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations).toString();
+        String labeledFeatures = null;
+
 
         String structeredBody = null;
-        if (featSeg != null) {
+        if (bodytextFeatured != null) {
             // if featSeg is null, it usually means that no body segment is found in the
             // document segmentation
-            String bodytextFeatured = featSeg.getA();
-            List<LayoutToken> tokenizations = featSeg.getB().getTokenization();
+
 
             if ( (bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0) ) {
                                //Write the features file
@@ -706,7 +708,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 // also write the raw text as seen before segmentation
                 StringBuffer rawtxt = new StringBuffer();
-                for(LayoutToken txtline : tokenizations) {
+                for(LayoutToken txtline : tokenizations.getTokenization()) {
                     rawtxt.append(txtline.getText());
                 }
                 String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
@@ -715,7 +717,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
                 if (bodytextFeatured.length() > 0) {
                     String rese = label(bodytextFeatured);
-                    StringBuffer bufferFulltext = trainingExtraction(rese, tokenizations, doc);
+                    StringBuffer bufferFulltext = trainingExtraction(rese, tokenizations.getTokenization(), doc);
 
                     // write the TEI file to reflect the extact layout of the text as extracted from the pdf
                     String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
