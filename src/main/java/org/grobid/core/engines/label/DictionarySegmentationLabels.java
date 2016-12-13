@@ -17,15 +17,18 @@ public class DictionarySegmentationLabels extends TaggingLabels {
     public static final String DICTIONARY_HEADNOTE_LABEL = "<headnote>";
     public static final String DICTIONARY_BODY_LABEL = "<body>";
     public static final String DICTIONARY_FOOTNOTE_LABEL = "<footnote>";
+    public static final String DICTIONARY_OTHER_LABEL = "<other>";
 
     public static final TaggingLabel DICTIONARY_HEADNOTE = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_HEADNOTE_LABEL);
     public static final TaggingLabel DICTIONARY_BODY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_BODY_LABEL);
     public static final TaggingLabel DICTIONARY_FOOTNOTE = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_FOOTNOTE_LABEL);
+    public static final TaggingLabel DICTIONARY_OTHER = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_OTHER_LABEL);
 
     static {
         register(DICTIONARY_HEADNOTE);
         register(DICTIONARY_BODY);
         register(DICTIONARY_FOOTNOTE);
+        register(DICTIONARY_OTHER);
     }
 
 }

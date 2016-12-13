@@ -78,6 +78,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
+                currentTag = "<other>";
                 writeData(qName, false);
 
             }

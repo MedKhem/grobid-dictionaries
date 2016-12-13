@@ -152,8 +152,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            }else if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL)){
-                System.out.println("body:+"+ createMyXMLString("entry", clusterContent));
+            }else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)){
+                continue;
             }
             else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -717,22 +717,22 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
                 if (bodytextFeatured.length() > 0) {
                     String rese = label(bodytextFeatured);
-                    StringBuffer bufferFulltext = trainingExtraction(rese, tokenizations.getTokenization(), doc);
+                    StringBuilder bufferFulltext = trainingExtraction(doc, rese, tokenizations);
 
                     // write the TEI file to reflect the extact layout of the text as extracted from the pdf
                     String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
                     writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
                     writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                                         "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
-                    writer.write("\n\t\t<headnote>\n");
-                    writer.write(doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString());
-                    writer.write("\n\t\t</headnote>\n");
-                    writer.write("\n\t\t<body>\n");
+                                         "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+                    writer.write("\n\t\t<headnote>");
+                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
+                    writer.write("</headnote>");
+                    writer.write("\n\t\t<body>");
                     writer.write(bufferFulltext.toString());
-                    writer.write("\n\t\t</body>\n");
-                    writer.write("\n\t\t<footnote>\n");
-                    writer.write(doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString());
-                    writer.write("\n\t\t</footnote>\n");
+                    writer.write("</body>");
+                    writer.write("\n\t\t<footnote>");
+                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
+                    writer.write("</footnote>");
                     writer.write("\n\t</text>\n</tei>\n");
                     writer.close();
                 }
@@ -750,229 +750,35 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
      * @param tokenizations toks
      * @return extraction
      */
-    private StringBuffer trainingExtraction(String result,
-                                            List<LayoutToken> tokenizations,
-                                            DictionaryDocument doc) {
-        // this is the main buffer for the whole full text
-        StringBuffer buffer = new StringBuffer();
-        try {
-            List<Block> blocks = DocumentUtils.getBlocksFromDocumentPart(doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL), doc);
-            int currentBlockIndex = 0;
-            int indexLine = 0;
+    private StringBuilder trainingExtraction(DictionaryDocument doc, String result, LayoutTokenization tokenizations) {
 
-            StringTokenizer st = new StringTokenizer(result, "\n");
-            String s1 = null; // current label/tag
-            String s2 = null; // current lexical token
-            String s3 = null; // current second lexical token
-            String lastTag = null;
-
-            // current token position
-            int p = 0;
-            boolean start = true;
-
-            while (st.hasMoreTokens()) {
-                boolean addSpace = false;
-                String tok = st.nextToken().trim();
-                String line = null; // current line
-
-                if (tok.length() == 0) {
-                    continue;
-                }
-                StringTokenizer stt = new StringTokenizer(tok, " \t");
-                List<String> localFeatures = new ArrayList<String>();
-                int i = 0;
-
-                boolean newLine = true;
-                int ll = stt.countTokens();
-                while (stt.hasMoreTokens()) {
-                    String s = stt.nextToken().trim();
-                    if (i == 0) {
-                        s2 = TextUtilities.HTMLEncode(s); // lexical token
-                    } else if (i == 1) {
-                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
-                    } else if (i == ll - 1) {
-                        s1 = s; // current label
-                    } else {
-                        localFeatures.add(s); // we keep the feature values in case they appear useful
-                    }
-                    i++;
-                }
-
-                // as we process the document segmentation line by line, we don't use the usual
-                // tokenization to rebuild the text flow, but we get each line again from the
-                // text stored in the document blocks (similarly as when generating the features)
-                line = null;
-                while ((line == null) && (currentBlockIndex < blocks.size())) {
-                    Block block = blocks.get(currentBlockIndex);
-                    List<LayoutToken> tokens = block.getTokens();
-                    if (tokens == null) {
-                        currentBlockIndex++;
-                        indexLine = 0;
-                        continue;
-                    }
-                    String localText = block.getText();
-                    if ((localText == null) || (localText.trim().length() == 0)) {
-                        currentBlockIndex++;
-                        indexLine = 0;
-                        continue;
-                    }
-                    //String[] lines = localText.split("\n");
-                    String[] lines = localText.split("[\\n\\r]");
-                    if ((lines.length == 0) || (indexLine >= lines.length)) {
-                        currentBlockIndex++;
-                        indexLine = 0;
-                        continue;
-                    } else {
-                        line = lines[indexLine];
-                        indexLine++;
-                        if (line.trim().length() == 0) {
-                            line = null;
-                            continue;
-                        }
-
-                        if (TextUtilities.filterLine(line)) {
-                            line = null;
-                            continue;
-                        }
-                    }
-                }
-
-                line = TextUtilities.HTMLEncode(line);
-
-                if (newLine && !start) {
-                    buffer.append("<lb/>");
-                }
-
-                String lastTag0 = null;
-                if (lastTag != null) {
-                    if (lastTag.startsWith("I-")) {
-                        lastTag0 = lastTag.substring(2, lastTag.length());
-                    } else {
-                        lastTag0 = lastTag;
-                    }
-                }
-                String currentTag0 = null;
-                if (s1 != null) {
-                    if (s1.startsWith("I-")) {
-                        currentTag0 = s1.substring(2, s1.length());
-                    } else {
-                        currentTag0 = s1;
-                    }
-                }
-
-                //boolean closeParagraph = false;
-                if (lastTag != null) {
-                    //closeParagraph =
-                    testClosingTag(buffer, currentTag0, lastTag0, s1);
-                }
-
-                boolean output;
-
-                output = writeField(buffer, line, s1, lastTag0, s2, "<entry>", "<entry>", addSpace, 3);
-
-
-                lastTag = s1;
-
-                if (!st.hasMoreTokens()) {
-                    if (lastTag != null) {
-                        testClosingTag(buffer, "", currentTag0, s1);
-                    }
-                }
-                if (start) {
-                    start = false;
-                }
+        StringBuilder buffer =  new TEIDictionaryFormatter(doc).toTEIDictionaryBodySegmentation(result,tokenizations);
+        return buffer;
+    }
+    private void testClosingTag(StringBuffer buffer, String currentTag0, String lastTag0) {
+        if (!currentTag0.equals(lastTag0)) {
+            // we close the current tag
+            if (lastTag0.equals("<entry>")) {
+                buffer.append("</entry>\n");
             }
-
-            return buffer;
-        } catch (Exception e) {
-            throw new GrobidException("An exception occured while running Grobid.", e);
         }
     }
 
-
-    /**
-     * TODO some documentation...
-     *
-     * @param buffer
-     * @param s1
-     * @param lastTag0
-     * @param s2
-     * @param field
-     * @param outField
-     * @param addSpace
-     * @param nbIndent
-     * @return
-     */
-    private boolean writeField(StringBuffer buffer,
-                               String line,
-                               String s1,
-                               String lastTag0,
-                               String s2,
-                               String field,
-                               String outField,
-                               boolean addSpace,
-                               int nbIndent) {
+    private boolean writeField(StringBuffer buffer, String s1, String lastTag0, String s2, String field, String outField, boolean addSpace) {
         boolean result = false;
-        // filter the output path
         if ((s1.equals(field)) || (s1.equals("I-" + field))) {
             result = true;
-            line = line.replace("@BULLET", "\u2022");
-            // if previous and current tag are the same, we output the token
-            if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
-                buffer.append(line);
-            }
-            else if (lastTag0 == null) {
-//                // if previous tagname is null, we output the opening xml tag
-//                for (int i = 0; i < nbIndent; i++) {
-//                    buffer.append("\t");
-//                }
-                buffer.append(outField).append(line);
-            } else if (!lastTag0.equals("<titlePage>")) {
-//                // if the previous tagname is not titlePage, we output the opening xml tag
-//                for (int i = 0; i < nbIndent; i++) {
-//                    buffer.append("\t");
-//                }
-                buffer.append(outField).append(line);
-            } else {
-                // otherwise we continue by ouputting the token
-                buffer.append(line);
-            }
+            if (s1.equals(lastTag0) || (s1).equals("I-" + lastTag0)) {
+                if (addSpace)
+                    buffer.append(" ").append(s2);
+                else
+                    buffer.append(s2);
+            } else
+                buffer.append("\n\t").append(outField).append(s2);
         }
         return result;
     }
 
-    /**
-     * TODO some documentation
-     *
-     * @param buffer
-     * @param currentTag0
-     * @param lastTag0
-     * @param currentTag
-     * @return
-     */
-    private boolean testClosingTag(StringBuffer buffer,
-                                   String currentTag0,
-                                   String lastTag0,
-                                   String currentTag) {
-        boolean res = false;
-        // reference_marker and citation_marker are two exceptions because they can be embedded
-
-        if (!currentTag0.equals(lastTag0)) {
-            /*if (currentTag0.equals("<citation_marker>") || currentTag0.equals("<figure_marker>")) {
-                return res;
-            }*/
-
-            res = false;
-            // we close the current tag
-            if (lastTag0.equals("<entry>")) {
-                buffer.append("</entry>");
-            } else {
-                res = false;
-            }
-
-        }
-        return res;
-    }
 
     @Override
     public void close() throws IOException {

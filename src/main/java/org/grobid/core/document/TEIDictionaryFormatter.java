@@ -209,7 +209,7 @@ public class TEIDictionaryFormatter {
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
         tei.append("</headnote>\n");
         tei.append("\t\t<body>\n");
-        tei.append(toTEIDictionaryBodySegmentation(doc));
+        tei.append(doc.getLexicalEntries());
         tei.append("\t\t</body>\n");
         tei.append("\t\t<footnote>");
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
@@ -220,9 +220,48 @@ public class TEIDictionaryFormatter {
         return tei;
     }
 
-    public String toTEIDictionaryBodySegmentation(DictionaryDocument doc) {
+    public StringBuilder toTEIDictionaryBodySegmentation(String contentFeatured, LayoutTokenization layoutTokenization) {
 
-        return doc.getLexicalEntries();
+        StringBuilder buffer = new StringBuilder();
+        TaggingLabel lastClusterLabel = null;
+        List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
+
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
+
+        String tokenLabel = null;
+        List<TaggingTokenCluster> clusters = clusteror.cluster();
+
+
+        for (TaggingTokenCluster cluster : clusters) {
+            if (cluster == null) {
+                continue;
+            }
+            TaggingLabel clusterLabel = cluster.getTaggingLabel();
+            Engine.getCntManager().i((TaggingLabel)clusterLabel);
+
+            // Problem with Grobid Normalisation
+            List<LayoutToken> list1 = cluster.concatTokens();
+            String clusterContent = LayoutTokensUtil.toText(list1);
+//            String clusterContent = LayoutTokensUtil.normalizeText(str1);
+            clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
+
+            String tagLabel = clusterLabel.getLabel();
+
+
+            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                buffer.append(createMyXMLString("entry", clusterContent));
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
+                buffer.append(clusterContent);
+            }else{
+                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
+            }
+
+            }
+
+
+        return buffer;
+
+
     }
 
     public StringBuilder toTEIDictionarySegmentation(String contentFeatured, LayoutTokenization layoutTokenization) {
@@ -429,7 +468,6 @@ public class TEIDictionaryFormatter {
         xmlStringElement.append("</");
         xmlStringElement.append(elementName);
         xmlStringElement.append(">");
-        xmlStringElement.append("\n");
 
         return xmlStringElement.toString();
     }

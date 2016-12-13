@@ -260,4 +260,12 @@ public class DocumentUtils {
 
         return   documentPartBlocks;
     }
+
+    public static String replaceLinebreaksWithTags (String text){
+        text = text.replace("\n","<lb/>");
+        while (text.indexOf("<lb/><lb/>") != -1){
+            text = text.replace("<lb/><lb/>","<lb/>");
+        }
+        return text;
+    }
 }

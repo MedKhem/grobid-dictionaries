@@ -37,13 +37,21 @@ public class DictionaryBodySegmentationTest {
 
 
 
-//
-//    @Test
-//    public void testProcess() throws Exception {
-//        File input = new File(this.getClass().getResource("BasicEnglish.page1.sample.pdf").toURI());
-//        String body = target.process(input);
-//        System.out.print(body);
-//        assertThat(body, notNullValue());
-//
-//    }
+
+    @Test
+    public void testProcess() throws Exception {
+        File input = new File(this.getClass().getResource("BasicEnglish.page1.sample.pdf").toURI());
+        String body = target.process(input);
+        System.out.print(body);
+        assertThat(body, notNullValue());
+
+    }
+
+    @Test
+    public void testTrainingDataGeneration() throws Exception {
+        File input = new File(this.getClass().getResource("BasicEnglish.page1.sample.pdf").toURI());
+        target.createTrainingDictionaryBody(input,"/home/med/git/grobid/grobid-dictionaries/tmp");
+
+
+    }
 }
