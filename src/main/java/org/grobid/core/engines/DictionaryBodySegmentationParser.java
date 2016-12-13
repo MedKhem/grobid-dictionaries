@@ -2,8 +2,6 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
-import org.grobid.core.data.Figure;
-import org.grobid.core.data.Table;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
@@ -27,7 +25,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 
 /**
@@ -66,64 +63,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         instance = new DictionaryBodySegmentationParser();
     }
 
-    public String process(File originFile) throws Exception {
-//        //Prepare
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionaryDocument doc = null;
-
-        try {
-            doc= processing(originFile);
-        }catch (GrobidException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new GrobidException("An exception occurred while running Grobid.", e);
-        }
-
-        String segmentedBody = new TEIDictionaryFormatter(doc).toTEIFormatDictionaryBodySegmentation(config, null).toString();
-
-
-
-        return segmentedBody;
-    }
-
-
-
-    public DictionaryDocument processing(File originFile) throws Exception {
-
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc = parser.initiateProcessing(originFile, config);
-        try {
-            //Get Body
-            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
-
-            //Get tokens from the body
-            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
-
-            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();String labeledFeatures = null;
-
-
-            String structuredBody = null;
-            if (bodytextFeatured != null) {
-                // if bodytextFeatured is null, it usually means that no body segment is found in the
-                // document segmentation
-
-                if ( (bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0) ) {
-                    labeledFeatures = label(bodytextFeatured);
-                }
-
-                structuredBody = processLexicalEntries(layoutTokenization,labeledFeatures);
-                doc.setLexicalEntries(structuredBody);
-            }
-
-            return doc;
-        } catch (GrobidException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new GrobidException("An exception occurred while running Grobid.", e);
-        }
-    }
-    public static String processLexicalEntries (LayoutTokenization layoutTokenization, String contentFeatured){
+    public static String processLexicalEntries(LayoutTokenization layoutTokenization, String contentFeatured) {
         //Extract the lexical entries
         StringBuilder buffer = new StringBuilder();
         TaggingLabel lastClusterLabel = null;
@@ -140,7 +80,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 continue;
             }
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i((TaggingLabel)clusterLabel);
+            Engine.getCntManager().i((TaggingLabel) clusterLabel);
 
             // Problem with Grobid Normalisation
             List<LayoutToken> list1 = cluster.concatTokens();
@@ -152,10 +92,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            }else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)){
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
                 continue;
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
 
@@ -163,6 +102,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         return buffer.toString();
     }
+
     public static String createMyXMLString(String elementName, String elementContent) {
         StringBuilder xmlStringElement = new StringBuilder();
         xmlStringElement.append("<");
@@ -245,7 +185,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 endblock = false;
 
 	            /*if (endPage) {
-	                newPage = true;
+                    newPage = true;
 	                mm = 0;
 					lowestPos = 0.0;
 	            }*/
@@ -305,8 +245,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     lastPos = dp2.getTokenBlockPos();
                     if (lastPos >= tokens.size()) {
                         LOGGER.error("DocumentPointer for block " + blockIndex + " points to " +
-                                dp2.getTokenBlockPos() + " token, but block token size is " +
-                                tokens.size());
+                                             dp2.getTokenBlockPos() + " token, but block token size is " +
+                                             tokens.size());
                         lastPos = tokens.size();
                     }
                 }
@@ -581,7 +521,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     if (spacingPreviousBlock != 0.0) {
                         features.spacingWithPreviousBlock = featureFactory
                                 .linearScaling(spacingPreviousBlock - doc.getMinBlockSpacing(),
-                                        doc.getMaxBlockSpacing() - doc.getMinBlockSpacing(), NBBINS_SPACE);
+                                               doc.getMaxBlockSpacing() - doc.getMinBlockSpacing(), NBBINS_SPACE);
                     }
 
                     if (density != -1.0) {
@@ -618,14 +558,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
         return new Pair<String, LayoutTokenization>(fulltext.toString(),
-                new LayoutTokenization(layoutTokens));
+                                                    new LayoutTokenization(layoutTokens));
     }
 
     /**
      * Evaluate the length of the fulltext
      */
     private static int getFulltextLength(Document doc, SortedSet<DocumentPiece> documentBodyParts, int fulltextLength) {
-        for(DocumentPiece docPiece : documentBodyParts) {
+        for (DocumentPiece docPiece : documentBodyParts) {
             DocumentPointer dp1 = docPiece.a;
             DocumentPointer dp2 = docPiece.b;
 
@@ -637,6 +577,62 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             }
         }
         return fulltextLength;
+    }
+
+    public String process(File originFile) throws Exception {
+        //Prepare
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        DictionaryDocument doc = null;
+
+        try {
+            doc = processing(originFile);
+        } catch (GrobidException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        }
+
+        String segmentedBody = new TEIDictionaryFormatter(doc).toTEIFormatDictionaryBodySegmentation(config, null).toString();
+
+
+        return segmentedBody;
+    }
+
+    public DictionaryDocument processing(File originFile) throws Exception {
+
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        DictionarySegmentationParser parser = new DictionarySegmentationParser();
+        DictionaryDocument doc = parser.initiateProcessing(originFile, config);
+        try {
+            //Get Body
+            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+            //Get tokens from the body
+            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
+            String labeledFeatures = null;
+
+
+            String structuredBody = null;
+            if (bodytextFeatured != null) {
+                // if bodytextFeatured is null, it usually means that no body segment is found in the
+                // document segmentation
+
+                if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
+                    labeledFeatures = label(bodytextFeatured);
+                }
+
+                structuredBody = processLexicalEntries(layoutTokenization, labeledFeatures);
+                doc.setLexicalEntries(structuredBody);
+            }
+
+            return doc;
+        } catch (GrobidException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        }
     }
 
     @SuppressWarnings({"UnusedParameters"})
@@ -653,10 +649,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 throw new GrobidException("Cannot create training data because ouput directory can not be accessed: " + outputDirectory);
             }
 
-            // we process all pdf files in the directory
-
             int n = 0;
-
+            // we process all pdf files in the directory
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
@@ -681,7 +675,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
     public void createTrainingDictionaryBody(File path, String outputDirectory) throws Exception {
 
-
+        // Segment the doc
         DictionaryDocument doc = processing(path);
         //Get Body
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
@@ -690,17 +684,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
         String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations).toString();
-        String labeledFeatures = null;
 
-
-        String structeredBody = null;
         if (bodytextFeatured != null) {
             // if featSeg is null, it usually means that no body segment is found in the
             // document segmentation
 
 
-            if ( (bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0) ) {
-                               //Write the features file
+            if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
+                //Write the features file
                 String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
                 Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
                 writer.write(bodytextFeatured);
@@ -708,7 +699,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 // also write the raw text as seen before segmentation
                 StringBuffer rawtxt = new StringBuffer();
-                for(LayoutToken txtline : tokenizations.getTokenization()) {
+                for (LayoutToken txtline : tokenizations.getTokenization()) {
                     rawtxt.append(txtline.getText());
                 }
                 String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
@@ -752,31 +743,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
      */
     private StringBuilder trainingExtraction(DictionaryDocument doc, String result, LayoutTokenization tokenizations) {
 
-        StringBuilder buffer =  new TEIDictionaryFormatter(doc).toTEIDictionaryBodySegmentation(result,tokenizations);
+        StringBuilder buffer = new TEIDictionaryFormatter(doc).toTEIDictionaryBodySegmentation(result, tokenizations);
         return buffer;
-    }
-    private void testClosingTag(StringBuffer buffer, String currentTag0, String lastTag0) {
-        if (!currentTag0.equals(lastTag0)) {
-            // we close the current tag
-            if (lastTag0.equals("<entry>")) {
-                buffer.append("</entry>\n");
-            }
-        }
-    }
-
-    private boolean writeField(StringBuffer buffer, String s1, String lastTag0, String s2, String field, String outField, boolean addSpace) {
-        boolean result = false;
-        if ((s1.equals(field)) || (s1.equals("I-" + field))) {
-            result = true;
-            if (s1.equals(lastTag0) || (s1).equals("I-" + lastTag0)) {
-                if (addSpace)
-                    buffer.append(" ").append(s2);
-                else
-                    buffer.append(s2);
-            } else
-                buffer.append("\n\t").append(outField).append(s2);
-        }
-        return result;
     }
 
 

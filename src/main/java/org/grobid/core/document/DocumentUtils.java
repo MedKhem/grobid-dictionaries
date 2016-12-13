@@ -262,6 +262,7 @@ public class DocumentUtils {
     }
 
     public static String replaceLinebreaksWithTags (String text){
+        // This method is useful to have a pre-annotated training data. The line breaks, for this purpose, should be transformed to tags
         text = text.replace("\n","<lb/>");
         while (text.indexOf("<lb/><lb/>") != -1){
             text = text.replace("<lb/><lb/>","<lb/>");

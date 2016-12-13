@@ -209,7 +209,7 @@ public class TEIDictionaryFormatter {
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
         tei.append("</headnote>\n");
         tei.append("\t\t<body>\n");
-        tei.append(doc.getLexicalEntries());
+        tei.append(LayoutTokensUtil.normalizeText(doc.getLexicalEntries()));
         tei.append("\t\t</body>\n");
         tei.append("\t\t<footnote>");
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
@@ -239,15 +239,15 @@ public class TEIDictionaryFormatter {
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
             Engine.getCntManager().i((TaggingLabel)clusterLabel);
 
-            // Problem with Grobid Normalisation
             List<LayoutToken> list1 = cluster.concatTokens();
             String clusterContent = LayoutTokensUtil.toText(list1);
-//            String clusterContent = LayoutTokensUtil.normalizeText(str1);
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
-
             String tagLabel = clusterLabel.getLabel();
 
+            // Note in the following, that the text that is not belonging to the entry tags is kept
+            // since we are not sure that the model will perform perfectly and the tag could be moved afterwards to contains this extra-text, if needed
 
+            //For the result data (shown as result of applying the second model) any the text that is not contained between tags is removed (not like the following)
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
@@ -257,11 +257,7 @@ public class TEIDictionaryFormatter {
             }
 
             }
-
-
         return buffer;
-
-
     }
 
     public StringBuilder toTEIDictionarySegmentation(String contentFeatured, LayoutTokenization layoutTokenization) {
