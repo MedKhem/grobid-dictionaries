@@ -1178,6 +1178,9 @@ public class DictionarySegmentationParser extends AbstractParser {
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
                 }
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
+                }
 
                 lastTag = s1;
 
