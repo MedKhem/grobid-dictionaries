@@ -51,10 +51,50 @@ public class TEIDictionaryBodySegmentationSaxParserTest {
         List<String> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(825));
+        assertThat(labeled.size(), is(827));
 
         assertThat(labeled.get(0), is("absolutely I-<entry>\n"));
         assertThat(labeled.get(101), is(". I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapAtZero() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("BodySegmentationTestFile.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(2));
+        assertThat(labeled.get(0), is("crap I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapBetweenTwoSameTags() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("BodySegmentationTestFile1.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(3));
+
+        assertThat(labeled.get(1), is("crap I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapAtTheEnd() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("BodySegmentationTestFile2.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(3));
+
+        assertThat(labeled.get(2), is("crap I-<other>\n"));
     }
 
 

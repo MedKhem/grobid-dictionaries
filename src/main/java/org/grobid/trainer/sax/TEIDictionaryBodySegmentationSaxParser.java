@@ -78,6 +78,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
+                // For text outside the entry tags that will go to <other>
                 currentTag = "<other>";
                 writeData(qName, false);
 
@@ -93,7 +94,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
 
 
     private void writeData(String qName, boolean pop) {
-        if (qName.equals("entry")) {
+        if (qName.equals("entry") ||(qName.equals("body"))) {
             if (currentTag == null) {
                 return;
             }
@@ -101,6 +102,10 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
                 if (!currentTags.empty()) {
                     currentTags.pop();
                 }
+            }
+            // For text outside the entry tags that will go to <other>
+            if(qName.equals("body")){
+                currentTag = "<other>";
             }
             String text = getText();
             // we segment the text

@@ -82,6 +82,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
+                // For text outside the three principle tags that will go to <other>
                 currentTag = "<other>";
                 writeData(qName, false);
 
@@ -104,8 +105,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
                 return;
             }
 
-
-
+            // For text outside the three principle tags that will go to <other>
             if (pop) {
                 if (!currentTags.empty()) {
                     currentTags.pop();
