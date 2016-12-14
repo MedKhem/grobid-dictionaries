@@ -5,10 +5,12 @@ import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import eugfc.imageio.plugins.PNMRegistry;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.tagging.GenericTaggerUtils;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.exceptions.GrobidExceptionStatus;
@@ -16,16 +18,15 @@ import org.grobid.core.features.FeatureFactory;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesVectorSegmentation;
 import org.grobid.core.layout.*;
-import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.core.utilities.LanguageUtilities;
-import org.grobid.core.utilities.Pair;
-import org.grobid.core.utilities.TextUtilities;
+import org.grobid.core.utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -88,7 +89,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         if ((featSeg != null) && (featSeg.trim().length() > 0)) {
             labeledFeatures = label(featSeg);
-            segmentedDictionary = new TEIDictionaryFormatter(doc).toTEIFormatDictionarySegmentation(config, null, labeledFeatures, tokens).toString();
+            segmentedDictionary = toTEIFormatDictionarySegmentation(config, null, labeledFeatures, doc).toString();
         }
 
         return segmentedDictionary;
@@ -225,7 +226,8 @@ public class DictionarySegmentationParser extends AbstractParser {
         if (isNotEmpty(trim(content))) {
             String labelledResult = label(content);
             // set the different sections of the Document object
-            // the method is originally implemented in BasicStructureBuilder class but it reimplemented here to be able to use DictionaryDocument object
+            // the method is originally implemented in BasicStructureBuilder class but it is
+            // reimplemented here to be able to use DictionaryDocument object
             doc = generalResultSegmentation(doc, labelledResult, tokenizations);
         }
         return doc;
@@ -289,8 +291,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             }
         }
 
-        String featuresAsString = getFeatureVectorsAsString(doc,
-                                                            graphicVector, graphicBitmap, patterns, firstTimePattern);
+        String featuresAsString = getFeatureVectorsAsString(doc, graphicVector, graphicBitmap, patterns, firstTimePattern);
 
         return featuresAsString;
     }
@@ -881,7 +882,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         if ((featuredText != null) && (featuredText.length() > 0)) {
             String rese = label(featuredText);
-            StringBuffer bufferFulltext = trainingExtraction(rese, tokenizations, doc);
+            StringBuffer bufferFulltext = trainingExtraction(rese, doc);
 
             // write the TEI file to reflect the extact layout of the text as extracted from the pdf
             String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
@@ -899,11 +900,10 @@ public class DictionarySegmentationParser extends AbstractParser {
      * Extract results from a labelled full text in the training format without any string modification.
      *
      * @param result        reult
-     * @param tokenizations toks
+
      * @return extraction
      */
     private StringBuffer trainingExtraction(String result,
-                                            List<LayoutToken> tokenizations,
                                             Document doc) {
         // this is the main buffer for the whole full text
         StringBuffer buffer = new StringBuffer();
@@ -1028,11 +1028,163 @@ public class DictionarySegmentationParser extends AbstractParser {
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
                 }
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
+                }
 
                 lastTag = s1;
 
                 if (!st.hasMoreTokens()) {
                     if (lastTag != null) {
+                        testClosingTag(buffer, "", currentTag0, s1);
+                    }
+                }
+                if (start) {
+                    start = false;
+                }
+            }
+
+            return buffer;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occured while running Grobid.", e);
+        }
+    }
+
+    /**
+     * Extract results from a labelled full text in the training format with string modification.
+     *
+     * @param result        result
+     * @param doc        doc
+     * @return extraction
+     */
+    private StringBuffer outputTextExtraction(String result,
+                                            Document doc) {
+        // this is the main buffer for the whole full text
+        StringBuffer buffer = new StringBuffer();
+        try {
+            List<Block> blocks = doc.getBlocks();
+            int currentBlockIndex = 0;
+            int indexLine = 0;
+
+            StringTokenizer st = new StringTokenizer(result, "\n");
+            String s1 = null; // current label/tag
+            String s2 = null; // current lexical token
+            String s3 = null; // current second lexical token
+            String lastTag = null;
+
+            // current token position
+            int p = 0;
+            boolean start = true;
+
+            while (st.hasMoreTokens()) {
+                boolean addSpace = false;
+                String tok = st.nextToken().trim();
+                String line = null; // current line
+
+                if (tok.length() == 0) {
+                    continue;
+                }
+                StringTokenizer stt = new StringTokenizer(tok, " \t");
+                List<String> localFeatures = new ArrayList<String>();
+                int i = 0;
+
+                boolean newLine = true;
+                int ll = stt.countTokens();
+                while (stt.hasMoreTokens()) {
+                    String s = stt.nextToken().trim();
+                    if (i == 0) {
+                        s2 = TextUtilities.HTMLEncode(s); // lexical token
+                    } else if (i == 1) {
+                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
+                    } else if (i == ll - 1) {
+                        s1 = s; // current label
+                    } else {
+                        localFeatures.add(s); // we keep the feature values in case they appear useful
+                    }
+                    i++;
+                }
+
+                // as we process the document segmentation line by line, we don't use the usual
+                // tokenization to rebuild the text flow, but we get each line again from the
+                // text stored in the document blocks (similarly as when generating the features)
+                line = null;
+                while ((line == null) && (currentBlockIndex < blocks.size())) {
+                    Block block = blocks.get(currentBlockIndex);
+                    List<LayoutToken> tokens = block.getTokens();
+                    if (tokens == null) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    }
+                    String localText = block.getText();
+                    if ((localText == null) || (localText.trim().length() == 0)) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    }
+                    //String[] lines = localText.split("\n");
+                    String[] lines = localText.split("[\\n\\r]");
+                    if ((lines.length == 0) || (indexLine >= lines.length)) {
+                        currentBlockIndex++;
+                        indexLine = 0;
+                        continue;
+                    } else {
+                        line = lines[indexLine];
+                        indexLine++;
+                        if (line.trim().length() == 0) {
+                            line = null;
+                            continue;
+                        }
+
+                        if (TextUtilities.filterLine(line)) {
+                            line = null;
+                            continue;
+                        }
+                    }
+                }
+
+                line = TextUtilities.HTMLEncode(line);
+
+                String lastTag0 = null;
+                if (lastTag != null) {
+                    if (lastTag.startsWith("I-")) {
+                        lastTag0 = lastTag.substring(2, lastTag.length());
+                    } else {
+                        lastTag0 = lastTag;
+                    }
+                }
+                String currentTag0 = null;
+                if (s1 != null) {
+                    if (s1.startsWith("I-")) {
+                        currentTag0 = s1.substring(2, s1.length());
+                    } else {
+                        currentTag0 = s1;
+                    }
+                }
+
+                //boolean closeParagraph = false;
+                if (lastTag != null) {
+
+                    testClosingTag(buffer, currentTag0, lastTag0, s1);
+                }
+
+                boolean output;
+
+                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<headnote>", addSpace, 3);
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
+                }
+
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
+                }
+
+                lastTag = s1;
+
+                if (!st.hasMoreTokens()) {
+                    if (lastTag != null) {
+                        buffer = new StringBuffer(LayoutTokensUtil.normalizeText(buffer.toString()));
+                        buffer = new StringBuffer(StringEscapeUtils.unescapeXml(buffer.toString()));
                         testClosingTag(buffer, "", currentTag0, s1);
                     }
                 }
@@ -1125,9 +1277,11 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append("</headnote>");
             } else if (lastTag0.equals("<body>")) {
                 buffer.append("</body>");
-            }  else if (lastTag0.equals("<footnote>")) {
+            } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</footnote>");
-            } else {
+            } else if (lastTag0.equals("<other>")) {
+                buffer.append("</other>");
+            }else {
                 res = false;
             }
 
@@ -1139,6 +1293,91 @@ public class DictionarySegmentationParser extends AbstractParser {
     public void close() throws IOException {
         super.close();
         // ...
+    }
+
+    public StringBuilder toTEIFormatDictionarySegmentation(GrobidAnalysisConfig config,
+                                                           TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration,
+                                                           String segmentedDictionary,DictionaryDocument doc) {
+        StringBuilder tei = new StringBuilder();
+        tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        if (config.isWithXslStylesheet()) {
+            tei.append("<?xml-stylesheet type=\"text/xsl\" href=\"../jsp/xmlverbatimwrapper.xsl\"?> \n");
+        }
+        if (schemaDeclaration != null) {
+            if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
+                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
+                                   + "/schemas/dtd/Grobid.dtd" + "\">\n");
+            } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
+                // XML schema
+                tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
+                                   "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+                                   //"\n xsi:noNamespaceSchemaLocation=\"" +
+                                   //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
+                                   "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
+                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
+                                   "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+//				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
+            } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
+                // standard RelaxNG
+                tei.append("<?xml-model href=\"file://" +
+                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
+                                   "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
+            } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
+                // compact RelaxNG
+                tei.append("<?xml-model href=\"file://" +
+                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
+                                   "\" type=\"application/relax-ng-compact-syntax\"?>\n");
+            }
+
+            // by default there is no schema association
+            if (!schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
+                tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
+            }
+        } else {
+            tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
+        }
+
+        if (doc.getLanguage() != null) {
+            tei.append("\t<teiHeader xml:lang=\"" + doc.getLanguage() + "\">");
+        } else {
+            tei.append("\t<teiHeader>");
+        }
+
+        // encodingDesc gives info about the producer of the file
+        tei.append("\n\t\t<encodingDesc>\n");
+        tei.append("\t\t\t<appInfo>\n");
+
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
+        df.setTimeZone(tz);
+        String dateISOString = df.format(new java.util.Date());
+
+        tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
+                           "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
+        tei.append("\t\t\t\t\t<ref target=\"https://github.com/kermitt2/grobid\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
+        tei.append("\t\t\t\t</application>\n");
+        tei.append("\t\t\t</appInfo>\n");
+        tei.append("\t\t</encodingDesc>");
+
+        tei.append("\n\t\t<fileDesc>\n\t\t\t<titleStmt>\n\t\t\t\t<title level=\"a\" type=\"main\"");
+        if (config.isGenerateTeiIds()) {
+            String divID = KeyGen.getKey().substring(0, 7);
+            tei.append(" xml:id=\"_" + divID + "\"");
+        }
+        tei.append("/>");
+        tei.append("\n\t\t\t</titleStmt>\n");
+        tei.append("\n\t\t</fileDesc>\n");
+        tei.append("\t</teiHeader>\n");
+
+        if (doc.getLanguage() != null) {
+            tei.append("\t<text xml:lang=\"").append(doc.getLanguage()).append("\">\n");
+        } else {
+            tei.append("\t<text>\n");
+        }
+        tei.append(outputTextExtraction(segmentedDictionary,doc));
+        tei.append("\n\t</text>\n</tei>\n");
+
+        return tei;
     }
 
 }

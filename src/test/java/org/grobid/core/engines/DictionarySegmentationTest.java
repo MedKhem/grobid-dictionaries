@@ -49,7 +49,7 @@ public class DictionarySegmentationTest {
 
         @Test
     public void testProcess() throws Exception {
-            File input = new File(this.getClass().getResource("BasicEnglish.page1.sample.pdf").toURI());
+            File input = new File(this.getClass().getResource("BFirstTwo.pdf").toURI());
             String body = target.process(input);
             System.out.print(body);
             assertThat(body, notNullValue());
