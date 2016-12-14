@@ -82,6 +82,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
+                currentTag = "<other>";
                 writeData(qName, false);
 
             }
@@ -97,10 +98,13 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
     private void writeData(String qName, boolean pop) {
         if ( (qName.equals("body")||
                 (qName.equals("headnote"))) ||
-                (qName.equals("footnote"))               ) {
+                (qName.equals("footnote"))||
+                (qName.equals("text")) ) {
             if (currentTag == null) {
                 return;
             }
+
+
 
             if (pop) {
                 if (!currentTags.empty()) {
@@ -108,16 +112,16 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
                 }
             }
 
+            if(qName.equals("text")){
+                currentTag = "<other>";
+            }
+
             String text = getText();
             boolean begin = true;
-//System.out.println(text);
-            // we segment the text line by line first
-            //StringTokenizer st = new StringTokenizer(text, "\n", true);
             String[] tokens = text.split("\\+L\\+");
-            //while (st.hasMoreTokens()) {
+
             boolean page = false;
             for(int p=0; p<tokens.length; p++) {
-                //String line = st.nextToken().trim();
                 String line = tokens[p].trim();
                 if (line.equals("\n"))
                     continue;
@@ -134,22 +138,8 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
                 if (!st.hasMoreTokens())
                     continue;
                 String tok = st.nextToken();
-
-                //String tok = line.replace(" ", "").replace("\t", "");
-                //if (tok.length() > 10)
-                //	tok = tok.substring(0,10);
-
-                //StringTokenizer st2 = new StringTokenizer(text, " \t" + TextUtilities.fullPunctuations, true);
-
-                //if (st2.hasMoreTokens()) {
-                //String tok = st2.nextToken().trim();
                 if (tok.length() == 0) continue;
 
-                //if (tok.equals("+L+")) {
-                //    labeled.add("@newline\n");
-                //} else
-
-                //if (tok.length() > 0) {
                 if (begin) {
                     labeled.add(tok + " I-" + currentTag + "\n");
                     begin = false;
@@ -160,10 +150,11 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
                     labeled.add("@newpage\n");
                     page = false;
                 }
-                //}
+
             }
             accumulator.setLength(0);
         }
+
     }
 
 }

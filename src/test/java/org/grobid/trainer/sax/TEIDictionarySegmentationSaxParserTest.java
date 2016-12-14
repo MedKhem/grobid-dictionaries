@@ -27,17 +27,57 @@ public class TEIDictionarySegmentationSaxParserTest {
 
 
     @Test
-    public void testSmallParsing_shouldWork() throws Exception {
+    public void testCrapAtZero() throws Exception {
         InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(4));
+        assertThat(labeled.get(0), is("crap I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapAfterFirstTag() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile1.tei.xml");
         SAXParser p = spf.newSAXParser();
         p.parse(input, target);
 
         List<String> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(3));
+        assertThat(labeled.size(), is(4));
 
-        assertThat(labeled.get(0), is("bonjour I-<headnote>\n"));
+        assertThat(labeled.get(1), is("crap I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapAfterSecondTag() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile2.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(4));
+
+        assertThat(labeled.get(2), is("crap I-<other>\n"));
+    }
+
+    @Test
+    public void testCrapAtTheEnd() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile3.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(4));
+
+        assertThat(labeled.get(3), is("crap I-<other>\n"));
     }
 
 }
