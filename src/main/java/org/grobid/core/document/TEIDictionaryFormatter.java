@@ -116,7 +116,11 @@ public class TEIDictionaryFormatter {
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
         tei.append("</headnote>\n");
         tei.append("\t\t<body>\n");
-        tei.append(LayoutTokensUtil.normalizeText(doc.getLexicalEntries()));
+        for (List<LayoutToken> list1 : doc.getLexicalEntries()) {
+            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(list1));
+            tei.append(createMyXMLString("entry", clusterContent));
+
+        }
         tei.append("\t\t</body>\n");
         tei.append("\t\t<footnote>");
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
@@ -212,7 +216,7 @@ public class TEIDictionaryFormatter {
 
     public StringBuilder toTEIFormatLexicalEntry(GrobidAnalysisConfig config,
                                                  SchemaDeclaration schemaDeclaration,
-                                                 String bodyContentFeatured, LayoutTokenization layoutTokenization) {
+                                                 String structuredLE) {
         StringBuilder tei = new StringBuilder();
         tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         if (config.isWithXslStylesheet()) {
@@ -289,75 +293,22 @@ public class TEIDictionaryFormatter {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append("\t\t<body>\n");
-        tei.append(toTEILexicalEntries(bodyContentFeatured, layoutTokenization));
-        tei.append("\t\t</body>\n");
-        tei.append("\t</text>\n");
+        tei.append("\t\t<headnote>");
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
+        tei.append("</headnote>");
+        tei.append("\n\t\t<body>");
+        tei.append(structuredLE);
+        tei.append("\n\t\t</body>");
+        tei.append("\n\t\t<footnote>");
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
+        tei.append("</footnote>");
+        tei.append("\n\t</text>\n");
         tei.append("</TEI>\n");
 
         return tei;
     }
 
-    public StringBuilder toTEILexicalEntries(String bodyContentFeatured, LayoutTokenization layoutTokenization) {
 
-        StringBuilder buffer = new StringBuilder();
-        TaggingLabel lastClusterLabel = null;
-        List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
-
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY, bodyContentFeatured, tokenizations);
-
-        String tokenLabel = null;
-        List<TaggingTokenCluster> clusters = clusteror.cluster();
-
-
-//        System.out.println(new TaggingTokenClusteror(GrobidModels.FULLTEXT, result, tokenizations).cluster());
-
-        for (TaggingTokenCluster cluster : clusters) {
-            if (cluster == null) {
-                continue;
-            }
-            TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i((TaggingLabel)clusterLabel);
-
-            // Problem with Grobid Normalisation
-            List<LayoutToken> list1 = cluster.concatTokens();
-            String str1 = LayoutTokensUtil.toText(list1);
-            String clusterContent = LayoutTokensUtil.normalizeText(str1);
-//            StringBuilder clusterContentBuilder = new StringBuilder();
-//            String clusterContent;
-//            List<LayoutToken> lisLayoutTokens = cluster.concatTokens();
-//            for (LayoutToken layoutToken : lisLayoutTokens) {
-//
-//                clusterContentBuilder.append(" ").append(layoutToken.getText());
-//            }
-//            clusterContent = clusterContentBuilder.toString();
-
-            String tagLabel = clusterLabel.getLabel();
-
-
-            if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_ENTRY)) {
-                buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_FORM)) {
-                buffer.append(createMyXMLString("form", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_SENSE)) {
-                buffer.append(createMyXMLString("sense", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_METAMARK)) {
-                buffer.append(createMyXMLString("metamark", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_METAMARK)) {
-                buffer.append(createMyXMLString("etym", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_RE)) {
-                buffer.append(createMyXMLString("re", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.DICTIONARY_NOTE)) {
-                buffer.append(createMyXMLString("note", clusterContent));
-            } else {
-                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-            }
-
-
-        }
-
-        return buffer;
-    }
 
 
 

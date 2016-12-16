@@ -1,5 +1,6 @@
 package org.grobid.trainer;
 
+import org.apache.commons.io.IOUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
@@ -116,80 +117,49 @@ public class LexicalEntryTrainer extends AbstractTrainer {
 
                 // we can now add the features
                 // we open the featured file
-                BufferedReader featuresFileBR = new BufferedReader(
+                BufferedReader bis = new BufferedReader(
                         new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
                                                                           name.replace(".tei.xml", "")), "UTF8"));
-
+                int q = 0;
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
-                int counterStart = 0;
+
                 String line;
-                while ((line = featuresFileBR.readLine()) != null) {
-                    String token = getFirstToken(line);
-                    String label = getLabelByToken(token, counterStart, labeled);
-                    trainingDataLineBuilder.append(line).append(" ").append(label);
-                    counterStart++;
+                while ((line = bis.readLine()) != null) {
+                    int ii = line.indexOf(' ');
+                    String token = null;
+                    if (ii != -1)
+                        token = line.substring(0, ii);
+                    // we get the label in the labelled data file for the same token
+                    for (int pp = q; pp < labeled.size(); pp++) {
+                        String localLine = labeled.get(pp);
+                        StringTokenizer st = new StringTokenizer(localLine, " ");
+                        if (st.hasMoreTokens()) {
+                            String localToken = st.nextToken();
+                            if (localToken.equals(token)) {
+                                String tag = st.nextToken();
+                                trainingDataLineBuilder.append(line).append(" ").append(tag);
+                                q = pp + 1;
+                                pp = q + 10;
+                            }
+                        }
+                        if (pp - q > 5) {
+                            break;
+                        }
+                    }
                 }
-                featuresFileBR.close();
-                // Add the training data with suffixed label
-                writer2.write(trainingDataLineBuilder.toString() + "\n");
+                bis.close();
+                writer2.write(trainingDataLineBuilder.toString() + "");
             }
 
         } catch (Exception e) {
             throw new GrobidException("An exception occurred while running Grobid.", e);
         } finally {
-            try {
-                if (writer2 != null) {
-                    writer2.close();
-                }
-
-                if (os2 != null) {
-                    os2.close();
-                }
-
-            } catch (Exception ex) {
-                throw new GrobidException("An exception occurred while closing file", ex);
-            }
-
+            IOUtils.closeQuietly(writer2);
+            IOUtils.closeQuietly(os2);
         }
         return totalExamples;
     }
 
-    private String getFirstToken(String line) {
-        int ii = line.indexOf(' ');
-        String token = null;
 
-        if (ii != -1) {
-            token = line.substring(0, ii);
-        }
-
-        return token;
-    }
-
-    /**
-     * Searching for the label in the labelled data file of the token in the feature file
-     */
-    protected String getLabelByToken(String featureFileToken, int counterStart, List<String> labeled) {
-
-        for (int indexLabeled = counterStart; indexLabeled < labeled.size(); indexLabeled++) {
-            String tokenPlusLabel = labeled.get(indexLabeled);
-            StringTokenizer st = new StringTokenizer(tokenPlusLabel, " ");
-            if (st.hasMoreTokens()) {
-                String labelFileToken = st.nextToken();
-
-                if(featureFileToken.equals("@BULLET")){
-                    String tag = st.nextToken();
-                    return tag;
-                } else if (labelFileToken.equals(featureFileToken)) {
-                    String tag = st.nextToken();
-                    return tag;
-                }
-            }
-            if (indexLabeled - counterStart > 5) {
-                return null;
-            }
-        }
-
-        return null;
-    }
 }

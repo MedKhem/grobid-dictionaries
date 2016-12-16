@@ -165,41 +165,5 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
         return totalExamples;
     }
 
-    private String getFirstToken(String line) {
-        int ii = line.indexOf(' ');
-        String token = null;
 
-        if (ii != -1) {
-            token = line.substring(0, ii);
-        }
-
-        return token;
-    }
-
-    /**
-     * Searching for the label in the labelled data file of the token in the feature file
-     */
-    protected String getLabelByToken(String featureFileToken, int counterStart, List<String> labeled) {
-
-        for (int indexLabeled = counterStart; indexLabeled < labeled.size(); indexLabeled++) {
-            String tokenPlusLabel = labeled.get(indexLabeled);
-            StringTokenizer st = new StringTokenizer(tokenPlusLabel, " ");
-            if (st.hasMoreTokens()) {
-                String labelFileToken = st.nextToken();
-
-                if(featureFileToken.equals("@BULLET")){
-                    String tag = st.nextToken();
-                    return tag;
-                } else if (labelFileToken.equals(featureFileToken)) {
-                    String tag = st.nextToken();
-                    return tag;
-                }
-            }
-            if (indexLabeled - counterStart > 5) {
-                return null;
-            }
-        }
-
-        return null;
-    }
 }

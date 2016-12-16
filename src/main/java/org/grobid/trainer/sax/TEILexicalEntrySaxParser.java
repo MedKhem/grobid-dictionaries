@@ -93,6 +93,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
+                currentTag = "<other>";
                     writeData(qName, false);
 
             }
@@ -106,15 +107,9 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ( (qName.equals("entry")) ||
-                (qName.equals("form")) ||
+        if ( (qName.equals("form")) ||
                 (qName.equals("etym")) ||
-                (qName.equals("sense")) ||
-                (qName.equals("metamark")) ||
-                (qName.equals("re")) ||
-                (qName.equals("front")) ||
-                (qName.equals("note"))
-                ) {
+                (qName.equals("sense"))) {
             if (currentTag == null) {
                 return;
             }
@@ -123,6 +118,9 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                 if (!currentTags.empty()) {
                     currentTags.pop();
                 }
+            }
+            if(qName.equals("entry")){
+                currentTag = "<other>";
             }
 
             String text = getText();

@@ -14,31 +14,27 @@ public class LexicalEntryLabels extends TaggingLabels {
         super();
     }
 
-    public static final String DICTIONARY_ENTRY_LABEL = "<entry>";
-    public static final String DICTIONARY_FORM_LABEL = "<form>";
-    public static final String DICTIONARY_ETYM_LABEL = "<etym>";
-    public static final String DICTIONARY_SENSE_LABEL = "<sense>";
-    public static final String DICTIONARY_METAMARK_LABEL = "<metamark>";
-    public static final String DICTIONARY_RE_LABEL = "<re>";
-    public static final String DICTIONARY_NOTE_LABEL = "<note>";
+    public static final String LEXICAL_ENTRY_FORM_LABEL = "<form>";
+    public static final String LEXICAL_ENTRY_ETYM_LABEL = "<etym>";
+    public static final String LEXICAL_ENTRY_SENSE_LABEL = "<sense>";
+    public static final String LEXICAL_ENTRY_RE_LABEL = "<re>";
+    public static final String LEXICAL_ENTRY_OTHER_LABEL = "<other>";
 
-    public static final TaggingLabel DICTIONARY_ENTRY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_ENTRY_LABEL);
-    public static final TaggingLabel DICTIONARY_FORM = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_FORM_LABEL);
-    public static final TaggingLabel DICTIONARY_ETYM = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_ETYM_LABEL);
-    public static final TaggingLabel DICTIONARY_SENSE = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_SENSE_LABEL);
-    public static final TaggingLabel DICTIONARY_METAMARK = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_METAMARK_LABEL);
-    public static final TaggingLabel DICTIONARY_RE = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_RE_LABEL);
-    public static final TaggingLabel DICTIONARY_NOTE = new TaggingLabelImpl(DictionaryModels.DICTIONARY_SEGMENTATION, DICTIONARY_NOTE_LABEL);
+   
+    public static final TaggingLabel LEXICAL_ENTRY_FORM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_FORM_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_ETYM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_ETYM_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_SENSE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SENSE_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_RE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_RE_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_OTHER = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_OTHER_LABEL);
 
 
     static {
-        register(DICTIONARY_ENTRY);
-        register(DICTIONARY_FORM);
-        register(DICTIONARY_ETYM);
-        register(DICTIONARY_SENSE);
-        register(DICTIONARY_METAMARK);
-        register(DICTIONARY_RE);
-        register(DICTIONARY_NOTE);
+     
+        register(LEXICAL_ENTRY_FORM);
+        register(LEXICAL_ENTRY_ETYM);
+        register(LEXICAL_ENTRY_SENSE);
+        register(LEXICAL_ENTRY_RE);
+        register(LEXICAL_ENTRY_OTHER);
 
     }
 
