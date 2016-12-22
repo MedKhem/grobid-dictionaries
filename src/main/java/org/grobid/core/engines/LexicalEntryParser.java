@@ -111,7 +111,9 @@ public class LexicalEntryParser extends AbstractParser {
                 buffer.append(createMyXMLString("re", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
                 buffer.append(createMyXMLString("other", clusterContent));
-            } else {
+            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+                buffer.append(createMyXMLString("pc", clusterContent));
+            }else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
 

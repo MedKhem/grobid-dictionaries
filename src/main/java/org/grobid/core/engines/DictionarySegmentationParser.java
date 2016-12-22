@@ -1020,16 +1020,16 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 boolean output;
 
-                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<headnote>", addSpace, 3);
+                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
                 }
 
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<fw>", addSpace, 3);
                 }
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<pc>", addSpace, 3);
                 }
 
                 lastTag = s1;
@@ -1170,13 +1170,16 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 boolean output;
 
-                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<headnote>", addSpace, 3);
+                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
                 }
 
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<fw>", addSpace, 3);
+                }
+                if (!output) {
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<pc>", "<pc>", addSpace, 3);
                 }
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
@@ -1231,19 +1234,18 @@ public class DictionarySegmentationParser extends AbstractParser {
             line = line.replace("@BULLET", "\u2022");
             // if previous and current tag are the same, we output the token
             if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
+
                 buffer.append(line);
             }
-            else if (lastTag0 == null) {
-//                // if previous tagname is null, we output the opening xml tag
-//                for (int i = 0; i < nbIndent; i++) {
-//                    buffer.append("\t");
-//                }
+            else if (field.equals("<headnote>")) {
+                outField = outField.substring(0, outField.length()-1) + " type=\"header\">";
                 buffer.append(outField).append(line);
-            } else if (!lastTag0.equals("<titlePage>")) {
-//                // if the previous tagname is not titlePage, we output the opening xml tag
-//                for (int i = 0; i < nbIndent; i++) {
-//                    buffer.append("\t");
-//                }
+            }else if (field.equals("<footnote>")) {
+                outField = outField.substring(0, outField.length()-1) + " type=\"footer\">";
+                buffer.append(outField).append(line);
+            }else if (lastTag0 == null) {
+                buffer.append(outField).append(line);
+            }else if (!lastTag0.equals("<titlePage>")) {
                 buffer.append(outField).append(line);
             } else {
                 // otherwise we continue by ouputting the token
@@ -1277,13 +1279,16 @@ public class DictionarySegmentationParser extends AbstractParser {
             res = false;
             // we close the current tag
             if (lastTag0.equals("<headnote>")) {
-                buffer.append("</headnote>");
+                buffer.append("</fw>");
             } else if (lastTag0.equals("<body>")) {
                 buffer.append("</body>");
             } else if (lastTag0.equals("<footnote>")) {
-                buffer.append("</footnote>");
+                buffer.append("</fw>");
             } else if (lastTag0.equals("<other>")) {
                 buffer.append("</other>");
+            }
+            else if (lastTag0.equals("<pc>")) {
+                buffer.append("</pc>");
             }else {
                 res = false;
             }

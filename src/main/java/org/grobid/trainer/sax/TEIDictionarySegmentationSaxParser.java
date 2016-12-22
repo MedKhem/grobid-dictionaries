@@ -83,7 +83,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
             String text = getText();
             if (!isBlank(text)) {
                 // For text outside the three principle tags that will go to <other>
-                currentTag = "<other>";
+                currentTag = "<pc>";
                 writeData(qName, false);
 
             }
@@ -100,6 +100,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
         if ( (qName.equals("body")||
                 (qName.equals("headnote"))) ||
                 (qName.equals("footnote"))||
+        (qName.equals("other")) ||
                 (qName.equals("text")) ) {
             if (currentTag == null) {
                 return;
@@ -113,7 +114,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
             }
 
             if(qName.equals("text")){
-                currentTag = "<other>";
+                currentTag = "<pc>";
             }
 
             String text = getText();

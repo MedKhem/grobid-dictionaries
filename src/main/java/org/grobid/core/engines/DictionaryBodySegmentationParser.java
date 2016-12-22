@@ -2,14 +2,18 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
-import org.grobid.core.document.*;
+import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentUtils;
+import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
-import org.grobid.core.layout.*;
+import org.grobid.core.layout.LayoutToken;
+import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.slf4j.Logger;
@@ -46,6 +50,56 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         instance = new DictionaryBodySegmentationParser();
     }
 
+    public static List<List<LayoutToken>> processLexicalEntriesLayoutTokens(LayoutTokenization layoutTokenization, String contentFeatured) {
+        //Extract the lexical entries in a clusters of tokens for each lexical entry
+        StringBuilder buffer = new StringBuilder();
+        TaggingLabel lastClusterLabel = null;
+        List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
+
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
+
+        String tokenLabel = null;
+        List<TaggingTokenCluster> clusters = clusteror.cluster();
+        List<List<LayoutToken>> list1 = new ArrayList<List<LayoutToken>>();
+
+        for (TaggingTokenCluster cluster : clusters) {
+            if (cluster == null) {
+                continue;
+            }
+            TaggingLabel clusterLabel = cluster.getTaggingLabel();
+            Engine.getCntManager().i((TaggingLabel) clusterLabel);
+            String tagLabel = clusterLabel.getLabel();
+
+
+            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                list1.add(cluster.concatTokens());
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
+                list1.add(cluster.concatTokens());
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_PC_LABEL)) {
+                list1.add(cluster.concatTokens());
+            } else {
+                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
+            }
+
+
+        }
+
+        return list1;
+    }
+
+    public static String createMyXMLString(String elementName, String elementContent) {
+        StringBuilder xmlStringElement = new StringBuilder();
+        xmlStringElement.append("<");
+        xmlStringElement.append(elementName);
+        xmlStringElement.append(">");
+        xmlStringElement.append(elementContent);
+        xmlStringElement.append("</");
+        xmlStringElement.append(elementName);
+        xmlStringElement.append(">");
+        xmlStringElement.append("\n");
+
+        return xmlStringElement.toString();
+    }
 
     public String process(File originFile) throws Exception {
         //This method is used by the service mode to display the segmentation result as text in tei-xml format
@@ -104,57 +158,6 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         } catch (Exception e) {
             throw new GrobidException("An exception occurred while running Grobid.", e);
         }
-    }
-
-    public static  List<List<LayoutToken>> processLexicalEntriesLayoutTokens(LayoutTokenization layoutTokenization, String contentFeatured) {
-        //Extract the lexical entries in a clusters of tokens for each lexical entry
-        StringBuilder buffer = new StringBuilder();
-        TaggingLabel lastClusterLabel = null;
-        List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
-
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
-
-        String tokenLabel = null;
-        List<TaggingTokenCluster> clusters = clusteror.cluster();
-        List<List<LayoutToken>> list1 = new ArrayList<List<LayoutToken>>();
-
-        for (TaggingTokenCluster cluster : clusters) {
-            if (cluster == null) {
-                continue;
-            }
-            TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i((TaggingLabel) clusterLabel);
-            String tagLabel = clusterLabel.getLabel();
-
-
-            if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                list1.add(cluster.concatTokens());
-            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
-                continue;
-            } else {
-                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-            }
-
-
-
-
-        }
-
-        return list1;
-    }
-
-    public static String createMyXMLString(String elementName, String elementContent) {
-        StringBuilder xmlStringElement = new StringBuilder();
-        xmlStringElement.append("<");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
-        xmlStringElement.append("</");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append("\n");
-
-        return xmlStringElement.toString();
     }
 
     @SuppressWarnings({"UnusedParameters"})

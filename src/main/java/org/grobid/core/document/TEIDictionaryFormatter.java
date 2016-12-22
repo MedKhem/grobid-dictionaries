@@ -112,9 +112,9 @@ public class TEIDictionaryFormatter {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append("\t\t<headnote>");
+        tei.append("\t\t<fw "+"type=\"header\">" );
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
-        tei.append("</headnote>\n");
+        tei.append("</fw>\n");
         tei.append("\t\t<body>\n");
         for (List<LayoutToken> list1 : doc.getLexicalEntries()) {
             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(list1));
@@ -122,9 +122,9 @@ public class TEIDictionaryFormatter {
 
         }
         tei.append("\t\t</body>\n");
-        tei.append("\t\t<footnote>");
+        tei.append("\t\t<fw "+"type=\"footer\">" );
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
-        tei.append("</footnote>\n");
+        tei.append("</fw>\n");
         tei.append("\t</text>\n");
         tei.append("</TEI>\n");
 
@@ -162,6 +162,8 @@ public class TEIDictionaryFormatter {
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
+                buffer.append(clusterContent);
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_PC_LABEL)) {
                 buffer.append(clusterContent);
             }else{
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -293,15 +295,15 @@ public class TEIDictionaryFormatter {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append("\t\t<headnote>");
+        tei.append("\t\t<fw "+"type=\"header\">" );
         tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)));
-        tei.append("</headnote>");
+        tei.append("</fw>\n");
         tei.append("\n\t\t<body>");
         tei.append(structuredLE);
         tei.append("\n\t\t</body>");
-        tei.append("\n\t\t<footnote>");
-        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
-        tei.append("</footnote>");
+        tei.append("\t\t<fw "+"type=\"footer\">" );
+        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
+        tei.append("</fw>\n");
         tei.append("\n\t</text>\n");
         tei.append("</TEI>\n");
 

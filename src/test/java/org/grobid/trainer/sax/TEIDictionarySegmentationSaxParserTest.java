@@ -34,8 +34,8 @@ public class TEIDictionarySegmentationSaxParserTest {
 
         List<String> labeled = target.getLabeledResult();
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(4));
-        assertThat(labeled.get(0), is("crap I-<other>\n"));
+        assertThat(labeled.size(), is(5));
+        assertThat(labeled.get(0), is("crap I-<pc>\n"));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class TEIDictionarySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(4));
 
-        assertThat(labeled.get(1), is("crap I-<other>\n"));
+        assertThat(labeled.get(1), is("crap I-<pc>\n"));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class TEIDictionarySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(4));
 
-        assertThat(labeled.get(2), is("crap I-<other>\n"));
+        assertThat(labeled.get(2), is("crap I-<pc>\n"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class TEIDictionarySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(4));
 
-        assertThat(labeled.get(3), is("crap I-<other>\n"));
+        assertThat(labeled.get(3), is("crap I-<pc>\n"));
     }
 
 }

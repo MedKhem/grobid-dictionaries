@@ -54,7 +54,7 @@ public class TEIDictionaryBodySegmentationSaxParserTest {
         assertThat(labeled.size(), is(827));
 
         assertThat(labeled.get(0), is("absolutely I-<entry>\n"));
-        assertThat(labeled.get(101), is(". I-<other>\n"));
+        assertThat(labeled.get(101), is(". I-<pc>\n"));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TEIDictionaryBodySegmentationSaxParserTest {
         List<String> labeled = target.getLabeledResult();
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(2));
-        assertThat(labeled.get(0), is("crap I-<other>\n"));
+        assertThat(labeled.get(0), is("crap I-<pc>\n"));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TEIDictionaryBodySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(3));
 
-        assertThat(labeled.get(1), is("crap I-<other>\n"));
+        assertThat(labeled.get(1), is("crap I-<pc>\n"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TEIDictionaryBodySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(3));
 
-        assertThat(labeled.get(2), is("crap I-<other>\n"));
+        assertThat(labeled.get(2), is("crap I-<pc>\n"));
     }
 
 

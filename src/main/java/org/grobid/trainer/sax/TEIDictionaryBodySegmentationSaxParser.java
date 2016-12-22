@@ -79,7 +79,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
             String text = getText();
             if (!isBlank(text)) {
                 // For text outside the entry tags that will go to <other>
-                currentTag = "<other>";
+                currentTag = "<pc>";
                 writeData(qName, false);
 
             }
@@ -94,7 +94,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
 
 
     private void writeData(String qName, boolean pop) {
-        if (qName.equals("entry") ||(qName.equals("body"))) {
+        if (qName.equals("entry") ||(qName.equals("body"))||(qName.equals("other"))) {
             if (currentTag == null) {
                 return;
             }
@@ -105,7 +105,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
             }
             // For text outside the entry tags that will go to <other>
             if(qName.equals("body")){
-                currentTag = "<other>";
+                currentTag = "<pc>";
             }
             String text = getText();
             // we segment the text
