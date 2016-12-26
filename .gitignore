@@ -6,4 +6,3 @@ target
 *.old
 
 /tmp
-resources/dataset/dictionary-segmentation/evaluation/README.md
