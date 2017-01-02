@@ -1,9 +1,13 @@
 package org.grobid.core.engines;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
@@ -18,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Created by med on 18.10.16.
@@ -62,7 +67,7 @@ public class LexicalEntryParser extends AbstractParser {
 
                 if ((featSeg != null) && (featSeg.trim().length() > 0)) {
                     labeledFeatures = label(featSeg);
-                    LexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization));
+                    LexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, false));
                 }
                 LexicalEntries.append("</entry>");
 
@@ -74,7 +79,7 @@ public class LexicalEntryParser extends AbstractParser {
         return LEs;
     }
 
-    public StringBuilder toTEILexicalEntry(String bodyContentFeatured, LayoutTokenization layoutTokenization) {
+    public StringBuilder toTEILexicalEntry(String bodyContentFeatured, LayoutTokenization layoutTokenization, boolean isTrainingData) {
 
         StringBuilder buffer = new StringBuilder();
         TaggingLabel lastClusterLabel = null;
@@ -97,7 +102,13 @@ public class LexicalEntryParser extends AbstractParser {
 
             List<LayoutToken> list1 = cluster.concatTokens();
             String str1 = LayoutTokensUtil.toText(list1);
-            String clusterContent = LayoutTokensUtil.normalizeText(str1);
+            String clusterContent;
+            if (isTrainingData) {
+                clusterContent = DocumentUtils.replaceLinebreaksWithTags(str1);
+            } else {
+                clusterContent = LayoutTokensUtil.normalizeText(str1);
+            }
+
             String tagLabel = clusterLabel.getLabel();
 
 
@@ -113,7 +124,7 @@ public class LexicalEntryParser extends AbstractParser {
                 buffer.append(createMyXMLString("other", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
                 buffer.append(createMyXMLString("pc", clusterContent));
-            }else {
+            } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
 
@@ -149,35 +160,106 @@ public class LexicalEntryParser extends AbstractParser {
                 throw new GrobidException("Cannot create training data because ouput directory can not be accessed: " + outputDirectory);
             }
 
-            // we process all pdf files in the directory
-
             int n = 0;
-
+            // we process all pdf files in the directory
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
-                    String featuresFile = outputDirectory + "/" + fileEntry.getName().substring(0, fileEntry.getName().length() - 4) + ".training.lexicalEntry";
-                    Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                    writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(fileEntry).toString());
-                    IOUtils.closeWhileHandlingException(writer);
+                    // Create the pre-annotated file and the raw text
+                    createTrainingLexicalEntries(fileEntry, outputDirectory);
                     n++;
                 }
 
             } else {
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
-                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(FeatureVectorLexicalEntry.createFeaturesFromPDF(path).toString());
-                IOUtils.closeWhileHandlingException(writer);
+                createTrainingLexicalEntries(path, outputDirectory);
                 n++;
 
             }
 
 
             System.out.println(n + " files to be processed.");
-
             return n;
         } catch (final Exception exp) {
             throw new GrobidException("An exception occurred while running Grobid batch.", exp);
         }
+    }
+
+    public void createTrainingLexicalEntries(File path, String outputDirectory) throws Exception {
+
+        // Segment the doc
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        DictionarySegmentationParser parser = new DictionarySegmentationParser();
+        DictionaryDocument doc = parser.initiateProcessing(path, config);
+        //Get Body
+        SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+        //Get tokens from the body
+        LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations).toString();
+        if (bodytextFeatured != null) {
+            // if featSeg is null, it usually means that no body segment is found in the
+            // document segmentation
+
+
+            if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
+                //Write the features file
+                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
+                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+                writer.write(bodytextFeatured);
+                IOUtils.closeWhileHandlingException(writer);
+
+                // also write the raw text as seen before segmentation
+                StringBuffer rawtxt = new StringBuffer();
+                for (LayoutToken txtline : tokenizations.getTokenization()) {
+                    rawtxt.append(txtline.getText());
+                }
+                String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.rawtxt";
+                FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+
+                //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
+                if (bodytextFeatured.length() > 0) {
+                    DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
+                    doc = bodySegmentationParser.processing(path);
+                    StringBuffer LexicalEntries = new StringBuffer();
+                    LayoutTokenization layoutTokenization;
+                    for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
+                        LexicalEntries.append("<entry>");
+                        layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
+                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
+                        String labeledFeatures = null;
+                        // if featSeg is null, it usually means that no body segment is found in the
+
+                        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                            labeledFeatures = label(featSeg);
+                            LexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, true));
+                        }
+                        LexicalEntries.append("</entry>");
+
+                    }
+
+
+                    // write the TEI file to reflect the extact layout of the text as extracted from the pdf
+                    String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
+                    writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+                    writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                            "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+                    writer.write("\n\t\t<headnote>");
+                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
+                    writer.write("</headnote>");
+                    writer.write("\n\t\t<body>");
+                    writer.write(LexicalEntries.toString());
+                    writer.write("</body>");
+                    writer.write("\n\t\t<footnote>");
+                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
+                    writer.write("</footnote>");
+                    writer.write("\n\t</text>\n</tei>\n");
+                    writer.close();
+                }
+            }
+
+        }
+
+
     }
 
 
