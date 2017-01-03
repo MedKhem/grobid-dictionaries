@@ -884,7 +884,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             String rese = label(featuredText);
             StringBuffer bufferFulltext = trainingExtraction(rese, doc);
 
-            // write the TEI file to reflect the extact layout of the text as extracted from the pdf
+            // write the TEI file to reflect the exact layout of the text as extracted from the pdf
             String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
             writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
             writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
@@ -1015,28 +1015,31 @@ public class DictionarySegmentationParser extends AbstractParser {
                 //boolean closeParagraph = false;
                 if (lastTag != null) {
                     //closeParagraph =
-                    testClosingTag(buffer, currentTag0, lastTag0, s1);
+                    testClosingTagForTrainingData(buffer, currentTag0, lastTag0, s1);
                 }
 
                 boolean output;
 
-                output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
+                output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<headnote>", "<headnote>", addSpace, 3);
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
+                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
                 }
 
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<footnote>", "<fw>", addSpace, 3);
+                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<footnote>", "<footnote>", addSpace, 3);
                 }
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<pc>", addSpace, 3);
+                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<pc>", "<pc>", addSpace, 3);
+                }
+                if (!output) {
+                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
                 }
 
                 lastTag = s1;
 
                 if (!st.hasMoreTokens()) {
                     if (lastTag != null) {
-                        testClosingTag(buffer, "", currentTag0, s1);
+                        testClosingTagForTrainingData(buffer, "", currentTag0, s1);
                     }
                 }
                 if (start) {
@@ -1255,6 +1258,36 @@ public class DictionarySegmentationParser extends AbstractParser {
         return result;
     }
 
+    private boolean writeFieldForTrainingData(StringBuffer buffer,
+                               String line,
+                               String s1,
+                               String lastTag0,
+                               String s2,
+                               String field,
+                               String outField,
+                               boolean addSpace,
+                               int nbIndent) {
+        boolean result = false;
+        // filter the output path
+        if ((s1.equals(field)) || (s1.equals("I-" + field))) {
+            result = true;
+            line = line.replace("@BULLET", "\u2022");
+            // if previous and current tag are the same, we output the token
+            if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
+
+                buffer.append(line);
+            }else if (lastTag0 == null) {
+                buffer.append(outField).append(line);
+            }else if (!lastTag0.equals("<titlePage>")) {
+                buffer.append(outField).append(line);
+            } else {
+                // otherwise we continue by ouputting the token
+                buffer.append(line);
+            }
+        }
+        return result;
+    }
+
     /**
      * TODO some documentation
      *
@@ -1284,6 +1317,39 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append("</body>");
             } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</fw>");
+            } else if (lastTag0.equals("<other>")) {
+                buffer.append("</other>");
+            }
+            else if (lastTag0.equals("<pc>")) {
+                buffer.append("</pc>");
+            }else {
+                res = false;
+            }
+
+        }
+        return res;
+    }
+
+    private boolean testClosingTagForTrainingData(StringBuffer buffer,
+                                   String currentTag0,
+                                   String lastTag0,
+                                   String currentTag) {
+        boolean res = false;
+        // reference_marker and citation_marker are two exceptions because they can be embedded
+
+        if (!currentTag0.equals(lastTag0)) {
+            /*if (currentTag0.equals("<citation_marker>") || currentTag0.equals("<figure_marker>")) {
+                return res;
+            }*/
+
+            res = false;
+            // we close the current tag
+            if (lastTag0.equals("<headnote>")) {
+                buffer.append("</headnote>");
+            } else if (lastTag0.equals("<body>")) {
+                buffer.append("</body>");
+            } else if (lastTag0.equals("<footnote>")) {
+                buffer.append("</footnote>");
             } else if (lastTag0.equals("<other>")) {
                 buffer.append("</other>");
             }
