@@ -14,7 +14,7 @@
 \newcommand*{\email}[1]{\texttt{#1}}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
-
+\usepackage[none]{hyphenat}
 \usepackage{sectsty}
 \allsectionsfont{\centering}
 
@@ -37,13 +37,13 @@ Mohamed Khemakhem\affmark[1,2,4], {Luca Foppiano\affmark[1] and Laurent Romary\a
 %\section{Introduction}
 
 \paragraph{}An important number of digitized lexical resources remain unexploited due to their unstructured content.
-Manually structuring such resources is a costly task because of their multifold complexity. 
+Manually structuring such resources is a costly task given their multifold complexity. 
 Our goal is to find an approach to automatically structure digitized dictionaries, independently from the language or the lexicographic school or style. In this paper we present a first version of \textbf{GROBID-Dictionaries}\footnote{Available at \url{https://github.com/MedKhem/grobid-dictionaries} under the Apache License.}, an open source machine learning system for lexical information extraction.
 %\section{Approach}
  
 \paragraph{} Our approach is twofold: we perform a cascading structure extraction, while we select at each level specific features for training.
 
- We followed a ”divide to conquer” strategy to dismantle the text constructs in a digitized dictionary, based on the observation of their layout. Main pages (see Figure 1) in almost any dictionary share three blocks: a header (green), a footer (blue) and the body (orange). 
+ We followed a ”divide to conquer” strategy to dismantle text constructs in a digitized dictionary, based on the observation of their layout. Main pages (see Figure 1) in almost any dictionary share three blocks: a header (green), a footer (blue) and a body (orange). 
 The body is, in its turn, constituted by several entries (red). Each lexical entry can be further decomposed (see Figure 2) as: form (green), etymology (blue), sense (red) or/and related entry. The same logic could be applied further for each extracted block but in the scope of this paper we focus just on the first three levels.
  \begin{figure}
 \framebox{\includegraphics[width=\columnwidth]{larousse-colored.png}} 
@@ -52,27 +52,25 @@ The body is, in its turn, constituted by several entries (red). Each lexical ent
 %http://libguides.unitec.ac.nz/apareferencing/images-tables-figures
 \end{figure}
 \begin{figure}
-\framebox{\includegraphics[width=\columnwidth]{larousse-entry-colored.png}} 
+\framebox{\includegraphics[width=\columnwidth]{larousse-entry-colored-many-senses2.png}} 
 \caption{Third segmentation level of a lexical entry~\cite{larousse1975france}\label{fig:mouseover}}
 \end{figure}  
  
- The cascading approach ensures better understanding of the learning process’s output and consequently simplifies the feature selection process to a restricted scope. Limited exclusive text blocks per level helps significantly in diagnosing the cause of prediction errors. It allows an early detection and replacement of irrelevant selected features that can bias a trained model.
-					
-In such a segmentation, it becomes more straightforward to notice that, for instance, the token position in the page is very relevant to detect headers and footers and has almost no pertinence for capturing a sense in a lexical entry which is very often split on two pages.
+ The cascading approach ensures a better understanding of the learning process’s output and consequently simplifies the feature selection process. Limited exclusive text blocks per level helps significantly in diagnosing the cause of prediction errors. It allows an early detection and replacement of irrelevant selected features that can bias a trained model. In such a segmentation, it becomes more straightforward to notice that, for instance, the token position in the page is very relevant to detect headers and footers and has almost no pertinence for capturing a sense in a lexical entry which is very often split on two pages.
   
 
 
 
 
 %\section{Grobid \& CRF} 
-\paragraph{}To implement our approach, we took up the available infrastructure from on GROBID~\cite{Lopez2015GROBIDI}, a machine learning system for the extraction of bibliographic metadata. GROBID relies on Conditional Random Fields (\textbf{CRF})~\cite{lavergne2010practical} to label text sequences and rely on the same cascade model approach. GROBID is fully compliant with XML format following TEI guidelines, a de-facto standard that dedicates a whole chapter for encoding dictionaries~\cite{budin2012creating,romary:hal-00704511}
+\paragraph{}To implement our approach, we took up the available infrastructure from GROBID~\cite{Lopez2015GROBIDI}, a machine learning system for the extraction of bibliographic metadata. GROBID adopts the same cascading approach and uses Conditional Random Fields (\textbf{CRF})~\cite{lavergne2010practical} to label text sequences. The output of Grobid dictionary is planned to generate a TEI compliant encoding~\cite{budin2012creating,romary:hal-00704511} where the various segmentation levels are associated with an appropriate XML tessellation. Collaboration with COST ENeL are ongoing to ensure maximal compatibility with existing dictionary projects.
 %\section{Experiment and Results}
  
-\paragraph{}Our experiments justify so far our choices, where models for the first two levels trained on two different dictionary samples have given a high precision and recall with a small amount of annotated data. Relying mainly on the text layout, we tried to diversify the selected features for each model, on the token and line level. We are working on tuning features and annotating more data to maintain the good results with new samples and to improve the third segmentation level.
+\paragraph{}Our experiments justify so far our choices, where models for the first two levels trained on two different dictionary samples have given a high precision and recall with a small amount of annotated data. Relying mainly on the text layout, we tried to diversify the selected features for each model, on the token and line levels. We are working on tuning features and annotating more data to maintain the good results with new samples and to improve the third segmentation level.
 
 %\section{Related works}
  
-\paragraph{}While just few task specific attempts~\cite{bago2015using}. have been using machine learning in this research direction, the landscape remains dominated by rule based techniquess~\cite{khemakhem2009towards,fahmy2014towards,mykowiecka2012building} which are ad-hoc and costly, even impossible, to adapt for new lexical resources.
+\paragraph{}While just few task specific attempts~\cite{bago2015using} have been using machine learning in this research direction, the landscape remains dominated by rule based techniquess~\cite{khemakhem2009towards,fahmy2014towards,mykowiecka2012building} which are ad-hoc and costly, even impossible, to adapt for new lexical resources.
 	
 
 
