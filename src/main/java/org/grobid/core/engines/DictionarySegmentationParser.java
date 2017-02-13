@@ -887,7 +887,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             // write the TEI file to reflect the exact layout of the text as extracted from the pdf
             String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
             writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-            writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                                  "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
 
             writer.write(bufferFulltext.toString());
