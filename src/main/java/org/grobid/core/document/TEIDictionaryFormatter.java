@@ -92,7 +92,7 @@ public class TEIDictionaryFormatter {
 
         tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
                            "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
-        tei.append("\t\t\t\t\t<ref target=\"https://github.com/kermitt2/grobid\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
+        tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");
         tei.append("\t\t\t</appInfo>\n");
         tei.append("\t\t</encodingDesc>");
@@ -275,7 +275,7 @@ public class TEIDictionaryFormatter {
 
         tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
                            "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
-        tei.append("\t\t\t\t\t<ref target=\"https://github.com/kermitt2/grobid\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
+        tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");
         tei.append("\t\t\t</appInfo>\n");
         tei.append("\t\t</encodingDesc>");
