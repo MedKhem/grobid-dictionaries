@@ -111,7 +111,7 @@ For Lexical Entry model:
 
 
 
-## Start the service
+# Start the service
 
 After running jetty with the following command:
 > mvn -Dmaven.test.skip=true jetty:run-war
@@ -119,7 +119,7 @@ After running jetty with the following command:
 the web service would be accessible directly at the navigator (if you run it locally):
 > http://localhost:8080/
 
-## License
+# License
 
 GROBID and GROBID-Dictionaries are distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). 
 
