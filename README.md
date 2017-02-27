@@ -23,10 +23,10 @@ __Dictionary Segmentation__
 This is the first model and has as goal the segmentation of each dictionary page into 3 main blocks: Header, Body and Footer. Another block, "Other" could be generated for text information that do not belong to the principal blocks
 
 __Dictionary Body Segmentation__
-The second model gets the Body, recognized by the first model, and process it to recognize the boundaries of each lexical entry.
+The second model gets the Body, recognized by the first model, and processes it to recognize the boundaries of each lexical entry.
 
 __Lexical Entry__
-The third model parses each lexical entry, recognized by the second model, to segment it to 4 main blocks: Form, Etymology, Senses, Related Entries. An "Other" block is there as well for uncategorised information 
+The third model parses each lexical entry, recognized by the second model, to segment it into 4 main blocks: Form, Etymology, Senses, Related Entries. An "Other" block is there as well for unrecognised information. 
 
 
 __The rest of the models__
@@ -90,7 +90,7 @@ As the rest of GROBID, the training data is encoded following the [TEI P5](http:
 
 ## Generation of training data
 
-Training data generation works the same as in GROBID, with executable name specific to the wanted model.
+Training data generation works the same as in GROBID, but with new executable name (specific to one of GROBID-Dictionaries models).
 
 
 Make sure that the current directory is grobid-dictionaries: 
@@ -113,9 +113,11 @@ For Lexical Entry model:
 
 ## Start the service
 
+After running jetty with the following command:
 > mvn -Dmaven.test.skip=true jetty:run-war
 
-
+the web service would be accessible directly at the navigator (if you run it locally):
+> http://localhost:8080/
 ## License
 
 GROBID and grobid-quantities are distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). 
