@@ -19,17 +19,17 @@ Each box represents a model and not a text structure. Every model allows the pro
 The name of each model reflects the information to be processed per level. Consequently, the same appellation is used for naming the implemented java classes and their functionalities.
 The boxes in red color represent the models which are already implemented, where the rest of the diagram corresponds to the pending components. 
 
-_*** Dictionary Segmentation**_
+__Dictionary Segmentation__
 This is the first model and has as goal the segmentation of each dictionary page into 3 main blocks: Header, Body and Footer. Another block, "Other" could be generated for text information that do not belong to the principal blocks
 
-_*** Dictionary Body Segmentation**_
+__Dictionary Body Segmentation__
 The second model gets the Body, recognized by the first model, and process it to recognize the boundaries of each lexical entry.
 
-_*** Lexical Entry**_
+__Lexical Entry__
 The third model parses each lexical entry, recognized by the second model, to segment it to 4 main blocks: Form, Etymology, Senses, Related Entries. An "Other" block is there as well for uncategorised information 
 
 
-_*** The rest of the models**_
+__The rest of the models__
 The same logic applies respectively for the recognised blocks in the lexical entry by having a specific model for each one of them
 
 
