@@ -118,6 +118,7 @@ After running jetty with the following command:
 
 the web service would be accessible directly at the navigator (if you run it locally):
 > http://localhost:8080/
+
 ## License
 
 GROBID and grobid-quantities are distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). 
