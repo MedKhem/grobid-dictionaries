@@ -119,10 +119,7 @@ public class TEIDictionaryFormatter {
         SortedSet<DocumentPiece> footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
         SortedSet<DocumentPiece> otherOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_OTHER_LABEL);
 
-        tei.append("\t\t<fw "+"type=\"header\">" );
-        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-        tei.append("</fw>\n");
-        tei.append("\t\t<body>\n");
+
 
         int pagesNumber = doc.getPages().size();
         int currentHeadIndex=1;
@@ -130,6 +127,7 @@ public class TEIDictionaryFormatter {
         int currentOtherIndex= 0;
         LayoutToken lastVisitedLayoutToken = new LayoutToken();
         lastVisitedLayoutToken.setPage(1);
+
 
 
         // Prepare an offset based index for pages
@@ -153,172 +151,240 @@ public class TEIDictionaryFormatter {
 
 
         List<List<LayoutToken>> lexicalEntriesSubList = new ArrayList<>();
-        if(pagesOffsetArray.size()>1)
-        {
-            int k = 0;
-            int lexicalEntryBeginIndex;
-            for (int pageOffsetIndex = 1; pageOffsetIndex <= pagesOffsetArray.size()-1; pageOffsetIndex++) {
-                List<LayoutToken> textToShowInTokens = new ArrayList<>();
-                int newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
-                lexicalEntryBeginIndex = k;
-                while (lexicalEntriesOffsetArray.get(k) < newPageOffset) {
-                    k++;
-                }
-                lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex,k);
-                int subListSize = lexicalEntriesSubList.size();
-                List<LayoutToken> lastEntryInSublist =  lexicalEntriesSubList.get(subListSize-1);
+        if(lexicalEntriesNumber > 1){
+            tei.append("\t\t<fw "+"type=\"header\">" );
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+            tei.append("</fw>\n");
+            tei.append("\t\t<body>\n");
 
-                //Check if the last entry in the page is cut by the footer and header
-                if (lastEntryInSublist.get(lastEntryInSublist.size()-1).getOffset() <=  newPageOffset )
-                {
-                    for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
-                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                        tei.append(createMyXMLString("entry", clusterContent));
-                    }
-                    tei.append("\t\t</body>\n");
-
-                    if(currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "")
-                    {
-                        // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                        // This is caused by the forced check of the footnote'a index and its supposed page
-                        // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
-//                                }
-                    }
-
-
-                    if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
-                        // Same logic as the footnote
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-//                                }
-                    }
-
-                    tei.append("<pb/>");
-
-                    if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "" ) {
-                        tei.append("\t\t<fw type=\"header\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                        currentHeadIndex++;
-                        tei.append("</fw>");
-                    }
-                    tei.append("\t\t<body>\n");
-
-
-                }
-                else{
-                    int indexOfLastTokenInThePage = 0;
-                    List<LayoutToken> lexicalEntry = listOfLEs.get(k);
-
-                    for (LayoutToken token : lastEntryInSublist) {
-                        //Check offset of each token in the LE to insert the header and footer blocks
-                        if (token.getOffset() < newPageOffset){
-
-                            indexOfLastTokenInThePage++;
+            if(pagesOffsetArray.size() >1)
+            {
+                int k = 0;
+                int lexicalEntryBeginIndex;
+                for (int pageOffsetIndex = 1; pageOffsetIndex <= pagesOffsetArray.size()-1; pageOffsetIndex++) {
+                    List<LayoutToken> textToShowInTokens = new ArrayList<>();
+                    int newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
+                    lexicalEntryBeginIndex = k;
+                    // Check if the lexical entries are recognized (exist)
+                    if(k < lexicalEntriesOffsetArray.size()){
+                        while (lexicalEntriesOffsetArray.get(k) < newPageOffset) {
+                            k++;
                         }
-                        else{
+                    }
+
+                    lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex,k);
+                    int subListSize = lexicalEntriesSubList.size();
+                    List<LayoutToken> lastEntryInSublist =  lexicalEntriesSubList.get(subListSize-1);
+
+                    //Check if the last entry in the page is cut by the footer and header
+                    if (lastEntryInSublist.get(lastEntryInSublist.size()-1).getOffset() <=  newPageOffset )
+                    {
+                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
+                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+                            tei.append(createMyXMLString("entry", clusterContent));
+                        }
+                        tei.append("\t\t</body>\n");
+
+                        if(currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "")
+                        {
+                            // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
+                            // This is caused by the forced check of the footnote'a index and its supposed page
+                            // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
+//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
+                            tei.append("\t\t<fw type=\"footer\">");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+                            currentFootIndex++;
+                            tei.append("</fw>");
+                            tei.append("\n");
+//                                }
+                        }
+
+
+                        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
+                            // Same logic as the footnote
+//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
+                            tei.append("\t\t<other>");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+                            currentOtherIndex++;
+                            tei.append("</other>");
+                            tei.append("\n");
+//                                }
+                        }
+
+                        tei.append("<pb/>");
+
+                        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "" ) {
+                            tei.append("\t\t<fw type=\"header\">");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+                            currentHeadIndex++;
+                            tei.append("</fw>");
+                        }
+                        tei.append("\t\t<body>\n");
+
+
+                    }
+                    else{
+                        int indexOfLastTokenInThePage = 0;
+                        List<LayoutToken> lexicalEntry = listOfLEs.get(k);
+
+                        for (LayoutToken token : lastEntryInSublist) {
+                            //Check offset of each token in the LE to insert the header and footer blocks
+                            if (token.getOffset() < newPageOffset){
+
+                                indexOfLastTokenInThePage++;
+                            }
+                            else{
 //                            indexOfLastTokenInThePage--;
-                            break;
+                                break;
+                            }
+
                         }
 
-                    }
+
+                        for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++){
+                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h)));
+                            tei.append(createMyXMLString("entry", clusterContent));
+                        }
+
+                        List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.subList(0,indexOfLastTokenInThePage);
+                        List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.subList(indexOfLastTokenInThePage,lastEntryInSublist.size());
+                        //Compound the last entry in tokens and insert the oher page blocks
+                        textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
+                        textToShowInTokens.add(new LayoutToken("\t\t</body>\n"));
+
+                        if(currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "")
+                        {
+                            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
+                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+                            currentFootIndex++;
+                            textToShowInTokens.add(new LayoutToken("</fw>"));
+                            textToShowInTokens.add(new LayoutToken("\n"));
+
+                        }
 
 
-                    for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++){
-                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h)));
+                        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
+                            textToShowInTokens.add(new LayoutToken("\t\t<other>"));
+                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+                            currentOtherIndex++;
+                            textToShowInTokens.add(new LayoutToken("</other>"));
+                            textToShowInTokens.add(new LayoutToken("\n"));
+                        }
+
+                        textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
+
+                        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "" ) {
+
+                            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
+                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+                            currentHeadIndex++;
+                            textToShowInTokens.add(new LayoutToken("</fw>"));
+                        }
+
+                        textToShowInTokens.add(new LayoutToken("\t\t<body>\n"));
+                        textToShowInTokens.addAll(restOfLexicalEntryTokens);
+                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
                         tei.append(createMyXMLString("entry", clusterContent));
+
+
+
                     }
-
-                    List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.subList(0,indexOfLastTokenInThePage);
-                    List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.subList(indexOfLastTokenInThePage,lastEntryInSublist.size());
-                    //Compound the last entry in tokens and insert the oher page blocks
-                    textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
-                    textToShowInTokens.add(new LayoutToken("\t\t</body>\n"));
-
-                    if(currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "")
+                    if(pageOffsetIndex == pagesOffsetArray.size()-1)
                     {
-                        textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
-                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                        currentFootIndex++;
-                        textToShowInTokens.add(new LayoutToken("</fw>"));
-                        textToShowInTokens.add(new LayoutToken("\n"));
-
-                    }
-
-
-                    if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
-                        textToShowInTokens.add(new LayoutToken("\t\t<other>"));
-                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                        currentOtherIndex++;
-                        textToShowInTokens.add(new LayoutToken("</other>"));
-                        textToShowInTokens.add(new LayoutToken("\n"));
-                    }
-
-                    textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
-
-                    if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "" ) {
-
-                        textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
-                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                        currentHeadIndex++;
-                        textToShowInTokens.add(new LayoutToken("</fw>"));
-                    }
-
-                    textToShowInTokens.add(new LayoutToken("\t\t<body>\n"));
-                    textToShowInTokens.addAll(restOfLexicalEntryTokens);
-                    String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
-                    tei.append(createMyXMLString("entry", clusterContent));
-
-
-
-                }
-                if(pageOffsetIndex == pagesOffsetArray.size()-1)
-                {
-                    lexicalEntriesSubList = listOfLEs.subList(k,listOfLEs.size());
+                        lexicalEntriesSubList = listOfLEs.subList(k,listOfLEs.size());
 
 
                         for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                             tei.append(createMyXMLString("entry", clusterContent));
                         }
-                    tei.append("\t\t</body>\n");
+                        tei.append("\t\t</body>\n");
 
-                    if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                        // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                        // This is caused by the forced check of the footnote'a index and its supposed page
-                        // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
+                        if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
+                            // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
+                            // This is caused by the forced check of the footnote'a index and its supposed page
+                            // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
+                            tei.append("\t\t<fw type=\"footer\">");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+                            currentFootIndex++;
+                            tei.append("</fw>");
+                            tei.append("\n");
+
+                        }
+
+
+                        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
+                            // Same logic as the footnote
+                            tei.append("\t\t<other>");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+                            currentOtherIndex++;
+                            tei.append("</other>");
+                            tei.append("\n");
+                        }
+
 
                     }
+                }
 
+            }
+            else{
+                // In this case, the input file has just one page
 
-                    if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "" ) {
-                        // Same logic as the footnote
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-                    }
+                for ( List<LayoutToken> lexialEntry :  listOfLEs) {
+                    String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                    tei.append(createMyXMLString("entry", clusterContent));
+                }
+                tei.append("\t\t</body>\n");
 
+                for ( DocumentPiece footer :  footNotesOfAllPages) {
 
+                    tei.append("\t\t<fw type=\"footer\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
+                    currentFootIndex++;
+                    tei.append("</fw>");
+                    tei.append("\n");
+                }
+                for ( DocumentPiece other :  otherOfAllPages) {
+                    tei.append("\t\t<other>");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
+                    currentOtherIndex++;
+                    tei.append("</other>");
+                    tei.append("\n");
                 }
             }
+        }
+        else{
+            // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
+            tei.append("\t\t<body>\n");
+            tei.append( tei.append(LayoutTokensUtil.normalizeText(listOfLEs.get(0))));
+            tei.append("\t\t</body>\n");
+
+            for ( DocumentPiece header :  headNotesOfAllPages) {
+                tei.append("\t\t<fw type=\"header\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                tei.append("</fw>");
+            }
+
+
+            for ( DocumentPiece footer :  footNotesOfAllPages) {
+
+                tei.append("\t\t<fw type=\"footer\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
+                currentFootIndex++;
+                tei.append("</fw>");
+                tei.append("\n");
+            }
+            for ( DocumentPiece other :  otherOfAllPages) {
+                tei.append("\t\t<other>");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
+                currentOtherIndex++;
+                tei.append("</other>");
+                tei.append("\n");
+            }
+
 
         }
+
 
 
 
