@@ -7,15 +7,12 @@ import eugfc.imageio.plugins.PNMRegistry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.util.IOUtils;
-import org.grobid.core.GrobidModels;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.tagging.GenericTaggerUtils;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.exceptions.GrobidExceptionStatus;
 import org.grobid.core.features.FeatureFactory;
-import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesVectorSegmentation;
 import org.grobid.core.layout.*;
 import org.grobid.core.utilities.*;
@@ -38,20 +35,15 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 public class DictionarySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
-    private static volatile DictionarySegmentationParser instance;
-
     // default bins for relative position
     private static final int NBBINS_POSITION = 12;
-
     // default bins for inter-block spacing
     private static final int NBBINS_SPACE = 5;
-
     // default bins for block character density
     private static final int NBBINS_DENSITY = 5;
-
     // projection scale for line length
     private static final int LINESCALE = 10;
-
+    private static volatile DictionarySegmentationParser instance;
     private LanguageUtilities languageUtilities = LanguageUtilities.getInstance();
     private FeatureFactory featureFactory = FeatureFactory.getInstance();
 
@@ -72,6 +64,177 @@ public class DictionarySegmentationParser extends AbstractParser {
      */
     private static synchronized void getNewInstance() {
         instance = new DictionarySegmentationParser();
+    }
+
+    static public DictionaryDocument generalResultSegmentation(DictionaryDocument doc, String labeledResult, List<LayoutToken> documentTokens) {
+
+        List<Pair<String, String>> labeledTokens = GenericTaggerUtils.getTokensAndLabels(labeledResult);
+
+        SortedSetMultimap<String, DocumentPiece> labeledBlocks = TreeMultimap.create();
+        doc.setLabeledBlocks(labeledBlocks);
+        List<Block> docBlocks = doc.getBlocks();
+        int indexLine = 0;
+        int blockIndex = 0;
+        int p = 0; // position in the labeled result
+        int currentLineEndPos = 0; // position in the global doc. tokenization of the last
+        // token of the current line
+        int currentLineStartPos = 0; // position in the global doc.
+        // tokenization of the first token of the current line
+        String line = null;
+
+        //DocumentPointer pointerA = DocumentPointer.START_DOCUMENT_POINTER;
+        // the default first block might not contain tokens but only bitmap - in this case we move
+        // to the first block containing some LayoutToken objects
+        while (docBlocks.get(blockIndex).getTokens() == null
+            //TODO: make things right
+//                || docBlocks.get(blockIndex).getStartToken() == -1
+                ) {
+            blockIndex++;
+        }
+        DocumentPointer pointerA = new DocumentPointer(doc, blockIndex, docBlocks.get(blockIndex).getStartToken());
+
+        DocumentPointer currentPointer = null;
+        DocumentPointer lastPointer = null;
+
+        String curLabel;
+        String curPlainLabel = null;
+        String lastPlainLabel = null;
+
+        int lastTokenInd = -1;
+        for (int i = docBlocks.size() - 1; i >= 0; i--) {
+            int endToken = docBlocks.get(i).getEndToken();
+            if (endToken != -1) {
+                lastTokenInd = endToken;
+                break;
+            }
+        }
+
+        // we do this concatenation trick so that we don't have to process stuff after the main loop
+        // no copying of lists happens because of this, so it's ok to concatenate
+        String ignoredLabel = "@IGNORED_LABEL@";
+        for (Pair<String, String> labeledTokenPair :
+                Iterables.concat(labeledTokens,
+                        Collections.singleton(new Pair<String, String>("IgnoredToken", ignoredLabel)))) {
+            if (labeledTokenPair == null) {
+                p++;
+                continue;
+            }
+
+            // as we process the document segmentation line by line, we don't use the usual
+            // tokenization to rebuild the text flow, but we get each line again from the
+            // text stored in the document blocks (similarly as when generating the features)
+            line = null;
+            while ((line == null) && (blockIndex < docBlocks.size())) {
+                Block block = docBlocks.get(blockIndex);
+                List<LayoutToken> tokens = block.getTokens();
+                String localText = block.getText();
+                if ((tokens == null) || (localText == null) || (localText.trim().length() == 0)) {
+                    blockIndex++;
+                    indexLine = 0;
+                    if (blockIndex < docBlocks.size()) {
+                        block = docBlocks.get(blockIndex);
+                        currentLineStartPos = block.getStartToken();
+                    }
+                    continue;
+                }
+                String[] lines = localText.split("[\\n\\r]");
+                if ((lines.length == 0) || (indexLine >= lines.length)) {
+                    blockIndex++;
+                    indexLine = 0;
+                    if (blockIndex < docBlocks.size()) {
+                        block = docBlocks.get(blockIndex);
+                        currentLineStartPos = block.getStartToken();
+                    }
+                    continue;
+                } else {
+                    line = lines[indexLine];
+                    indexLine++;
+                    if ((line.trim().length() == 0) || (TextUtilities.filterLine(line))) {
+                        line = null;
+                        continue;
+                    }
+
+                    if (currentLineStartPos > lastTokenInd)
+                        continue;
+
+                    // adjust the start token position in documentTokens to this non trivial line
+                    // first skip possible space characters and tabs at the beginning of the line
+                    while ((documentTokens.get(currentLineStartPos).t().equals(" ") ||
+                            documentTokens.get(currentLineStartPos).t().equals("\t"))
+                            && (currentLineStartPos != lastTokenInd)) {
+                        currentLineStartPos++;
+                    }
+                    if (!labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
+                        while (currentLineStartPos < block.getEndToken()) {
+                            if (documentTokens.get(currentLineStartPos).t().equals("\n")
+                                    || documentTokens.get(currentLineStartPos).t().equals("\r")) {
+                                // move to the start of the next line, but ignore space characters and tabs
+                                currentLineStartPos++;
+                                while ((documentTokens.get(currentLineStartPos).t().equals(" ") ||
+                                        documentTokens.get(currentLineStartPos).t().equals("\t"))
+                                        && (currentLineStartPos != lastTokenInd)) {
+                                    currentLineStartPos++;
+                                }
+                                if ((currentLineStartPos != lastTokenInd) &&
+                                        labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
+                                    break;
+                                }
+                            }
+                            currentLineStartPos++;
+                        }
+                    }
+
+                    // what is then the position of the last token of this line?
+                    currentLineEndPos = currentLineStartPos;
+                    while (currentLineEndPos < block.getEndToken()) {
+                        if (documentTokens.get(currentLineEndPos).t().equals("\n")
+                                || documentTokens.get(currentLineEndPos).t().equals("\r")) {
+                            currentLineEndPos--;
+                            break;
+                        }
+                        currentLineEndPos++;
+                    }
+                }
+            }
+            curLabel = labeledTokenPair.b;
+            curPlainLabel = GenericTaggerUtils.getPlainLabel(curLabel);
+
+
+            if (blockIndex == docBlocks.size()) {
+                break;
+            }
+
+            currentPointer = new DocumentPointer(doc, blockIndex, currentLineEndPos);
+
+            // either a new entity starts or a new beginning of the same type of entity
+            if ((!curPlainLabel.equals(lastPlainLabel)) && (lastPlainLabel != null)) {
+                if ((pointerA.getTokenDocPos() <= lastPointer.getTokenDocPos()) &&
+                        (pointerA.getTokenDocPos() != -1)) {
+                    labeledBlocks.put(lastPlainLabel, new DocumentPiece(pointerA, lastPointer));
+                }
+                pointerA = new DocumentPointer(doc, blockIndex, currentLineStartPos);
+                //System.out.println("add segment for: " + lastPlainLabel + ", until " + (currentLineStartPos-2));
+            }
+
+            //updating stuff for next iteration
+            lastPlainLabel = curPlainLabel;
+            lastPointer = currentPointer;
+            currentLineStartPos = currentLineEndPos + 2; // one shift for the EOL, one for the next line
+            p++;
+        }
+
+        if (blockIndex == docBlocks.size()) {
+            // the last labelled piece has still to be added
+            if ((!curPlainLabel.equals(lastPlainLabel)) && (lastPlainLabel != null)) {
+                if ((pointerA.getTokenDocPos() <= lastPointer.getTokenDocPos()) &&
+                        (pointerA.getTokenDocPos() != -1)) {
+                    labeledBlocks.put(lastPlainLabel, new DocumentPiece(pointerA, lastPointer));
+                    //System.out.println("add segment for: " + lastPlainLabel + ", until " + (currentLineStartPos-2));
+                }
+            }
+        }
+
+        return doc;
     }
 
     public String process(File originFile) {
@@ -211,14 +374,13 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
     }
 
-
     public DictionaryDocument prepareDocument(DictionaryDocument doc) {
 
         //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
         List<LayoutToken> tokenizations = doc.getTokenizations();
         if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
             throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
-                                      GrobidExceptionStatus.TOO_MANY_TOKENS);
+                    GrobidExceptionStatus.TOO_MANY_TOKENS);
         }
 
         doc.produceStatistics();
@@ -266,8 +428,8 @@ public class DictionarySegmentationParser extends AbstractParser {
         for (Page page : doc.getPages()) {
             // we just look at the two first and last blocks of the page
             if ((page.getBlocks() != null) && (page.getBlocks().size() > 0)) {
-                for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
-                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                for (int blockIndex = 0; blockIndex < page.getBlocks().size(); blockIndex++) {
+                    if ((blockIndex < 2) || (blockIndex > page.getBlocks().size() - 2)) {
                         Block block = page.getBlocks().get(blockIndex);
                         String localText = block.getText();
                         if ((localText != null) && (localText.length() > 0)) {
@@ -280,9 +442,8 @@ public class DictionarySegmentationParser extends AbstractParser {
                                     if (nb == null) {
                                         patterns.put(pattern, new Integer(1));
                                         firstTimePattern.put(pattern, false);
-                                    }
-                                    else
-                                        patterns.put(pattern, new Integer(nb+1));
+                                    } else
+                                        patterns.put(pattern, new Integer(nb + 1));
                                 }
                             }
                         }
@@ -329,7 +490,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             if ((page.getBlocks() == null) || (page.getBlocks().size() == 0))
                 continue;
 
-            for(int blockIndex=0; blockIndex < page.getBlocks().size(); blockIndex++) {
+            for (int blockIndex = 0; blockIndex < page.getBlocks().size(); blockIndex++) {
                 Block block = page.getBlocks().get(blockIndex);
                 /*if (start) {
                     newPage = true;
@@ -337,7 +498,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 }*/
                 boolean lastPageBlock = false;
                 boolean firstPageBlock = false;
-                if (blockIndex == page.getBlocks().size()-1) {
+                if (blockIndex == page.getBlocks().size() - 1) {
                     lastPageBlock = true;
                 }
 
@@ -355,7 +516,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 // check if we have a graphical object connected to the current block
                 List<GraphicObject> localImages = Document.getConnectedGraphics(block, doc);
                 if (localImages != null) {
-                    for(GraphicObject localImage : localImages) {
+                    for (GraphicObject localImage : localImages) {
                         if (localImage.getType() == GraphicObjectType.BITMAP)
                             graphicVector = true;
                         if (localImage.getType() == GraphicObjectType.VECTOR)
@@ -363,7 +524,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     }
                 }
 
-                if (lowestPos >  block.getY()) {
+                if (lowestPos > block.getY()) {
                     // we have a vertical shift, which can be due to a change of column or other particular layout formatting
                     spacingPreviousBlock = doc.getMaxBlockSpacing() / 5.0; // default
                 } else
@@ -375,22 +536,22 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 // character density of the block
                 double density = 0.0;
-                if ( (block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
+                if ((block.getHeight() != 0.0) && (block.getWidth() != 0.0) &&
                         (block.getText() != null) && (!block.getText().contains("@PAGE")) &&
-                        (!block.getText().contains("@IMAGE")) )
-                    density = (double)block.getText().length() / (block.getHeight() * block.getWidth());
+                        (!block.getText().contains("@IMAGE")))
+                    density = (double) block.getText().length() / (block.getHeight() * block.getWidth());
 
                 // is the current block in the main area of the page or not?
                 boolean inPageMainArea = true;
                 BoundingBox blockBoundingBox = BoundingBox.fromPointAndDimensions(page.getNumber(),
-                                                                                  block.getX(), block.getY(), block.getWidth(), block.getHeight());
+                        block.getX(), block.getY(), block.getWidth(), block.getHeight());
                 if (pageBoundingBox == null || (!pageBoundingBox.contains(blockBoundingBox) && !pageBoundingBox.intersect(blockBoundingBox)))
                     inPageMainArea = false;
 
                 String[] lines = localText.split("[\\n\\r]");
                 // set the max length of the lines in the block, in number of characters
                 int maxLineLength = 0;
-                for(int p=0; p<lines.length; p++) {
+                for (int p = 0; p < lines.length; p++) {
                     if (lines[p].length() > maxLineLength)
                         maxLineLength = lines[p].length();
                 }
@@ -420,7 +581,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     features.token = token;
                     features.line = line;
 
-                    if ( (blockIndex < 2) || (blockIndex > page.getBlocks().size()-2)) {
+                    if ((blockIndex < 2) || (blockIndex > page.getBlocks().size() - 2)) {
                         String pattern = featureFactory.getPattern(line);
                         Integer nb = patterns.get(pattern);
                         if ((nb != null) && (nb > 1)) {
@@ -602,14 +763,14 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                     if (spacingPreviousBlock != 0.0) {
                         features.spacingWithPreviousBlock = featureFactory
-                                .linearScaling(spacingPreviousBlock-doc.getMinBlockSpacing(), doc.getMaxBlockSpacing()-doc.getMinBlockSpacing(), NBBINS_SPACE);
+                                .linearScaling(spacingPreviousBlock - doc.getMinBlockSpacing(), doc.getMaxBlockSpacing() - doc.getMinBlockSpacing(), NBBINS_SPACE);
                     }
 
                     features.inMainArea = inPageMainArea;
 
                     if (density != -1.0) {
                         features.characterDensity = featureFactory
-                                .linearScaling(density-doc.getMinCharacterDensity(), doc.getMaxCharacterDensity()-doc.getMinCharacterDensity(), NBBINS_DENSITY);
+                                .linearScaling(density - doc.getMinCharacterDensity(), doc.getMaxCharacterDensity() - doc.getMinCharacterDensity(), NBBINS_DENSITY);
 //System.out.println((density-doc.getMinCharacterDensity()) + " " + (doc.getMaxCharacterDensity()-doc.getMinCharacterDensity()) + " " + NBBINS_DENSITY + " " + features.characterDensity);
                     }
 
@@ -637,177 +798,6 @@ public class DictionarySegmentationParser extends AbstractParser {
             fulltext.append(previousFeatures.printVector());
 
         return fulltext.toString();
-    }
-
-    static public DictionaryDocument generalResultSegmentation(DictionaryDocument doc, String labeledResult, List<LayoutToken> documentTokens) {
-
-        List<Pair<String, String>> labeledTokens = GenericTaggerUtils.getTokensAndLabels(labeledResult);
-
-        SortedSetMultimap<String, DocumentPiece> labeledBlocks = TreeMultimap.create();
-        doc.setLabeledBlocks(labeledBlocks);
-        List<Block> docBlocks = doc.getBlocks();
-        int indexLine = 0;
-        int blockIndex = 0;
-        int p = 0; // position in the labeled result
-        int currentLineEndPos = 0; // position in the global doc. tokenization of the last
-        // token of the current line
-        int currentLineStartPos = 0; // position in the global doc.
-        // tokenization of the first token of the current line
-        String line = null;
-
-        //DocumentPointer pointerA = DocumentPointer.START_DOCUMENT_POINTER;
-        // the default first block might not contain tokens but only bitmap - in this case we move
-        // to the first block containing some LayoutToken objects
-        while (docBlocks.get(blockIndex).getTokens() == null
-            //TODO: make things right
-//                || docBlocks.get(blockIndex).getStartToken() == -1
-                ) {
-            blockIndex++;
-        }
-        DocumentPointer pointerA = new DocumentPointer(doc, blockIndex, docBlocks.get(blockIndex).getStartToken());
-
-        DocumentPointer currentPointer = null;
-        DocumentPointer lastPointer = null;
-
-        String curLabel;
-        String curPlainLabel = null;
-        String lastPlainLabel = null;
-
-        int lastTokenInd = -1;
-        for (int i = docBlocks.size() - 1; i >= 0; i--) {
-            int endToken = docBlocks.get(i).getEndToken();
-            if (endToken != -1) {
-                lastTokenInd = endToken;
-                break;
-            }
-        }
-
-        // we do this concatenation trick so that we don't have to process stuff after the main loop
-        // no copying of lists happens because of this, so it's ok to concatenate
-        String ignoredLabel = "@IGNORED_LABEL@";
-        for (Pair<String, String> labeledTokenPair :
-                Iterables.concat(labeledTokens,
-                                 Collections.singleton(new Pair<String, String>("IgnoredToken", ignoredLabel)))) {
-            if (labeledTokenPair == null) {
-                p++;
-                continue;
-            }
-
-            // as we process the document segmentation line by line, we don't use the usual
-            // tokenization to rebuild the text flow, but we get each line again from the
-            // text stored in the document blocks (similarly as when generating the features)
-            line = null;
-            while ((line == null) && (blockIndex < docBlocks.size())) {
-                Block block = docBlocks.get(blockIndex);
-                List<LayoutToken> tokens = block.getTokens();
-                String localText = block.getText();
-                if ((tokens == null) || (localText == null) || (localText.trim().length() == 0)) {
-                    blockIndex++;
-                    indexLine = 0;
-                    if (blockIndex < docBlocks.size()) {
-                        block = docBlocks.get(blockIndex);
-                        currentLineStartPos = block.getStartToken();
-                    }
-                    continue;
-                }
-                String[] lines = localText.split("[\\n\\r]");
-                if ((lines.length == 0) || (indexLine >= lines.length)) {
-                    blockIndex++;
-                    indexLine = 0;
-                    if (blockIndex < docBlocks.size()) {
-                        block = docBlocks.get(blockIndex);
-                        currentLineStartPos = block.getStartToken();
-                    }
-                    continue;
-                } else {
-                    line = lines[indexLine];
-                    indexLine++;
-                    if ((line.trim().length() == 0) || (TextUtilities.filterLine(line))) {
-                        line = null;
-                        continue;
-                    }
-
-                    if (currentLineStartPos > lastTokenInd)
-                        continue;
-
-                    // adjust the start token position in documentTokens to this non trivial line
-                    // first skip possible space characters and tabs at the beginning of the line
-                    while ((documentTokens.get(currentLineStartPos).t().equals(" ") ||
-                            documentTokens.get(currentLineStartPos).t().equals("\t"))
-                            && (currentLineStartPos != lastTokenInd)) {
-                        currentLineStartPos++;
-                    }
-                    if (!labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
-                        while (currentLineStartPos < block.getEndToken()) {
-                            if (documentTokens.get(currentLineStartPos).t().equals("\n")
-                                    || documentTokens.get(currentLineStartPos).t().equals("\r")) {
-                                // move to the start of the next line, but ignore space characters and tabs
-                                currentLineStartPos++;
-                                while ((documentTokens.get(currentLineStartPos).t().equals(" ") ||
-                                        documentTokens.get(currentLineStartPos).t().equals("\t"))
-                                        && (currentLineStartPos != lastTokenInd)) {
-                                    currentLineStartPos++;
-                                }
-                                if ((currentLineStartPos != lastTokenInd) &&
-                                        labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
-                                    break;
-                                }
-                            }
-                            currentLineStartPos++;
-                        }
-                    }
-
-                    // what is then the position of the last token of this line?
-                    currentLineEndPos = currentLineStartPos;
-                    while (currentLineEndPos < block.getEndToken()) {
-                        if (documentTokens.get(currentLineEndPos).t().equals("\n")
-                                || documentTokens.get(currentLineEndPos).t().equals("\r")) {
-                            currentLineEndPos--;
-                            break;
-                        }
-                        currentLineEndPos++;
-                    }
-                }
-            }
-            curLabel = labeledTokenPair.b;
-            curPlainLabel = GenericTaggerUtils.getPlainLabel(curLabel);
-
-
-            if (blockIndex == docBlocks.size()) {
-                break;
-            }
-
-            currentPointer = new DocumentPointer(doc, blockIndex, currentLineEndPos);
-
-            // either a new entity starts or a new beginning of the same type of entity
-            if ((!curPlainLabel.equals(lastPlainLabel)) && (lastPlainLabel != null)) {
-                if ((pointerA.getTokenDocPos() <= lastPointer.getTokenDocPos()) &&
-                        (pointerA.getTokenDocPos() != -1)) {
-                    labeledBlocks.put(lastPlainLabel, new DocumentPiece(pointerA, lastPointer));
-                }
-                pointerA = new DocumentPointer(doc, blockIndex, currentLineStartPos);
-                //System.out.println("add segment for: " + lastPlainLabel + ", until " + (currentLineStartPos-2));
-            }
-
-            //updating stuff for next iteration
-            lastPlainLabel = curPlainLabel;
-            lastPointer = currentPointer;
-            currentLineStartPos = currentLineEndPos + 2; // one shift for the EOL, one for the next line
-            p++;
-        }
-
-        if (blockIndex == docBlocks.size()) {
-            // the last labelled piece has still to be added
-            if ((!curPlainLabel.equals(lastPlainLabel)) && (lastPlainLabel != null)) {
-                if ((pointerA.getTokenDocPos() <= lastPointer.getTokenDocPos()) &&
-                        (pointerA.getTokenDocPos() != -1)) {
-                    labeledBlocks.put(lastPlainLabel, new DocumentPiece(pointerA, lastPointer));
-                    //System.out.println("add segment for: " + lastPlainLabel + ", until " + (currentLineStartPos-2));
-                }
-            }
-        }
-
-        return doc;
     }
 
     @SuppressWarnings({"UnusedParameters"})
@@ -849,7 +839,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             return n;
         } catch (Exception e) {
             throw new GrobidException("An exception occured while running Grobid training" +
-                                              " data generation for segmentation model.", e);
+                    " data generation for segmentation model.", e);
         }
     }
 
@@ -865,14 +855,14 @@ public class DictionarySegmentationParser extends AbstractParser {
         //Write the features file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation";
         Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-        String featuredText =  getAllLinesFeatured(doc);
+        String featuredText = getAllLinesFeatured(doc);
         writer.write(featuredText);
         IOUtils.closeWhileHandlingException(writer);
 
         // also write the raw text as seen before segmentation
 
         StringBuffer rawtxt = new StringBuffer();
-        for(LayoutToken txtline : tokenizations) {
+        for (LayoutToken txtline : tokenizations) {
             rawtxt.append(txtline.getText());
         }
         String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
@@ -888,7 +878,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
             writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                                 "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
+                    "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
 
             writer.write(bufferFulltext.toString());
             writer.write("\n\t</text>\n</tei>\n");
@@ -899,8 +889,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     /**
      * Extract results from a labelled full text in the training format without any string modification.
      *
-     * @param result        reult
-
+     * @param result reult
      * @return extraction
      */
     private StringBuffer trainingExtraction(String result,
@@ -1056,12 +1045,12 @@ public class DictionarySegmentationParser extends AbstractParser {
     /**
      * Extract results from a labelled full text in the training format with string modification.
      *
-     * @param result        result
-     * @param doc        doc
+     * @param result result
+     * @param doc    doc
      * @return extraction
      */
     private StringBuffer outputTextExtraction(String result,
-                                            Document doc) {
+                                              Document doc) {
         // this is the main buffer for the whole full text
         StringBuffer buffer = new StringBuffer();
         try {
@@ -1175,7 +1164,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<body>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<div>", addSpace, 3);
                 }
 
                 if (!output) {
@@ -1239,16 +1228,15 @@ public class DictionarySegmentationParser extends AbstractParser {
             if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
 
                 buffer.append(line);
-            }
-            else if (field.equals("<headnote>")) {
-                outField = outField.substring(0, outField.length()-1) + " type=\"header\">";
+            } else if (field.equals("<headnote>")) {
+                outField = outField.substring(0, outField.length() - 1) + " type=\"header\">";
                 buffer.append(outField).append(line);
-            }else if (field.equals("<footnote>")) {
-                outField = outField.substring(0, outField.length()-1) + " type=\"footer\">";
+            } else if (field.equals("<footnote>")) {
+                outField = outField.substring(0, outField.length() - 1) + " type=\"footer\">";
                 buffer.append(outField).append(line);
-            }else if (lastTag0 == null) {
+            } else if (lastTag0 == null) {
                 buffer.append(outField).append(line);
-            }else if (!lastTag0.equals("<titlePage>")) {
+            } else if (!lastTag0.equals("<titlePage>")) {
                 buffer.append(outField).append(line);
             } else {
                 // otherwise we continue by ouputting the token
@@ -1259,14 +1247,14 @@ public class DictionarySegmentationParser extends AbstractParser {
     }
 
     private boolean writeFieldForTrainingData(StringBuffer buffer,
-                               String line,
-                               String s1,
-                               String lastTag0,
-                               String s2,
-                               String field,
-                               String outField,
-                               boolean addSpace,
-                               int nbIndent) {
+                                              String line,
+                                              String s1,
+                                              String lastTag0,
+                                              String s2,
+                                              String field,
+                                              String outField,
+                                              boolean addSpace,
+                                              int nbIndent) {
         boolean result = false;
         // filter the output path
         if ((s1.equals(field)) || (s1.equals("I-" + field))) {
@@ -1276,9 +1264,9 @@ public class DictionarySegmentationParser extends AbstractParser {
             if (s1.equals(lastTag0) || s1.equals("I-" + lastTag0)) {
 
                 buffer.append(line);
-            }else if (lastTag0 == null) {
+            } else if (lastTag0 == null) {
                 buffer.append(outField).append(line);
-            }else if (!lastTag0.equals("<titlePage>")) {
+            } else if (!lastTag0.equals("<titlePage>")) {
                 buffer.append(outField).append(line);
             } else {
                 // otherwise we continue by ouputting the token
@@ -1314,15 +1302,14 @@ public class DictionarySegmentationParser extends AbstractParser {
             if (lastTag0.equals("<headnote>")) {
                 buffer.append("</fw>");
             } else if (lastTag0.equals("<body>")) {
-                buffer.append("</body>");
+                buffer.append("</div>");
             } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</fw>");
             } else if (lastTag0.equals("<other>")) {
                 buffer.append("</other>");
-            }
-            else if (lastTag0.equals("<pc>")) {
+            } else if (lastTag0.equals("<pc>")) {
                 buffer.append("</pc>");
-            }else {
+            } else {
                 res = false;
             }
 
@@ -1331,9 +1318,9 @@ public class DictionarySegmentationParser extends AbstractParser {
     }
 
     private boolean testClosingTagForTrainingData(StringBuffer buffer,
-                                   String currentTag0,
-                                   String lastTag0,
-                                   String currentTag) {
+                                                  String currentTag0,
+                                                  String lastTag0,
+                                                  String currentTag) {
         boolean res = false;
         // reference_marker and citation_marker are two exceptions because they can be embedded
 
@@ -1352,10 +1339,9 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append("</footnote>");
             } else if (lastTag0.equals("<other>")) {
                 buffer.append("</other>");
-            }
-            else if (lastTag0.equals("<pc>")) {
+            } else if (lastTag0.equals("<pc>")) {
                 buffer.append("</pc>");
-            }else {
+            } else {
                 res = false;
             }
 
@@ -1371,7 +1357,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
     public StringBuilder toTEIFormatDictionarySegmentation(GrobidAnalysisConfig config,
                                                            TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration,
-                                                           String segmentedDictionary,DictionaryDocument doc) {
+                                                           String segmentedDictionary, DictionaryDocument doc) {
         StringBuilder tei = new StringBuilder();
         tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         if (config.isWithXslStylesheet()) {
@@ -1380,27 +1366,27 @@ public class DictionarySegmentationParser extends AbstractParser {
         if (schemaDeclaration != null) {
             if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
                 tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
-                                   + "/schemas/dtd/Grobid.dtd" + "\">\n");
+                        + "/schemas/dtd/Grobid.dtd" + "\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
                 // XML schema
                 tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
-                                   "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
-                                   //"\n xsi:noNamespaceSchemaLocation=\"" +
-                                   //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
-                                   "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
-                                   "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+                        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+                        //"\n xsi:noNamespaceSchemaLocation=\"" +
+                        //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
+                        "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
+                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
+                        "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
 //				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
                 // standard RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
-                                   "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
+                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
+                        "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
                 // compact RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
-                                   "\" type=\"application/relax-ng-compact-syntax\"?>\n");
+                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
+                        "\" type=\"application/relax-ng-compact-syntax\"?>\n");
             }
 
             // by default there is no schema association
@@ -1427,7 +1413,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         String dateISOString = df.format(new java.util.Date());
 
         tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
-                           "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
+                "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
         tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");
         tei.append("\t\t\t</appInfo>\n");
@@ -1448,8 +1434,10 @@ public class DictionarySegmentationParser extends AbstractParser {
         } else {
             tei.append("\t<text>\n");
         }
-        tei.append(outputTextExtraction(segmentedDictionary,doc));
-        tei.append("\n\t</text>\n</tei>\n");
+        tei.append("\t\t<body>\n");
+        tei.append(outputTextExtraction(segmentedDictionary, doc));
+        tei.append("\n\t\t</body>");
+        tei.append("\n\t</text>\n</TEI>\n");
 
         return tei;
     }
