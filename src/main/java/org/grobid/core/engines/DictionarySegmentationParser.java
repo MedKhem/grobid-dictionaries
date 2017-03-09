@@ -1164,7 +1164,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<div>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<ab>", addSpace, 3);
                 }
 
                 if (!output) {
@@ -1234,6 +1234,9 @@ public class DictionarySegmentationParser extends AbstractParser {
             } else if (field.equals("<footnote>")) {
                 outField = outField.substring(0, outField.length() - 1) + " type=\"footer\">";
                 buffer.append(outField).append(line);
+            } else if (field.equals("<body>")) {
+                outField = outField.substring(0, outField.length() - 1) + " type=\"page\">";
+                buffer.append(outField);
             } else if (lastTag0 == null) {
                 buffer.append(outField).append(line);
             } else if (!lastTag0.equals("<titlePage>")) {
@@ -1302,7 +1305,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             if (lastTag0.equals("<headnote>")) {
                 buffer.append("</fw>");
             } else if (lastTag0.equals("<body>")) {
-                buffer.append("</div>");
+                buffer.append("</ab>");
             } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</fw>");
             } else if (lastTag0.equals("<other>")) {
