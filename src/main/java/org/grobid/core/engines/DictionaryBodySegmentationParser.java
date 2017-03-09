@@ -74,9 +74,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 list1.add(cluster.concatTokens());
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
-                list1.add(cluster.concatTokens());
+//                list1.add(cluster.concatTokens());
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_PC_LABEL)) {
-                list1.add(cluster.concatTokens());
+//                list1.add(cluster.concatTokens());
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
