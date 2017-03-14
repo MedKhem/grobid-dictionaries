@@ -46,27 +46,27 @@ public class DocumentUtilsTest {
     }
 
 
-    @Test
-    public void testGetLayoutTokenizationsFromDocAndDocPart1() throws Exception {
-        Pair<DictionaryDocument, SortedSet<DocumentPiece>> output = prepare("BasicEnglish.pdf");
-        assertThat(output, notNullValue());
-
-        LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
-        assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
-        assertThat(layoutTokenization.getTokenization().size(), is(23695));
-
-    }
-    @Test
-    public void testGetHeadnote() throws Exception {
-        DictionaryDocument doc = prepareDictionaryDocument("BasicEnglish.pdf");
-        SortedSet<DocumentPiece> headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
-
-
-        assertThat(headNotesOfAllPages.first(), notNullValue());
-        System.out.println(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages,13)));
-
-
-    }
+//    @Test
+//    public void testGetLayoutTokenizationsFromDocAndDocPart1() throws Exception {
+//        Pair<DictionaryDocument, SortedSet<DocumentPiece>> output = prepare("BasicEnglish.pdf");
+//        assertThat(output, notNullValue());
+//
+//        LayoutTokenization layoutTokenization = target.getLayoutTokenizations(output.a, output.b);
+//        assertThat(layoutTokenization.getTokenization().isEmpty(), is(false));
+//        assertThat(layoutTokenization.getTokenization().size(), is(23695));
+//
+//    }
+//    @Test
+//    public void testGetHeadnote() throws Exception {
+//        DictionaryDocument doc = prepareDictionaryDocument("BasicEnglish.pdf");
+//        SortedSet<DocumentPiece> headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
+//
+//
+//        assertThat(headNotesOfAllPages.first(), notNullValue());
+//        System.out.println(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages,13)));
+//
+//
+//    }
 
     // No body is found in the following files since no similar document has been used as training data
 //    @Test

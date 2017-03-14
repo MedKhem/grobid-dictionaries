@@ -17,6 +17,7 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
+import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,16 +114,22 @@ public class LexicalEntryParser extends AbstractParser {
 
 
             if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("form", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("etym", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("sense", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("re", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("other", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+                clusterContent = TextUtilities.HTMLEncode(clusterContent);
                 buffer.append(createMyXMLString("pc", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -241,7 +248,8 @@ public class LexicalEntryParser extends AbstractParser {
                     // write the TEI file to reflect the extact layout of the text as extracted from the pdf
                     String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
                     writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-                    writer.write("<?xml version=\"1.0\" ?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                             "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
                     writer.write("\n\t\t<headnote>");
                     writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));

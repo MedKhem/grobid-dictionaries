@@ -15,6 +15,7 @@ import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.KeyGen;
 import org.grobid.core.utilities.LayoutTokensUtil;
+import org.grobid.core.utilities.TextUtilities;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -410,6 +411,7 @@ public class TEIDictionaryFormatter {
 
             List<LayoutToken> list1 = cluster.concatTokens();
             String clusterContent = LayoutTokensUtil.toText(list1);
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
             String tagLabel = clusterLabel.getLabel();
 

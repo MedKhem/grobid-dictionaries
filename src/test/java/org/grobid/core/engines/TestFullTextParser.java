@@ -48,19 +48,19 @@ public class TestFullTextParser {
         MockContext.destroyInitialContext();
     }
 
-
-
-    @Test
-    public void testGetBodyFeaturedWithItsLayoutTokenization() throws Exception {
-
-        Pair<DictionaryDocument, SortedSet<DocumentPiece>> output = prepare("BasicEnglish.pdf");
-        assertThat(output, notNullValue());
-        Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
-        assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(23681));
-//        System.out.println("hi"+featuresAndLayoutTokens.a);
-
-
-    }
+//
+//
+//    @Test
+//    public void testGetBodyFeaturedWithItsLayoutTokenization() throws Exception {
+//
+//        Pair<DictionaryDocument, SortedSet<DocumentPiece>> output = prepare("BasicEnglish.pdf");
+//        assertThat(output, notNullValue());
+//        Pair<String, LayoutTokenization> featuresAndLayoutTokens = target.getBodyTextFeatured(output.a, output.b);
+//        assertThat(featuresAndLayoutTokens.b.getTokenization().size(), is(23681));
+////        System.out.println("hi"+featuresAndLayoutTokens.a);
+//
+//
+//    }
 
     // No body is found in the following files since no similar document has been used as training data
 
