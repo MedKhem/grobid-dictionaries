@@ -115,21 +115,27 @@ public class LexicalEntryParser extends AbstractParser {
 
             if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("form", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("etym", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("sense", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("re", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("other", clusterContent));
             } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
                 clusterContent = TextUtilities.HTMLEncode(clusterContent);
+                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
                 buffer.append(createMyXMLString("pc", clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
