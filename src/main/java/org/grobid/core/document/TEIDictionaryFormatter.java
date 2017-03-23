@@ -38,18 +38,19 @@ public class TEIDictionaryFormatter {
 
     public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config,
                                                                SchemaDeclaration schemaDeclaration) {
+        StringBuilder headerTEI = new StringBuilder();
         StringBuilder tei = new StringBuilder();
-        tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        headerTEI.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         if (config.isWithXslStylesheet()) {
-            tei.append("<?xml-stylesheet type=\"text/xsl\" href=\"../jsp/xmlverbatimwrapper.xsl\"?> \n");
+            headerTEI.append("<?xml-stylesheet type=\"text/xsl\" href=\"../jsp/xmlverbatimwrapper.xsl\"?> \n");
         }
         if (schemaDeclaration != null) {
             if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
-                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
+                headerTEI.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
                         + "/schemas/dtd/Grobid.dtd" + "\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
                 // XML schema
-                tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
+                headerTEI.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         //"\n xsi:noNamespaceSchemaLocation=\"" +
                         //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
@@ -59,62 +60,63 @@ public class TEIDictionaryFormatter {
 //				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
                 // standard RelaxNG
-                tei.append("<?xml-model href=\"file://" +
+                headerTEI.append("<?xml-model href=\"file://" +
                         GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
                         "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
                 // compact RelaxNG
-                tei.append("<?xml-model href=\"file://" +
+                headerTEI.append("<?xml-model href=\"file://" +
                         GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
                         "\" type=\"application/relax-ng-compact-syntax\"?>\n");
             }
 
             // by default there is no schema association
             if (!schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
-                tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
+                headerTEI.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
             }
         } else {
-            tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
+            headerTEI.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
         }
 
         if (doc.getLanguage() != null) {
-            tei.append("\t<teiHeader xml:lang=\"" + doc.getLanguage() + "\">");
+            headerTEI.append("\t<teiHeader xml:lang=\"" + doc.getLanguage() + "\">");
         } else {
-            tei.append("\t<teiHeader>");
+            headerTEI.append("\t<teiHeader>");
         }
 
         // encodingDesc gives info about the producer of the file
-        tei.append("\n\t\t<encodingDesc>\n");
-        tei.append("\t\t\t<appInfo>\n");
+        headerTEI.append("\n\t\t<encodingDesc>\n");
+        headerTEI.append("\t\t\t<appInfo>\n");
 
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
         df.setTimeZone(tz);
         String dateISOString = df.format(new java.util.Date());
 
-        tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
+        headerTEI.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
                 "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
-        tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
-        tei.append("\t\t\t\t</application>\n");
-        tei.append("\t\t\t</appInfo>\n");
-        tei.append("\t\t</encodingDesc>");
+        headerTEI.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
+        headerTEI.append("\t\t\t\t</application>\n");
+        headerTEI.append("\t\t\t</appInfo>\n");
+        headerTEI.append("\t\t</encodingDesc>");
 
-        tei.append("\n\t\t<fileDesc>\n\t\t\t<titleStmt>\n\t\t\t\t<title level=\"a\" type=\"main\"");
+        headerTEI.append("\n\t\t<fileDesc>\n\t\t\t<titleStmt>\n\t\t\t\t<title level=\"a\" type=\"main\"");
         if (config.isGenerateTeiIds()) {
             String divID = KeyGen.getKey().substring(0, 7);
-            tei.append(" xml:id=\"_" + divID + "\"");
+            headerTEI.append(" xml:id=\"_" + divID + "\"");
         }
-        tei.append("/>");
-        tei.append("\n\t\t\t</titleStmt>\n");
-        tei.append("\n\t\t</fileDesc>\n");
-        tei.append("\t</teiHeader>\n");
+        headerTEI.append("/>");
+        headerTEI.append("\n\t\t\t</titleStmt>\n");
+        headerTEI.append("\n\t\t</fileDesc>\n");
+        headerTEI.append("\t</teiHeader>\n");
 
         if (doc.getLanguage() != null) {
-            tei.append("\t<text xml:lang=\"").append(doc.getLanguage()).append("\">\n");
+            headerTEI.append("\t<text xml:lang=\"").append(doc.getLanguage()).append("\">\n");
         } else {
-            tei.append("\t<text>\n");
+            headerTEI.append("\t<text>\n");
         }
-        tei.append("\t\t<body>\n");
+        headerTEI.append("\t\t<body>\n");
+        tei.append(headerTEI);
 
         SortedSet<DocumentPiece> headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
         SortedSet<DocumentPiece> footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
@@ -138,6 +140,7 @@ public class TEIDictionaryFormatter {
             pagesOffsetArray.add(beginOffSet);
         }
 
+
         // Prepare an offset based index for LEs
         List<Integer> lexicalEntriesOffsetArray = new ArrayList<Integer>();
         List<List<LayoutToken>> listOfLEs = doc.getLexicalEntries();
@@ -148,9 +151,9 @@ public class TEIDictionaryFormatter {
             lexicalEntriesOffsetArray.add(beginLEOffSet);
         }
 
-
+        Boolean bigEntryIsInsideDetected = false;
         List<List<LayoutToken>> lexicalEntriesSubList = new ArrayList<>();
-        if (lexicalEntriesNumber > 1) {
+        if (lexicalEntriesNumber > pagesNumber) {
             tei.append("\t\t<fw " + "type=\"header\">");
             tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
             tei.append("</fw>\n");
@@ -169,7 +172,11 @@ public class TEIDictionaryFormatter {
                             k++;
                         }
                     }
-
+                    if (lexicalEntryBeginIndex >= k){
+                        // When entry is on more than one page, this is considered as anomaly for the moment. So quit and show in second form of the output
+                        bigEntryIsInsideDetected = true;
+                        break;
+                    }
                     lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex, k);
                     int subListSize = lexicalEntriesSubList.size();
                     List<LayoutToken> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
@@ -321,15 +328,12 @@ public class TEIDictionaryFormatter {
             } else {
                 // In this case, the input file has just one page
 
+                for (List<LayoutToken> lexialEntry : listOfLEs) {
+                    String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                    tei.append(createMyXMLString("entry", clusterContent));
+                }
 
                 for (DocumentPiece footer : footNotesOfAllPages) {
-
-
-                    for (List<LayoutToken> lexialEntry : listOfLEs) {
-                        String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
-                        tei.append(createMyXMLString("entry", clusterContent));
-                    }
-
 
                     tei.append("\t\t<fw type=\"footer\">");
                     tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
@@ -337,6 +341,7 @@ public class TEIDictionaryFormatter {
                     tei.append("</fw>");
                     tei.append("\n");
                 }
+
 
                 for (DocumentPiece other : otherOfAllPages) {
                     tei.append("\t\t<other>");
@@ -346,6 +351,35 @@ public class TEIDictionaryFormatter {
                     tei.append("\n");
                 }
 
+            }
+            if (bigEntryIsInsideDetected){
+                tei = headerTEI;
+                for (DocumentPiece header : headNotesOfAllPages) {
+                    tei.append("\t\t<fw type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                    tei.append("</fw>");
+                }
+
+                for (List<LayoutToken> lexialEntry : listOfLEs) {
+                    String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                    tei.append(createMyXMLString("entry", clusterContent));
+                }
+
+                for (DocumentPiece footer : footNotesOfAllPages) {
+
+                    tei.append("\t\t<fw type=\"footer\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
+                    currentFootIndex++;
+                    tei.append("</fw>");
+                    tei.append("\n");
+                }
+                for (DocumentPiece other : otherOfAllPages) {
+                    tei.append("\t\t<other>");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
+                    currentOtherIndex++;
+                    tei.append("</other>");
+                    tei.append("\n");
+                }
             }
         } else {
             // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
@@ -357,7 +391,10 @@ public class TEIDictionaryFormatter {
                 tei.append("</fw>");
             }
 
-            tei.append(tei.append(LayoutTokensUtil.normalizeText(listOfLEs.get(0))));
+            for (List<LayoutToken> lexialEntry : listOfLEs) {
+                String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                tei.append(createMyXMLString("entry", clusterContent));
+            }
 
             for (DocumentPiece footer : footNotesOfAllPages) {
 
