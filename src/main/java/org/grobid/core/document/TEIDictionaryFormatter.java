@@ -24,11 +24,19 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
+// possible association to Grobid customised TEI schemas: DTD, XML schema, RelaxNG or compact RelaxNG
+// DEFAULT means no schema association in the generated XML documents
+
+
 /**
  * Created by med on 24.09.16.
  */
 public class TEIDictionaryFormatter {
 
+    public enum SchemaDeclaration {
+        DEFAULT, DTD, XSD, RNG, RNC
+
+    }
     private DictionaryDocument doc = null;
 
     public TEIDictionaryFormatter(DictionaryDocument document) {
@@ -36,8 +44,7 @@ public class TEIDictionaryFormatter {
     }
 
 
-    public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config,
-                                                               SchemaDeclaration schemaDeclaration) {
+    public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config, SchemaDeclaration schemaDeclaration) {
         StringBuilder tei = new StringBuilder();
         tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         if (config.isWithXslStylesheet()) {
@@ -150,38 +157,57 @@ public class TEIDictionaryFormatter {
 
 
         List<List<LayoutToken>> lexicalEntriesSubList = new ArrayList<>();
-        if (lexicalEntriesNumber > 1) {
-            tei.append("\t\t<fw " + "type=\"header\">");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-            tei.append("</fw>\n");
 
 
-            if (pagesOffsetArray.size() > 1) {
+        if (pagesOffsetArray.size() > 1) {
+            if (lexicalEntriesNumber > 1) {
+                tei.append("\t\t<fw " + "type=\"header\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+                tei.append("</fw>\n");
                 int k = 0;
+                int pageOffsetIndex = 1;
                 int lexicalEntryBeginIndex;
-                for (int pageOffsetIndex = 1; pageOffsetIndex <= pagesOffsetArray.size() - 1; pageOffsetIndex++) {
-                    List<LayoutToken> textToShowInTokens = new ArrayList<>();
+                List<LayoutToken> textToShowInTokens = new ArrayList<>();
+                while (pageOffsetIndex < pagesOffsetArray.size() && k < lexicalEntriesOffsetArray.size()) {
+
                     int newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
                     lexicalEntryBeginIndex = k;
-                    // Check if the lexical entries are recognized (exist)
-                    if (k < lexicalEntriesOffsetArray.size()) {
-                        while (lexicalEntriesOffsetArray.get(k) < newPageOffset) {
-                            k++;
-                        }
+                    List<LayoutToken> lastEntryInThePage = new ArrayList<>();
+
+                    while (lexicalEntriesOffsetArray.get(k) < newPageOffset) {
+                        k++;
                     }
 
-                    lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex, k);
-                    int subListSize = lexicalEntriesSubList.size();
-                    List<LayoutToken> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
+                    // Three cases are possible:
+                    // 1-this current entry is on more than 1 pages,
+                    // 2-the last entry of the page ends before the beginning of the current page,
+                    // 3-the last entry of the page ends after n pages
+                    if (lexicalEntryBeginIndex == k) {
+                        lastEntryInThePage = listOfLEs.get(k);
+                    } else {
+                        lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex, k);
+                        int subListSize = lexicalEntriesSubList.size();
 
-                    //Check if the last entry in the page is cut by the footer and header
-                    if (lastEntryInSublist.get(lastEntryInSublist.size() - 1).getOffset() <= newPageOffset) {
-                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
-                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+                        // First, display either all the entries before the last entry
+                        for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++) {
+                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h)));
                             tei.append(createMyXMLString("entry", clusterContent));
                         }
+//                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
+//                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+//                            tei.append(createMyXMLString("entry", clusterContent));
+//                        }
+                        lastEntryInThePage = lexicalEntriesSubList.get(subListSize - 1);
+                    }
 
+                    //Check if the last entry in the page is cut by the footer and header
+                    if (lastEntryInThePage.get(lastEntryInThePage.size() - 1).getOffset() < newPageOffset) {
+                        // The last entry is not cut by the footer and the header
 
+                        // Display safely the last entry
+                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lastEntryInThePage));
+                        tei.append(createMyXMLString("entry", clusterContent));
+                        // Take care now of the other blocks
                         if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
                             // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
                             // This is caused by the forced check of the footnote'a index and its supposed page
@@ -194,7 +220,6 @@ public class TEIDictionaryFormatter {
                             tei.append("\n");
 //                                }
                         }
-
 
                         if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
                             // Same logic as the footnote
@@ -219,78 +244,96 @@ public class TEIDictionaryFormatter {
 
 
                     } else {
+                        // The last entry is cut by the footer and the header
                         int indexOfLastTokenInThePage = 0;
-                        List<LayoutToken> lexicalEntry = listOfLEs.get(k);
-
-                        for (LayoutToken token : lastEntryInSublist) {
+                        for (LayoutToken token : lastEntryInThePage) {
                             //Check offset of each token in the LE to insert the header and footer blocks
                             if (token.getOffset() < newPageOffset) {
-
                                 indexOfLastTokenInThePage++;
                             } else {
 //                            indexOfLastTokenInThePage--;
+                                // the index needed to extract a sublist is good when it has one more
                                 break;
                             }
 
                         }
-
-
-                        for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++) {
-                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h)));
-                            tei.append(createMyXMLString("entry", clusterContent));
-                        }
-
-                        List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.subList(0, indexOfLastTokenInThePage);
-                        List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.subList(indexOfLastTokenInThePage, lastEntryInSublist.size());
-                        //Compound the last entry in tokens and insert the oher page blocks
+                        List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInThePage.subList(0, indexOfLastTokenInThePage);
+                        List<LayoutToken> restOfLexicalEntryTokens = lastEntryInThePage.subList(indexOfLastTokenInThePage, lastEntryInThePage.size());
+                        //Compound the last entry in tokens and insert the other page blocks
                         textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
 
 
-                        if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
-                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                            currentFootIndex++;
-                            textToShowInTokens.add(new LayoutToken("</fw>"));
-                            textToShowInTokens.add(new LayoutToken("\n"));
+                        //If the second part of the big lexical entry doesn't end on the current page (could be after n pages)
+                        while (restOfLexicalEntryTokens.get(restOfLexicalEntryTokens.size() - 1).getOffset() > newPageOffset) {
+
+                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
+                                textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
+                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+                                currentFootIndex++;
+                                textToShowInTokens.add(new LayoutToken("</fw>"));
+                                textToShowInTokens.add(new LayoutToken("\n"));
+
+                            }
+                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+                                textToShowInTokens.add(new LayoutToken("\t\t<other>"));
+                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+                                currentOtherIndex++;
+                                textToShowInTokens.add(new LayoutToken("</other>"));
+                                textToShowInTokens.add(new LayoutToken("\n"));
+                            }
+                            textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
+
+                            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
+
+                                textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
+                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+                                currentHeadIndex++;
+                                textToShowInTokens.add(new LayoutToken("</fw>"));
+                            }
+                            pageOffsetIndex++;
+                            if (pageOffsetIndex == pagesOffsetArray.size()) {
+                                textToShowInTokens.addAll(restOfLexicalEntryTokens);
+                                String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
+                                tei.append(createMyXMLString("entry", clusterContent));
+                                textToShowInTokens.clear();
+                                break;
+                            }
+                            newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
+
+                            for (LayoutToken token : restOfLexicalEntryTokens) {
+                                //Check offset of each token in the LE to insert the header and footer blocks
+                                if (token.getOffset() < newPageOffset) {
+
+                                    indexOfLastTokenInThePage++;
+                                } else {
+//                            indexOfLastTokenInThePage--;
+                                    break;
+                                }
+                            }
+                            firstPartOfLastLexicalEntry = lastEntryInThePage.subList(0, indexOfLastTokenInThePage);
+                            restOfLexicalEntryTokens = lastEntryInThePage.subList(indexOfLastTokenInThePage, lastEntryInThePage.size());
+
+                            textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
 
                         }
-
-
-                        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                            textToShowInTokens.add(new LayoutToken("\t\t<other>"));
-                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                            currentOtherIndex++;
-                            textToShowInTokens.add(new LayoutToken("</other>"));
-                            textToShowInTokens.add(new LayoutToken("\n"));
-                        }
-
-
-                        textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
-
-                        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-
-                            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
-                            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                            currentHeadIndex++;
-                            textToShowInTokens.add(new LayoutToken("</fw>"));
-                        }
-
-
-                        textToShowInTokens.addAll(restOfLexicalEntryTokens);
-                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
-                        tei.append(createMyXMLString("entry", clusterContent));
-
-
+//                        textToShowInTokens.addAll(restOfLexicalEntryTokens);
+//                        String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
+//                        tei.append(createMyXMLString("entry", clusterContent));
+//                        textToShowInTokens.clear();
                     }
-                    if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
-                        lexicalEntriesSubList = listOfLEs.subList(k, listOfLEs.size());
 
 
-                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
-                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                            tei.append(createMyXMLString("entry", clusterContent));
+                    // If we have already reached the last page, finish the control by inserting the footer and other blocks, if the exist
+                    if (pageOffsetIndex == pagesOffsetArray.size()) {
+                        // Add the left lexical entries in the last page
+                        if (k < listOfLEs.size()) {
+                            lexicalEntriesSubList = listOfLEs.subList(k, listOfLEs.size());
+
+                            for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
+                                String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+                                tei.append(createMyXMLString("entry", clusterContent));
+                            }
                         }
-
 
                         if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
                             // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
@@ -319,17 +362,18 @@ public class TEIDictionaryFormatter {
                 }
 
             } else {
-                // In this case, the input file has just one page
+                // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
 
+
+                for (DocumentPiece header : headNotesOfAllPages) {
+                    tei.append("\t\t<fw type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                    tei.append("</fw>");
+                }
+
+                tei.append(tei.append(LayoutTokensUtil.normalizeText(listOfLEs.get(0))));
 
                 for (DocumentPiece footer : footNotesOfAllPages) {
-
-
-                    for (List<LayoutToken> lexialEntry : listOfLEs) {
-                        String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
-                        tei.append(createMyXMLString("entry", clusterContent));
-                    }
-
 
                     tei.append("\t\t<fw type=\"footer\">");
                     tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
@@ -337,7 +381,6 @@ public class TEIDictionaryFormatter {
                     tei.append("</fw>");
                     tei.append("\n");
                 }
-
                 for (DocumentPiece other : otherOfAllPages) {
                     tei.append("\t\t<other>");
                     tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
@@ -346,10 +389,11 @@ public class TEIDictionaryFormatter {
                     tei.append("\n");
                 }
 
-            }
-        } else {
-            // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
 
+            }
+
+        } else {
+            // In this case, the input file has just one page
 
             for (DocumentPiece header : headNotesOfAllPages) {
                 tei.append("\t\t<fw type=\"header\">");
@@ -357,9 +401,13 @@ public class TEIDictionaryFormatter {
                 tei.append("</fw>");
             }
 
-            tei.append(tei.append(LayoutTokensUtil.normalizeText(listOfLEs.get(0))));
+            for (List<LayoutToken> lexialEntry : listOfLEs) {
+                String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                tei.append(createMyXMLString("entry", clusterContent));
+            }
 
             for (DocumentPiece footer : footNotesOfAllPages) {
+
 
                 tei.append("\t\t<fw type=\"footer\">");
                 tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
@@ -367,6 +415,7 @@ public class TEIDictionaryFormatter {
                 tei.append("</fw>");
                 tei.append("\n");
             }
+
             for (DocumentPiece other : otherOfAllPages) {
                 tei.append("\t\t<other>");
                 tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
@@ -375,20 +424,14 @@ public class TEIDictionaryFormatter {
                 tei.append("\n");
             }
 
-
         }
 
+    tei.append("\t\t</body>\n");
+    tei.append("\t</text>\n");
+    tei.append("</TEI>\n");
 
-//        tei.append("\t\t</body>\n");
-//        tei.append("\t\t<fw "+"type=\"footer\">" );
-//        tei.append(LayoutTokensUtil.normalizeText(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)));
-//        tei.append("</fw>\n");
-        tei.append("\t\t</body>\n");
-        tei.append("\t</text>\n");
-        tei.append("</TEI>\n");
-
-        return tei;
-    }
+    return tei;
+}
 
     public StringBuilder toTEIDictionaryBodySegmentation(String contentFeatured, LayoutTokenization layoutTokenization) {
 
@@ -412,7 +455,7 @@ public class TEIDictionaryFormatter {
             List<LayoutToken> list1 = cluster.concatTokens();
             String clusterContent = LayoutTokensUtil.toText(list1);
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
             String tagLabel = clusterLabel.getLabel();
 
@@ -583,12 +626,6 @@ public class TEIDictionaryFormatter {
         xmlStringElement.append(">");
 
         return xmlStringElement.toString();
-    }
-
-    // possible association to Grobid customised TEI schemas: DTD, XML schema, RelaxNG or compact RelaxNG
-    // DEFAULT means no schema association in the generated XML documents
-    public enum SchemaDeclaration {
-        DEFAULT, DTD, XSD, RNG, RNC
     }
 
 
