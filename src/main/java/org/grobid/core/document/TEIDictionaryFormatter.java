@@ -135,9 +135,12 @@ public class TEIDictionaryFormatter {
         List<Integer> pagesOffsetArray = new ArrayList<Integer>();
 
         for (Page page : doc.getPages()) {
-            int beginOffSet = page.getBlocks().get(0).getTokens().get(0).getOffset();
+            if (page.getBlocks() != null){
+                int beginOffSet = page.getBlocks().get(0).getTokens().get(0).getOffset();
 
-            pagesOffsetArray.add(beginOffSet);
+                pagesOffsetArray.add(beginOffSet);
+            }
+
         }
 
 
