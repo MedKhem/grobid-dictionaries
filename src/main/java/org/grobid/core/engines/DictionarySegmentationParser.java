@@ -378,10 +378,10 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
         List<LayoutToken> tokenizations = doc.getTokenizations();
-        if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
-            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
-                    GrobidExceptionStatus.TOO_MANY_TOKENS);
-        }
+//        if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
+//            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
+//                    GrobidExceptionStatus.TOO_MANY_TOKENS);
+//        }
 
         doc.produceStatistics();
         String content = getAllLinesFeatured(doc);
