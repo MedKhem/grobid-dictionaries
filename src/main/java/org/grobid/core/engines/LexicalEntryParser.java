@@ -1,6 +1,7 @@
 package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
@@ -55,28 +56,28 @@ public class LexicalEntryParser extends AbstractParser {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = null;
-        StringBuffer LexicalEntries = new StringBuffer();
+        StringBuffer lexicalEntries = new StringBuffer();
         try {
             doc = bodySegmentationParser.processing(originFile);
             LayoutTokenization layoutTokenization;
             for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
-                LexicalEntries.append("<entry>");
+                lexicalEntries.append("<entry>");
                 layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
                 String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
                 String labeledFeatures = null;
                 // if featSeg is null, it usually means that no body segment is found in the
 
-                if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                if (StringUtils.isNotBlank(featSeg)) {
                     labeledFeatures = label(featSeg);
-                    LexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, false));
+                    lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, false));
                 }
-                LexicalEntries.append("</entry>");
+                lexicalEntries.append("</entry>");
 
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String LEs = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, LexicalEntries.toString()).toString();
+        String LEs = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, lexicalEntries.toString()).toString();
         return LEs;
     }
 
