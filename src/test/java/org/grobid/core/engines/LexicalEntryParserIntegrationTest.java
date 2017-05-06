@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by lfoppiano on 11/08/16.
  */
-public class LexicalEntryParserTest {
+public class LexicalEntryParserIntegrationTest {
 
     LexicalEntryParser target;
 
@@ -44,7 +44,7 @@ public class LexicalEntryParserTest {
         MockContext.destroyInitialContext();
     }
 
-
+    
     @Test
     public void testProcess() throws Exception {
         File input = new File(this.getClass().getResource("BasicEnglish.pdf").toURI());

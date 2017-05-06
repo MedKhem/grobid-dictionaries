@@ -1,21 +1,15 @@
 package org.grobid.core.features;
 
-import org.grobid.core.document.*;
+import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.engines.DictionarySegmentationParser;
-import org.grobid.core.engines.EngineParsers;
-import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.features.enums.CapitalisationType;
 import org.grobid.core.features.enums.LineStatus;
-import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.utilities.TextUtilities;
 
 import java.io.File;
-import java.util.SortedSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by med on 19.07.16.
@@ -45,7 +39,6 @@ public class FeatureVectorLexicalEntry {
         FeatureFactory featureFactory = FeatureFactory.getInstance();
         String word = layoutToken.getText();
 
-
         FeatureVectorLexicalEntry featuresVector = new FeatureVectorLexicalEntry();
         featuresVector.string = layoutToken.getText();
         featuresVector.label = label;
@@ -66,8 +59,7 @@ public class FeatureVectorLexicalEntry {
             featuresVector.capitalisation = CapitalisationType.NOCAPS.toString();
         }
 
-        featuresVector.punctType = checkPonctuationType(word);
-
+        featuresVector.punctType = FeaturesUtils.checkPunctuationType(word);
 
         //Get line and font status as parameters from the line level (upper level class)
         featuresVector.lineStatus = lineStatus;
@@ -88,7 +80,6 @@ public class FeatureVectorLexicalEntry {
         String lineStatus = null;
         int nbToken = tokens.getTokenization().size();
         int counter = 0;
-
 
         for (LayoutToken layoutToken : tokens.getTokenization()) {
             // Feature Vector won't contain the space between tokens neither the different line breaks, although they are considered as a separate layoutToken
@@ -125,17 +116,16 @@ public class FeatureVectorLexicalEntry {
                 nextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if ((nbToken > counter+2) && (tokens.getTokenization().get(counter + 2) != null)) {
+                if ((nbToken > counter + 2) && (tokens.getTokenization().get(counter + 2) != null)) {
                     afterNextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 2).isNewLineAfter();
                 }
 
                 lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
 
-
             }
             counter++;
 
-            String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont, fontStatus);
+            String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont);
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
             FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
@@ -153,42 +143,12 @@ public class FeatureVectorLexicalEntry {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc =  parser.initiateProcessing(inputFile, config);
+        DictionaryDocument doc = parser.initiateProcessing(inputFile, config);
 
         LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
         StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens);
 
         return stringBuilder;
-    }
-
-    public static String checkPonctuationType(String token) {
-        //Ponctuation: Only the categorization of different value of a ponctuation type matters to be captured for the features
-        String ponctuationType;
-
-        Pattern ponctuationPattern = Pattern.compile("\\p{Punct}");
-        Matcher mP = ponctuationPattern.matcher(token);
-        boolean isPonctuationCharacter = mP.matches();
-
-
-        if (isPonctuationCharacter) {
-            Pattern openBracketPattern = Pattern.compile("[\\[\\(\\{]");
-            Matcher mOB = openBracketPattern.matcher(token);
-            boolean isOpenBracket = mOB.matches();
-            Pattern closeBracketPattern = Pattern.compile("[\\]\\)\\}]");
-            Matcher mCB = closeBracketPattern.matcher(token);
-            boolean isCloseBracket = mCB.matches();
-            if (isOpenBracket) {
-                ponctuationType = PonctuationType.OPENBRACKET.toString();
-            } else if (isCloseBracket) {
-                ponctuationType = PonctuationType.ENDBRACKET.toString();
-            } else {
-                ponctuationType = PonctuationType.PUNCT.toString();
-            }
-        } else {
-            ponctuationType = PonctuationType.NOPUNCT.toString();
-        }
-
-        return ponctuationType;
     }
 
     public String printVector() {
@@ -203,53 +163,16 @@ public class FeatureVectorLexicalEntry {
         res.append(" " + string.toLowerCase());
 
         // prefix (4)
-        res.append(" " + string.substring(0, 1));
-
-        if (string.length() > 1)
-            res.append(" " + string.substring(0, 2));
-        else
-            res.append(" " + string.substring(0, 1));
-
-        if (string.length() > 2)
-            res.append(" " + string.substring(0, 3));
-        else if (string.length() > 1)
-            res.append(" " + string.substring(0, 2));
-        else
-            res.append(" " + string.substring(0, 1));
-
-        if (string.length() > 3)
-            res.append(" " + string.substring(0, 4));
-        else if (string.length() > 2)
-            res.append(" " + string.substring(0, 3));
-        else if (string.length() > 1)
-            res.append(" " + string.substring(0, 2));
-        else
-            res.append(" " + string.substring(0, 1));
+        res.append(" ").append(TextUtilities.prefix(string, 1));
+        res.append(" ").append(TextUtilities.prefix(string, 2));
+        res.append(" ").append(TextUtilities.prefix(string, 3));
+        res.append(" ").append(TextUtilities.prefix(string, 4));
 
         // suffix (4)
-        res.append(" " + string.charAt(string.length() - 1));
-
-        if (string.length() > 1)
-            res.append(" " + string.substring(string.length() - 2, string.length()));
-        else
-            res.append(" " + string.charAt(string.length() - 1));
-
-        if (string.length() > 2)
-            res.append(" " + string.substring(string.length() - 3, string.length()));
-        else if (string.length() > 1)
-            res.append(" " + string.substring(string.length() - 2, string.length()));
-        else
-            res.append(" " + string.charAt(string.length() - 1));
-
-        if (string.length() > 3)
-            res.append(" " + string.substring(string.length() - 4, string.length()));
-        else if (string.length() > 2)
-            res.append(" " + string.substring(string.length() - 3, string.length()));
-        else if (string.length() > 1)
-            res.append(" " + string.substring(string.length() - 2, string.length()));
-        else
-            res.append(" " + string.charAt(string.length() - 1));
-
+        res.append(" ").append(TextUtilities.suffix(string, 1));
+        res.append(" ").append(TextUtilities.suffix(string, 2));
+        res.append(" ").append(TextUtilities.suffix(string, 3));
+        res.append(" ").append(TextUtilities.suffix(string, 4));
 
         res.append(" ").append(fontSize);
         res.append(" ").append(bold);
@@ -260,9 +183,6 @@ public class FeatureVectorLexicalEntry {
         res.append(" ").append(fontStatus);
         res.append(" ").append(label);
 
-
         return res.toString();
     }
-
-
 }

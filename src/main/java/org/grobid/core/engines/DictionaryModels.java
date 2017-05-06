@@ -10,4 +10,6 @@ public class DictionaryModels {
     public static final GrobidModel DICTIONARY_SEGMENTATION = GrobidModels.modelFor("dictionary-segmentation");
     public static final GrobidModel DICTIONARY_BODY_SEGMENTATION = GrobidModels.modelFor("dictionary-body-segmentation");
 
+    public static final GrobidModel FORM = GrobidModels.modelFor("form");
+
 }

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
+import static org.grobid.core.engines.label.TaggingLabels.OTHER_LABEL;
+
 /**
  * Created by med on 24.09.16.
  */
@@ -120,7 +122,7 @@ public class TEIDictionaryFormatter {
 
         SortedSet<DocumentPiece> headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
         SortedSet<DocumentPiece> footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
-        SortedSet<DocumentPiece> otherOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_OTHER_LABEL);
+        SortedSet<DocumentPiece> otherOfAllPages = doc.getDocumentDictionaryPart(OTHER_LABEL);
 
 
         int pagesNumber = doc.getPages().size();
@@ -462,9 +464,9 @@ public class TEIDictionaryFormatter {
             //For the result data (shown as result of applying the second model) any the text that is not contained between tags is removed (not like the following)
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER_LABEL)) {
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
                 buffer.append(clusterContent);
-            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_PC_LABEL)) {
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                 buffer.append(clusterContent);
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");

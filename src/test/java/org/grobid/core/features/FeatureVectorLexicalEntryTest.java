@@ -1,10 +1,11 @@
 package org.grobid.core.features;
 
-import org.grobid.core.document.*;
+import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.features.enums.PonctuationType;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
@@ -105,22 +106,6 @@ public class FeatureVectorLexicalEntryTest {
         assertThat(output, notNullValue());
     }
 
-    @Test
-    public void testCheckPonctuationType() throws Exception {
-
-        String output = target.checkPonctuationType("ab");
-        assertThat(output, is(PonctuationType.NOPUNCT.toString()));
-
-        String output2 = target.checkPonctuationType("(");
-        assertThat(output2, is(PonctuationType.OPENBRACKET.toString()));
-
-        String output3 = target.checkPonctuationType("%");
-        assertThat(output3, is(PonctuationType.PUNCT.toString()));
-
-        String output4 = target.checkPonctuationType("}");
-        assertThat(output4, is(PonctuationType.ENDBRACKET.toString()));
-
-    }
     Pair<DictionaryDocument, SortedSet<DocumentPiece>> prepare(String file) {
 
         File input = null;
@@ -131,7 +116,7 @@ public class FeatureVectorLexicalEntryTest {
         }
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc =  parser.initiateProcessing(input, config);
+        DictionaryDocument doc = parser.initiateProcessing(input, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return new Pair<>(doc, documentBodyParts);

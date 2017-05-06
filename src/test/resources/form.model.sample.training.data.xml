@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<tei>
+    <teiHeader>
+        <fileDesc xml:id=""/>
+    </teiHeader>
+    <text xml:lang="en">
+        <body>
+            <form>
+                <orth>ally</orth>
+                <pc>2</pc>
+                <pron>/ə la/</pron>
+                <gramGrp>verb</gramGrp>
+            </form>
+            <form>
+                <orth>almost</orth>
+                <pron>/ɔlməυst/</pron>
+                <gramGrp>adverb</gramGrp>
+            </form>
+            
+        </body>
+        <footnote></footnote>
+    </text>
+</tei>
+
