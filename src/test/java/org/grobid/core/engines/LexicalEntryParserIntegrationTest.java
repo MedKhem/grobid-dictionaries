@@ -48,8 +48,8 @@ public class LexicalEntryParserIntegrationTest {
     @Test
     public void testProcess() throws Exception {
         File input = new File(this.getClass().getResource("BasicEnglish.pdf").toURI());
-        String output = target.process(input);
-        System.out.println(output);
+//        String output = target.process(input);
+//        System.out.println(output);
 
 //        assertThat(output, notNullValue());
     }

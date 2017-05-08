@@ -37,7 +37,6 @@ public class TEIDictionaryFormatter {
         doc = document;
     }
 
-
     public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config,
                                                                SchemaDeclaration schemaDeclaration) {
         StringBuilder headerTEI = new StringBuilder();
@@ -137,7 +136,7 @@ public class TEIDictionaryFormatter {
         List<Integer> pagesOffsetArray = new ArrayList<Integer>();
 
         for (Page page : doc.getPages()) {
-            if (page.getBlocks() != null){
+            if (page.getBlocks() != null) {
                 int beginOffSet = page.getBlocks().get(0).getTokens().get(0).getOffset();
 
                 pagesOffsetArray.add(beginOffSet);
@@ -177,7 +176,7 @@ public class TEIDictionaryFormatter {
                             k++;
                         }
                     }
-                    if (lexicalEntryBeginIndex >= k){
+                    if (lexicalEntryBeginIndex >= k) {
                         // When entry is on more than one page, this is considered as anomaly for the moment. So quit and show in second form of the output
                         bigEntryIsInsideDetected = true;
                         break;
@@ -357,7 +356,7 @@ public class TEIDictionaryFormatter {
                 }
 
             }
-            if (bigEntryIsInsideDetected){
+            if (bigEntryIsInsideDetected) {
                 tei = headerTEI;
                 for (DocumentPiece header : headNotesOfAllPages) {
                     tei.append("\t\t<fw type=\"header\">");
@@ -454,7 +453,7 @@ public class TEIDictionaryFormatter {
             List<LayoutToken> list1 = cluster.concatTokens();
             String clusterContent = LayoutTokensUtil.toText(list1);
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
             String tagLabel = clusterLabel.getLabel();
 
@@ -561,7 +560,7 @@ public class TEIDictionaryFormatter {
             tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\n");
         }
 
-        if (doc.getLanguage() != null) {
+        if (doc != null && doc.getLanguage() != null) {
             tei.append("\t<teiHeader xml:lang=\"" + doc.getLanguage() + "\">");
         } else {
             tei.append("\t<teiHeader>");
@@ -614,7 +613,7 @@ public class TEIDictionaryFormatter {
     }
 
 
-    public String createMyXMLString(String elementName, String elementContent) {
+    public static String createMyXMLString(String elementName, String elementContent) {
         StringBuilder xmlStringElement = new StringBuilder();
         xmlStringElement.append("<");
         xmlStringElement.append(elementName);

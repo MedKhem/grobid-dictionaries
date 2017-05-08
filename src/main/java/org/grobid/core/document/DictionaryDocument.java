@@ -1,8 +1,10 @@
 package org.grobid.core.document;
 
+import org.grobid.core.data.LabeledLexicalEntry;
 import org.grobid.core.engines.SegmentationLabel;
 import org.grobid.core.layout.LayoutToken;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -11,6 +13,7 @@ import java.util.SortedSet;
  */
 public class DictionaryDocument extends Document {
     private List<List<LayoutToken>> lexicalEntries;
+    private List<LabeledLexicalEntry> labeledLexicalEntries = new ArrayList<>();
 
     public DictionaryDocument(Document document) {
         super(document.documentSource);
@@ -52,4 +55,11 @@ public class DictionaryDocument extends Document {
         }
     }
 
+    public List<LabeledLexicalEntry> getLabeledLexicalEntries() {
+        return labeledLexicalEntries;
+    }
+
+    public void setLabeledLexicalEntries(List<LabeledLexicalEntry> labeledLexicalEntries) {
+        this.labeledLexicalEntries = labeledLexicalEntries;
+    }
 }

@@ -3,6 +3,8 @@ package org.grobid.core.engines;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
+import org.grobid.core.data.LabeledForm;
+import org.grobid.core.data.LabeledLexicalEntry;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentUtils;
@@ -18,13 +20,17 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
+import org.grobid.core.utilities.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+
+import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 
 /**
  * Created by med on 18.10.16.
@@ -44,56 +50,140 @@ public class LexicalEntryParser extends AbstractParser {
         return instance;
     }
 
-    /**
-     * Create a new instance.
-     */
     private static synchronized void getNewInstance() {
         instance = new LexicalEntryParser();
     }
 
-    public String process(File originFile) {
-        //Prepare
+    public String processToTei(File originFile, boolean onlyLexicalEntries) {
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = null;
-        StringBuffer lexicalEntries = new StringBuffer();
-        try {
-            doc = bodySegmentationParser.processing(originFile);
-            LayoutTokenization layoutTokenization;
-            for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
-                lexicalEntries.append("<entry>");
-                layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
-                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
-                String labeledFeatures = null;
-                // if featSeg is null, it usually means that no body segment is found in the
+        DictionaryDocument doc = process(originFile);
+        List<LabeledLexicalEntry> entries = doc.getLabeledLexicalEntries();
 
-                if (StringUtils.isNotBlank(featSeg)) {
-                    labeledFeatures = label(featSeg);
-                    lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, false));
-                }
-                lexicalEntries.append("</entry>");
+        StringBuilder lexicalEntries = new StringBuilder();
 
+        for (LabeledLexicalEntry entry : entries) {
+            lexicalEntries.append("<entry>");
+            if (onlyLexicalEntries) {
+                lexicalEntries.append(toTEILexicalEntry(entry));
+            } else {
+                lexicalEntries.append(toTEILexicalEntryAndBeyond(entry));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            lexicalEntries.append("</entry>");
         }
-        String LEs = new TEIDictionaryFormatter(doc).toTEIFormatLexicalEntry(config, null, lexicalEntries.toString()).toString();
+
+        String LEs = new TEIDictionaryFormatter(doc)
+                .toTEIFormatLexicalEntry(config, null, lexicalEntries.toString()).toString();
         return LEs;
     }
 
-    public StringBuilder toTEILexicalEntry(String bodyContentFeatured, LayoutTokenization layoutTokenization, boolean isTrainingData) {
+    public DictionaryDocument process(File originFile) {
+        //Prepare
+        DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
+        DictionaryDocument doc = null;
+        try {
+            List<LabeledLexicalEntry> entries = new ArrayList<>();
+            doc = bodySegmentationParser.processing(originFile);
+            LayoutTokenization layoutTokenization;
+            for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
 
-        StringBuilder buffer = new StringBuilder();
-        TaggingLabel lastClusterLabel = null;
-        List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
+                layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
+                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY, bodyContentFeatured, tokenizations);
+                // if featSeg is null, it usually means that no body segment is found in the dictionary
 
-        String tokenLabel = null;
+                if (StringUtils.isNotBlank(featSeg)) {
+                    String labeledFeatures = label(featSeg);
+                    entries.add(transformResponse(labeledFeatures, layoutTokenization.getTokenization()));
+                }
+
+            }
+            doc.setLabeledLexicalEntries(entries);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return doc;
+    }
+
+    public LabeledLexicalEntry transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY,
+                modelOutput, layoutTokens);
+
         List<TaggingTokenCluster> clusters = clusteror.cluster();
+        LabeledLexicalEntry labeledLexicalEntry = new LabeledLexicalEntry();
+
+        for (TaggingTokenCluster cluster : clusters) {
+            if (cluster == null) {
+                continue;
+            }
+            TaggingLabel clusterLabel = cluster.getTaggingLabel();
+            Engine.getCntManager().i((TaggingLabel) clusterLabel);
+
+            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
+            String tagLabel = clusterLabel.getLabel();
+
+            labeledLexicalEntry.addLabel(new Pair(concatenatedTokens, tagLabel));
+        }
+
+        return labeledLexicalEntry;
+    }
 
 
-//        System.out.println(new TaggingTokenClusteror(GrobidModels.FULLTEXT, result, tokenizations).cluster());
+    public String toTEILexicalEntry(LabeledLexicalEntry entries) {
+        final StringBuilder sb = new StringBuilder();
+
+        for (Pair<List<LayoutToken>, String> entry : entries.getLabels()) {
+            String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
+            String label = entry.getB();
+            produceXmlNode(sb, token, label);
+        }
+
+        return sb.toString();
+    }
+
+    public String toTEILexicalEntryAndBeyond(LabeledLexicalEntry entries) {
+        final StringBuilder sb = new StringBuilder();
+
+        for (Pair<List<LayoutToken>, String> entry : entries.getLabels()) {
+            String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
+            String label = entry.getB();
+
+            if (label.equals("<form>")) {
+                sb.append("<form>").append("\n");
+                LabeledForm form = new FormParser().process(entry.getA());
+                StringBuilder gramGrp = new StringBuilder();
+                for (Pair<String, String> entryForm : form.getLabels()) {
+                    String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
+                    String labelForm = entryForm.getB();
+
+                    String content = TextUtilities.HTMLEncode(tokenForm);
+                    content = content.replace("&lt;lb/&gt;", "<lb/>");
+                    if (!labelForm.equals("<other>") && (!labelForm.equals("<gramGrp>"))) {
+                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                    } else if (labelForm.equals("<gramGrp>")) {
+                        gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                    } else {
+                        sb.append(content);
+                    }
+                }
+                sb.append("</form>").append("\n");
+                sb.append(gramGrp.toString());
+            } else {
+                produceXmlNode(sb, token, label);
+            }
+        }
+        return sb.toString();
+    }
+
+
+    public StringBuilder toTEILexicalEntry(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+                                           boolean isTrainingData) {
+        StringBuilder buffer = new StringBuilder();
+
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY,
+                bodyContentFeatured, layoutTokens);
+
+        List<TaggingTokenCluster> clusters = clusteror.cluster();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -114,51 +204,40 @@ public class LexicalEntryParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("form", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("etym", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("sense", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("re", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("other", clusterContent));
-            } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
-                clusterContent = TextUtilities.HTMLEncode(clusterContent);
-                clusterContent = clusterContent.replace("&lt;lb/&gt;","<lb/>");
-                buffer.append(createMyXMLString("pc", clusterContent));
-            } else {
-                throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-            }
-
-
+            produceXmlNode(buffer, clusterContent, tagLabel);
         }
 
         return buffer;
     }
 
-    public String createMyXMLString(String elementName, String elementContent) {
-        StringBuilder xmlStringElement = new StringBuilder();
-        xmlStringElement.append("<");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
-        xmlStringElement.append("</");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-
-        return xmlStringElement.toString();
+    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
+        if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("form", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("etym", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("sense", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("re", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("other", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("pc", clusterContent));
+        } else {
+            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
+        }
     }
 
     @SuppressWarnings({"UnusedParameters"})
@@ -198,84 +277,71 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
     public void createTrainingLexicalEntries(File path, String outputDirectory) throws Exception {
-
         // Segment the doc
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
         DictionaryDocument doc = parser.initiateProcessing(path, config);
+
         //Get Body
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         //Get tokens from the body
         LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
-        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations).toString();
-        if (bodytextFeatured != null) {
-            // if featSeg is null, it usually means that no body segment is found in the
-            // document segmentation
+        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations.getTokenization()).toString();
+        if (StringUtils.isNotBlank(bodytextFeatured)) {
+            // write the features file
+            String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
+            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+            writer.write(bodytextFeatured);
+            IOUtils.closeWhileHandlingException(writer);
 
+            // write the rawtext 
+            StringBuffer rawtxt = new StringBuffer();
+            for (LayoutToken txtline : tokenizations.getTokenization()) {
+                rawtxt.append(txtline.getText());
+            }
+            String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.rawtxt";
+            FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
-            if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
-                //Write the features file
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
-                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(bodytextFeatured);
-                IOUtils.closeWhileHandlingException(writer);
+            // pre-annotations of the body
+            DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
+            doc = bodySegmentationParser.processing(path);
+            StringBuffer lexicalEntries = new StringBuffer();
+            LayoutTokenization layoutTokenization;
+            for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
+                lexicalEntries.append("<entry>");
+                layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
+                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                String labeledFeatures = null;
+                // if featSeg is null, it usually means that no body segment is found in the
 
-                // also write the raw text as seen before segmentation
-                StringBuffer rawtxt = new StringBuffer();
-                for (LayoutToken txtline : tokenizations.getTokenization()) {
-                    rawtxt.append(txtline.getText());
+                if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                    labeledFeatures = label(featSeg);
+                    lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
                 }
-                String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.rawtxt";
-                FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
-
-                //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
-                if (bodytextFeatured.length() > 0) {
-                    DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-                    doc = bodySegmentationParser.processing(path);
-                    StringBuffer LexicalEntries = new StringBuffer();
-                    LayoutTokenization layoutTokenization;
-                    for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
-                        LexicalEntries.append("<entry>");
-                        layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
-                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
-                        String labeledFeatures = null;
-                        // if featSeg is null, it usually means that no body segment is found in the
-
-                        if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                            labeledFeatures = label(featSeg);
-                            LexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization, true));
-                        }
-                        LexicalEntries.append("</entry>");
-
-                    }
-
-
-                    // write the TEI file to reflect the extact layout of the text as extracted from the pdf
-                    String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
-                    writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                            "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
-                    writer.write("\n\t\t<headnote>");
-                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
-                    writer.write("</headnote>");
-                    writer.write("\n\t\t<body>");
-                    writer.write(LexicalEntries.toString());
-                    writer.write("</body>");
-                    writer.write("\n\t\t<footnote>");
-                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
-                    writer.write("</footnote>");
-                    writer.write("\n\t</text>\n</tei>\n");
-                    writer.close();
-                }
+                lexicalEntries.append("</entry>");
             }
 
+            // write the TEI file to reflect the exact layout of the text as extracted from the pdf
+            String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
+            writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                    "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+            writer.write("\n\t\t<headnote>");
+            writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
+            writer.write("</headnote>");
+            writer.write("\n\t\t<body>");
+            writer.write(lexicalEntries.toString());
+            writer.write("</body>");
+            writer.write("\n\t\t<footnote>");
+            writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
+            writer.write("</footnote>");
+            writer.write("\n\t</text>\n</tei>\n");
+            writer.close();
+        } else {
+            LOGGER.warn("File " + path + " has no content. ");
         }
-
-
     }
-
-
 }

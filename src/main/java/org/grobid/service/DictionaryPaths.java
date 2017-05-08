@@ -18,4 +18,5 @@ public interface DictionaryPaths {
     public static final String PATH_DICTIONARY_SEGMENTATATION = "processDictionarySegmentation";
     public static final String PATH_DICTIONARY_BODY_SEGMENTATATION = "processDictionaryBodySegmentation";
     public static final String PATH_LEXICAL_ENTRY = "processLexicalEntry";
+    public static final String PATH_FULL_DICTIONARY = "processFullDictionary";
 }

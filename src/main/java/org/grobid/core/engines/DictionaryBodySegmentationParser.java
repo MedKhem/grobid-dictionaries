@@ -52,15 +52,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
     public static List<List<LayoutToken>> processLexicalEntriesLayoutTokens(LayoutTokenization layoutTokenization, String contentFeatured) {
         //Extract the lexical entries in a clusters of tokens for each lexical entry
-        StringBuilder buffer = new StringBuilder();
-        TaggingLabel lastClusterLabel = null;
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
 
-        String tokenLabel = null;
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        List<List<LayoutToken>> list1 = new ArrayList<List<LayoutToken>>();
+        List<List<LayoutToken>> list1 = new ArrayList<>();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -101,7 +98,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return xmlStringElement.toString();
     }
 
-    public String process(File originFile) throws Exception {
+    public String process(File originFile) {
         //This method is used by the service mode to display the segmentation result as text in tei-xml format
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
@@ -121,7 +118,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return segmentedBody;
     }
 
-    public DictionaryDocument processing(File originFile) throws Exception {
+    public DictionaryDocument processing(File originFile) {
         // This method is to be called by the following parser
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
@@ -133,7 +130,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             //Get tokens from the body
             LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
-            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization).toString();
+            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
             String labeledFeatures = null;
 
 
@@ -208,7 +205,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         //Get tokens from the body
         LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
-        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations).toString();
+        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations.getTokenization()).toString();
 
         if (bodytextFeatured != null) {
             // if featSeg is null, it usually means that no body segment is found in the

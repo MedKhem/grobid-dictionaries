@@ -48,7 +48,6 @@ public class DictionarySegmentationParser extends AbstractParser {
     private FeatureFactory featureFactory = FeatureFactory.getInstance();
 
     public DictionarySegmentationParser() {
-
         super(DictionaryModels.DICTIONARY_SEGMENTATION);
     }
 

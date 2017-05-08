@@ -81,7 +81,7 @@ public class FeatureVectorLexicalEntryTest {
     public void testCreateFeaturesFromLayoutTokens() throws Exception {
         Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("BasicEnglish.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
-        StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
+        StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization());
         assertThat(output, notNullValue());
 //        System.out.println(output);
 
@@ -91,7 +91,7 @@ public class FeatureVectorLexicalEntryTest {
     public void testCreateFeaturesFromLayoutTokens2() throws Exception {
         Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
         LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
-        StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization);
+        StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization());
         assertThat(output, notNullValue());
 //        System.out.println(output);
 

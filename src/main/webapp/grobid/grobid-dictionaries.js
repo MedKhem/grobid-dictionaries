@@ -4,13 +4,15 @@
  *  Author: Patrice Lopez
  */
 
-jQuery.fn.prettify = function () { this.html(prettyPrintOne(this.html(),'xml')); };
+jQuery.fn.prettify = function () {
+    this.html(prettyPrintOne(this.html(), 'xml'));
+};
 
-var grobid = (function($) {
+var grobid = (function ($) {
 
     function defineBaseURL(ext) {
         var baseUrl = null;
-        if ( $(location).attr('href').indexOf("index.html") != -1)
+        if ($(location).attr('href').indexOf("index.html") != -1)
             baseUrl = $(location).attr('href').replace("index.html", ext);
         else
             baseUrl = $(location).attr('href') + ext;
@@ -22,7 +24,7 @@ var grobid = (function($) {
         $('#gbdForm').attr('action', baseUrl);
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         $("#subTitle").html("About");
         $("#divAbout").show();
@@ -34,7 +36,7 @@ var grobid = (function($) {
         createInputFile();
         setBaseUrl('processLexicalEntry');
 
-        $('#selectedService').change(function() {
+        $('#selectedService').change(function () {
             processChange();
             return true;
         });
@@ -46,7 +48,7 @@ var grobid = (function($) {
             dataType: "text"
         });
 
-        $('#adminForm').attr("action",$(location).attr('href')+"allProperties");
+        $('#adminForm').attr("action", $(location).attr('href') + "allProperties");
         $('#TabAdminProps').hide();
         $('#adminForm').ajaxForm({
             beforeSubmit: adminShowRequest,
@@ -55,7 +57,7 @@ var grobid = (function($) {
             dataType: "text"
         });
 
-        $("#about").click(function() {
+        $("#about").click(function () {
             $("#about").attr('class', 'section-active');
             $("#rest").attr('class', 'section-not-active');
             $("#admin").attr('class', 'section-not-active');
@@ -72,7 +74,7 @@ var grobid = (function($) {
             $("#divDemo").hide();
             return false;
         });
-        $("#rest").click(function() {
+        $("#rest").click(function () {
             $("#rest").attr('class', 'section-active');
             $("#doc").attr('class', 'section-not-active');
             $("#about").attr('class', 'section-not-active');
@@ -90,7 +92,7 @@ var grobid = (function($) {
             $("#divDemo").hide();
             return false;
         });
-        $("#admin").click(function() {
+        $("#admin").click(function () {
             $("#admin").attr('class', 'section-active');
             $("#doc").attr('class', 'section-not-active');
             $("#about").attr('class', 'section-not-active');
@@ -108,7 +110,7 @@ var grobid = (function($) {
             $("#divDemo").hide();
             return false;
         });
-        $("#doc").click(function() {
+        $("#doc").click(function () {
             $("#doc").attr('class', 'section-active');
             $("#rest").attr('class', 'section-not-active');
             $("#about").attr('class', 'section-not-active');
@@ -125,7 +127,7 @@ var grobid = (function($) {
             $("#divDemo").hide();
             return false;
         });
-        $("#demo").click(function() {
+        $("#demo").click(function () {
             $("#demo").attr('class', 'section-active');
             $("#rest").attr('class', 'section-not-active');
             $("#about").attr('class', 'section-not-active');
@@ -151,7 +153,7 @@ var grobid = (function($) {
     }
 
     function AjaxError(jqXHR, textStatus, errorThrown) {
-        $('#requestResult').html("<font color='red'>Error encountered while requesting the server.<br/>"+jqXHR.responseText+"</font>");
+        $('#requestResult').html("<font color='red'>Error encountered while requesting the server.<br/>" + jqXHR.responseText + "</font>");
         responseJson = null;
     }
 
@@ -172,8 +174,8 @@ var grobid = (function($) {
         $('#requestResult').show();
     }
 
-    $(document).ready(function() {
-        $(document).on('shown', '#xmlCode', function(event) {
+    $(document).ready(function () {
+        $(document).on('shown', '#xmlCode', function (event) {
             prettyPrint();
         });
     });
@@ -181,16 +183,20 @@ var grobid = (function($) {
     function processChange() {
         var selected = $('#selectedService option:selected').attr('value');
 
-       if (selected == 'processDictionarySegmentation') {
+        if (selected == 'processFullDictionary') {
+            createInputFile(selected);
+            $('#consolidateBlock').show();
+            setBaseUrl('processFullDictionary');
+        } else if (selected == 'processDictionarySegmentation') {
             createInputFile(selected);
             $('#consolidateBlock').show();
             setBaseUrl('processDictionarySegmentation');
         }
         else if (selected == 'processDictionaryBodySegmentation') {
-           createInputFile(selected);
-           $('#consolidateBlock').show();
-           setBaseUrl('processDictionaryBodySegmentation');
-       }
+            createInputFile(selected);
+            $('#consolidateBlock').show();
+            setBaseUrl('processDictionaryBodySegmentation');
+        }
         else if (selected == 'processLexicalEntry') {
             createInputFile(selected);
             $('#consolidateBlock').show();
@@ -201,7 +207,6 @@ var grobid = (function($) {
             $('#consolidateBlock').hide();
             setBaseUrl('processDate');
         }
-  
     }
 
     function createInputFile(selected) {
@@ -231,7 +236,7 @@ var grobid = (function($) {
 
     /** admin functions */
 
-    var selectedAdmKey="", selectedAdmValue, selectedAdmType;
+    var selectedAdmKey = "", selectedAdmValue, selectedAdmType;
 
     function adminShowRequest(formData, jqForm, options) {
         $('#TabAdminProps').show();
@@ -249,56 +254,56 @@ var grobid = (function($) {
         rowEvent();
     }
 
-    function parseXml(xml){
-        var out="<pre><table class='table-striped table-hover'><thead><tr align='left'><th>Property</th><th align='left'>value</th></tr></thead>";
-        $(xml).find("property").each(function(){
+    function parseXml(xml) {
+        var out = "<pre><table class='table-striped table-hover'><thead><tr align='left'><th>Property</th><th align='left'>value</th></tr></thead>";
+        $(xml).find("property").each(function () {
             var dsipKey = $(this).find("key").text();
             var key = dsipKey.split('.').join('-');
             var value = $(this).find("value").text();
             var type = $(this).find("type").text();
-            out+="<tr class='admRow' id='"+key+"'><td><input type='hidden' value='"+type+"'/>"+dsipKey+"</td><td><div>"+value+"</div></td></tr>";
+            out += "<tr class='admRow' id='" + key + "'><td><input type='hidden' value='" + type + "'/>" + dsipKey + "</td><td><div>" + value + "</div></td></tr>";
         });
-        out+="</table></pre>";
+        out += "</table></pre>";
         $('#TabAdminProps').html(out);
     }
 
-    function rowEvent(){
-        $('.admRow').click(function() {
-            $("#"+selectedAdmKey).find("div").html($("#val"+selectedAdmKey).attr("value"));
-            selectedAdmKey=$(this).attr("id");
-            selectedAdmValue=$(this).find("div").text();
-            selectedAdmType=$(this).find("input").attr("value");
-            $(this).find("div").html("<input type='text' id='val"+selectedAdmKey+"' size='80' value='"+selectedAdmValue+"' class='input-xxlarge'/>");
-            $("#val"+selectedAdmKey).focus();
+    function rowEvent() {
+        $('.admRow').click(function () {
+            $("#" + selectedAdmKey).find("div").html($("#val" + selectedAdmKey).attr("value"));
+            selectedAdmKey = $(this).attr("id");
+            selectedAdmValue = $(this).find("div").text();
+            selectedAdmType = $(this).find("input").attr("value");
+            $(this).find("div").html("<input type='text' id='val" + selectedAdmKey + "' size='80' value='" + selectedAdmValue + "' class='input-xxlarge'/>");
+            $("#val" + selectedAdmKey).focus();
         });
 
-        $('.admRow').keypress(function(event) {
+        $('.admRow').keypress(function (event) {
             var keycode = (event.keyCode ? event.keyCode : event.which);
-            selectedAdmKey=$(this).attr("id");
+            selectedAdmKey = $(this).attr("id");
             // Enter key
-            if(keycode == '13') {
-                var newVal = $("#val"+selectedAdmKey).val();
-                $("#"+selectedAdmKey).find("div").html(newVal);
-                selectedAdmValue=newVal;
-                selectedAdmType=$(this).find("input").attr("value");
+            if (keycode == '13') {
+                var newVal = $("#val" + selectedAdmKey).val();
+                $("#" + selectedAdmKey).find("div").html(newVal);
+                selectedAdmValue = newVal;
+                selectedAdmType = $(this).find("input").attr("value");
                 generateXmlRequest();
             }
             // Escape key
-            if(keycode == '27') {
-                $("#"+selectedAdmKey).find("div").html(selectedAdmValue);
+            if (keycode == '27') {
+                $("#" + selectedAdmKey).find("div").html(selectedAdmValue);
             }
         });
     }
 
-    function generateXmlRequest(){
-        var xmlReq= "<changeProperty><password>"+$('#admPwd').val()+"</password>";
-        xmlReq+="<property><key>"+selectedAdmKey.split('-').join('.')+"</key><value>"+selectedAdmValue+"</value><type>"+selectedAdmType+"</type></property></changeProperty>";
-        if("org.grobid.service.admin.pw"==selectedAdmKey.split('-').join('.')){
+    function generateXmlRequest() {
+        var xmlReq = "<changeProperty><password>" + $('#admPwd').val() + "</password>";
+        xmlReq += "<property><key>" + selectedAdmKey.split('-').join('.') + "</key><value>" + selectedAdmValue + "</value><type>" + selectedAdmType + "</type></property></changeProperty>";
+        if ("org.grobid.service.admin.pw" == selectedAdmKey.split('-').join('.')) {
             $('#admPwd').attr('value', selectedAdmValue);
         }
         $.ajax({
             type: 'POST',
-            url: $(location).attr('href')+"changePropertyValue",
+            url: $(location).attr('href') + "changePropertyValue",
             data: {xml: xmlReq},
             success: changePropertySuccesful,
             error: changePropertyError
@@ -306,12 +311,12 @@ var grobid = (function($) {
     }
 
     function changePropertySuccesful(responseText, statusText) {
-        $("#"+selectedAdmKey).find("div").html(responseText);
-        $('#admMessage').html("<font color='green'>Property "+selectedAdmKey.split('-').join('.')+" updated with success</font>");
+        $("#" + selectedAdmKey).find("div").html(responseText);
+        $('#admMessage').html("<font color='green'>Property " + selectedAdmKey.split('-').join('.') + " updated with success</font>");
     }
 
     function changePropertyError() {
-        $('#admMessage').html("<font color='red'>An error occured while updating property"+selectedAdmKey.split('-').join('.')+"</font>");
+        $('#admMessage').html("<font color='red'>An error occured while updating property" + selectedAdmKey.split('-').join('.') + "</font>");
     }
 
 })(jQuery);

@@ -10,6 +10,9 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.utilities.TextUtilities;
 
 import java.io.File;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Created by med on 19.07.16.
@@ -70,7 +73,7 @@ public class FeatureVectorLexicalEntry {
 
 
     // This is a key method. It is required by the dictionary parser (by the process() method)
-    public static StringBuilder createFeaturesFromLayoutTokens(LayoutTokenization tokens) {
+    public static StringBuilder createFeaturesFromLayoutTokens(List<LayoutToken> tokens) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -78,15 +81,15 @@ public class FeatureVectorLexicalEntry {
         String fontStatus = null;
 
         String lineStatus = null;
-        int nbToken = tokens.getTokenization().size();
+        int nbToken = tokens.size();
         int counter = 0;
 
-        for (LayoutToken layoutToken : tokens.getTokenization()) {
+        for (LayoutToken layoutToken : tokens) {
             // Feature Vector won't contain the space between tokens neither the different line breaks, although they are considered as a separate layoutToken
             String text = layoutToken.getText();
             text = text.replace(" ", "");
 
-            if (TextUtilities.filterLine(text) || (text == null) || (text.length() == 0)) {
+            if (TextUtilities.filterLine(text) || isBlank(text)) {
                 counter++;
                 continue;
             }
@@ -101,7 +104,6 @@ public class FeatureVectorLexicalEntry {
             } else if (counter + 1 == nbToken) {
                 // Last token
                 lineStatus = LineStatus.LINE_END.toString();
-
             } else {
                 String previousTokenText;
                 Boolean previousTokenIsNewLineAfter;
@@ -110,14 +112,14 @@ public class FeatureVectorLexicalEntry {
                 Boolean afterNextTokenIsNewLineAfter = false;
 
                 //The existence of the previousToken and nextToken is already check.
-                previousTokenText = tokens.getTokenization().get(counter - 1).getText();
-                previousTokenIsNewLineAfter = tokens.getTokenization().get(counter - 1).isNewLineAfter();
-                nextTokenText = tokens.getTokenization().get(counter + 1).getText();
-                nextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 1).isNewLineAfter();
+                previousTokenText = tokens.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = tokens.get(counter - 1).isNewLineAfter();
+                nextTokenText = tokens.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = tokens.get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (tokens.getTokenization().get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = tokens.getTokenization().get(counter + 2).isNewLineAfter();
+                if ((nbToken > counter + 2) && (tokens.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = tokens.get(counter + 2).isNewLineAfter();
                 }
 
                 lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
@@ -146,7 +148,7 @@ public class FeatureVectorLexicalEntry {
         DictionaryDocument doc = parser.initiateProcessing(inputFile, config);
 
         LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
-        StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens);
+        StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens.getTokenization());
 
         return stringBuilder;
     }

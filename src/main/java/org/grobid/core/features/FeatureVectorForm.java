@@ -1,5 +1,6 @@
 package org.grobid.core.features;
 
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.utilities.TextUtilities;
 
@@ -31,7 +32,7 @@ public class FeatureVectorForm {
 
         FeatureVectorForm featuresVector = new FeatureVectorForm();
         featuresVector.string = layoutToken.getText();
-        featuresVector.label = label;
+        featuresVector.label = StringUtils.isBlank(label) ? "" : label;
 
         //1. get features from layout tokens
         featuresVector.fontSize = String.valueOf(layoutToken.getFontSize());

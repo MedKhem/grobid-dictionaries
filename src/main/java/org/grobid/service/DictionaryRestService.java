@@ -72,4 +72,12 @@ public class DictionaryRestService implements DictionaryPaths {
     public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processLexicalEntries(inputStream);
     }
+
+    @Path(PATH_FULL_DICTIONARY)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processFullDictionary(inputStream);
+    }
 }

@@ -3,21 +3,33 @@ package org.grobid.core.engines;
 import org.apache.commons.io.IOUtils;
 import org.grobid.core.analyzers.GrobidAnalyzer;
 import org.grobid.core.data.LabeledForm;
+import org.grobid.core.data.LabeledLexicalEntry;
+import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
+import org.grobid.core.features.FeatureVectorForm;
+import org.grobid.core.features.FeaturesUtils;
+import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.layout.BoundingBox;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
+import org.grobid.core.utilities.Pair;
+import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Created by lfoppiano on 05/05/2017.
@@ -40,6 +52,103 @@ public class FormParser extends AbstractParser {
 
     private static synchronized void getNewInstance() {
         instance = new FormParser();
+    }
+
+    public LabeledForm process(List<LayoutToken> formEntry) {
+
+        StringBuilder sb = new StringBuilder();
+        String previousFont = null;
+        String fontStatus = null;
+        String lineStatus = null;
+
+        int counter = 0;
+        int nbToken = formEntry.size();
+        for (LayoutToken token : formEntry) {
+            String text = token.getText();
+            text = text.replace(" ", "");
+
+            if (TextUtilities.filterLine(text) || isBlank(text)) {
+                counter++;
+                continue;
+            }
+            if (text.equals("\n") || text.equals("\r") || (text.equals("\n\r"))) {
+                counter++;
+                continue;
+            }
+
+            // First token
+            if (counter - 1 < 0) {
+                lineStatus = LineStatus.LINE_START.toString();
+            } else if (counter + 1 == nbToken) {
+                // Last token
+                lineStatus = LineStatus.LINE_END.toString();
+            } else {
+                String previousTokenText;
+                Boolean previousTokenIsNewLineAfter;
+                String nextTokenText;
+                Boolean nextTokenIsNewLineAfter;
+                Boolean afterNextTokenIsNewLineAfter = false;
+
+                //The existence of the previousToken and nextToken is already check.
+                previousTokenText = formEntry.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = formEntry.get(counter - 1).isNewLineAfter();
+                nextTokenText = formEntry.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = formEntry.get(counter + 1).isNewLineAfter();
+
+                // Check the existence of the afterNextToken
+                if ((nbToken > counter + 2) && (formEntry.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = formEntry.get(counter + 2).isNewLineAfter();
+                }
+
+                lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
+
+            }
+            counter++;
+
+            String[] returnedFont = FeaturesUtils.checkFontStatus(token.getFont(), previousFont);
+            previousFont = returnedFont[0];
+            fontStatus = returnedFont[1];
+
+
+            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+                    lineStatus, fontStatus);
+
+            sb.append(featureVectorForm.printVector() + "\n");
+        }
+
+        String features = sb.toString();
+        String output = label(features);
+
+
+        LabeledForm labeledForm = transformResponse(output, formEntry);
+
+        return labeledForm;
+
+    }
+
+    public LabeledForm transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+                modelOutput, layoutTokens);
+
+        List<TaggingTokenCluster> clusters = clusteror.cluster();
+        LabeledForm labeledForm = new LabeledForm();
+
+        for (TaggingTokenCluster cluster : clusters) {
+            if (cluster == null) {
+                continue;
+            }
+            TaggingLabel clusterLabel = cluster.getTaggingLabel();
+            Engine.getCntManager().i((TaggingLabel) clusterLabel);
+
+            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
+            String text = LayoutTokensUtil.toText(concatenatedTokens);
+            String tagLabel = clusterLabel.getLabel();
+
+            labeledForm.addLabel(new Pair(text, tagLabel));
+        }
+
+        return labeledForm;
+
     }
 
     public String process(String text) {
@@ -82,8 +191,46 @@ public class FormParser extends AbstractParser {
         return "";
     }
 
-    public String process(List<LayoutToken> tokens) {
-        return null;
+    public String process(File originFile) {
+        //Prepare
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        LexicalEntryParser lexicalEntriesParser = new LexicalEntryParser();
+        DictionaryDocument doc = null;
+        StringBuffer lexicalEntries = new StringBuffer();
+        try {
+            doc = lexicalEntriesParser.process(originFile);
+            List<LabeledLexicalEntry> labeledLexicalEntries = doc.getLabeledLexicalEntries();
+
+            for (LabeledLexicalEntry lexicalEntry : labeledLexicalEntries) {
+
+                final StringBuilder sb = new StringBuilder();
+
+                for (Pair<List<LayoutToken>, String> entry : lexicalEntry.getLabels()) {
+                    String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
+                    String label = entry.getB();
+
+//                    produceXmlNode(sb, token, label);
+                }
+
+//                lexicalEntry.getLabels().forEach();
+
+
+//                String featSeg = FeatureVectorForm.addFeaturesForm(token, null,
+//                        lineStatus, fontStatus);
+
+//                String labeledFeatures = null;
+//                if (StringUtils.isNotBlank(featSeg)) {
+//                    labeledFeatures = label(featSeg);
+//                }
+
+                lexicalEntries.append("</entry>");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String LEs = new TEIDictionaryFormatter(null).toTEIFormatLexicalEntry(config, null, lexicalEntries.toString()).toString();
+        return LEs;
     }
 
     public String processResponse(String text, String result, List<LayoutToken> tokenizations) {
