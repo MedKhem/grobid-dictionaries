@@ -1,5 +1,6 @@
 package org.grobid.core.engines;
 
+import com.google.common.collect.ForwardingMapEntry;
 import org.apache.commons.io.IOUtils;
 import org.grobid.core.analyzers.GrobidAnalyzer;
 import org.grobid.core.data.LabeledForm;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 
 /**
  * Created by lfoppiano on 05/05/2017.
@@ -55,6 +57,11 @@ public class FormParser extends AbstractParser {
     }
 
     public LabeledForm process(List<LayoutToken> formEntry) {
+
+        return process(formEntry, LEXICAL_ENTRY_FORM_LABEL);
+    }
+
+    public LabeledForm process(List<LayoutToken> formEntry, String parentTag) {
 
         StringBuilder sb = new StringBuilder();
         String previousFont = null;
@@ -111,7 +118,7 @@ public class FormParser extends AbstractParser {
 
 
             FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
-                    lineStatus, fontStatus);
+                    lineStatus, fontStatus, parentTag);
 
             sb.append(featureVectorForm.printVector() + "\n");
         }

@@ -115,7 +115,9 @@ public class FormTrainer extends AbstractTrainer {
                             final String labelToken = labeledForm.getLabels().get(qq).b;
                             final String tokenFromLabels = labeledForm.getLabels().get(qq).a;
                             if (StringUtils.equals(tokenFromLabels, tokenFromFeatures)) {
-                                trainingDataLineBuilder.append(line).append(" ").append(labelToken).append("\n");
+                                trainingDataLineBuilder.append(line)
+                                        .append(" ").append(labeledForm.getParentTag()) //workaround to add a feature coming from the xml 
+                                        .append(" ").append(labelToken).append("\n");
                                 indexLabeledForm = qq + 1;
                                 if (labeledForm.getLabels().size() == indexLabeledForm) {
                                     pp++;

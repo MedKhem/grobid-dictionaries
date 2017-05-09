@@ -1,7 +1,7 @@
 package org.grobid.trainer.sax;
 
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.LabeledForm;
-import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.utilities.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
@@ -22,6 +22,7 @@ public class TEIFormSaxParser extends DefaultHandler {
 
     private LabeledForm currentForm = null;
     private List<LabeledForm> labeled = null;
+
 
     public TEIFormSaxParser() {
         labeled = new ArrayList<>();
@@ -44,6 +45,12 @@ public class TEIFormSaxParser extends DefaultHandler {
         } else {
             if (isFormTag(qName)) {
                 currentForm = new LabeledForm();
+                for (int i = 0; i < atts.getLength(); i++) {
+                    if (StringUtils.equals(atts.getLocalName(i), "parent")) {
+                        currentForm.setParentTag(atts.getValue(i));
+                        break;
+                    }
+                }
             }
             accumulator.setLength(0);
 

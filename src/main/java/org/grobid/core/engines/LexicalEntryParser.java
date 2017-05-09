@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.SortedSet;
 
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 
 /**
  * Created by med on 18.10.16.
@@ -171,7 +172,7 @@ public class LexicalEntryParser extends AbstractParser {
             } else if (label.equals("<sense>")) {
                 sb.append("<sense>").append("\n");
                 //I apply the form also to the sense to recognise the grammatical group, if any!
-                LabeledForm form = new FormParser().process(entry.getA());
+                LabeledForm form = new FormParser().process(entry.getA(), LEXICAL_ENTRY_SENSE_LABEL);
                 for (Pair<String, String> entryForm : form.getLabels()) {
                     String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
                     String labelForm = entryForm.getB();
@@ -236,7 +237,7 @@ public class LexicalEntryParser extends AbstractParser {
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL)) {
+        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("sense", clusterContent));
