@@ -1,7 +1,6 @@
 package org.grobid.trainer.sax;
 
 /**
- *
  * SAX parser for the TEI format for fulltext data encoded for training. Normally all training data should
  * be in this unique format for the fulltext model.
  * The segmentation of tokens must be identical as the one from pdf2xml files so that
@@ -10,37 +9,33 @@ package org.grobid.trainer.sax;
  * @author Patrice Lopez, Mohamed Khemakhem
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import org.grobid.core.engines.label.LexicalEntryLabels;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 
 
 public class TEILexicalEntrySaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null; // current accumulated text
 
-    private String output = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
-    private LexicalEntryLabels possibleTag;
-
-    private boolean figureBlock = false;
-    private boolean tableBlock = false;
-
     private List<String> labeled = null; // store line by line the labeled data
+    private String parentTag = DICTIONARY_ENTRY_LABEL;
 
     public TEILexicalEntrySaxParser() {
-        labeled = new ArrayList<String>();
-        currentTags = new Stack<String>();
+        labeled = new ArrayList<>();
+        currentTags = new Stack<>();
         accumulator = new StringBuffer();
     }
 
@@ -52,7 +47,6 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     //Get the text of the document
     public String getText() {
         if (accumulator != null) {
-            //System.out.println(accumulator.toString().trim());
             return accumulator.toString().trim();
         } else {
             return null;
@@ -63,10 +57,9 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         return labeled;
     }
 
-    public void endElement(java.lang.String uri,
-                           java.lang.String localName,
-                           java.lang.String qName) throws SAXException {
-        if ( (!qName.equals("lb")) && (!qName.equals("pb")) ) {
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if ((!qName.equals("lb")) && (!qName.equals("pb"))) {
             writeData(qName, true);
             if (!currentTags.empty()) {
                 currentTag = currentTags.peek();
@@ -75,39 +68,46 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
 
     }
 
-    public void startElement(String namespaceURI,
-                             String localName,
-                             String qName,
-                             Attributes atts)
+    @Override
+    public void startElement(String namespaceURI, String localName,
+                             String qName, Attributes atts)
             throws SAXException {
+        
         if (qName.equals("lb")) {
             accumulator.append(" +L+ ");
-        }
-        else if (qName.equals("pb")) {
+        } else if (qName.equals("pb")) {
             accumulator.append(" +PAGE+ ");
-        }
-        else if (qName.equals("space")) {
+        } else if (qName.equals("space")) {
             accumulator.append(" ");
-        }
-        else {
+        } else {
+            if(qName.equals("entry")) {
+                for (int i = 0; i < atts.getLength(); i++) {
+                    if (StringUtils.equals(atts.getQName(i), "parent")) {
+                        parentTag = "<" + atts.getValue(i) + ">";
+                        break;
+                    }
+                }
+            }
+
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
-            if (!isBlank(text)) {
+            if (isNotBlank(text)) {
                 currentTag = "<pc>";
-                    writeData(qName, false);
+                writeData(qName, false);
 
             }
             accumulator.setLength(0);
 
-            currentTags.push("<"+qName+">");
-            currentTag = "<"+qName+">";
+            currentTags.push("<" + qName + ">");
+            currentTag = "<" + qName + ">";
 
         }
 
     }
 
     private void writeData(String qName, boolean pop) {
-        if ( (qName.equals("form")) || (qName.equals("etym")) || (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("other"))) {
+        if ((qName.equals("form")) || (qName.equals("etym")) ||
+                (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("other"))) {
             if (currentTag == null) {
                 return;
             }
@@ -117,7 +117,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                     currentTags.pop();
                 }
             }
-            if(qName.equals("entry")){
+            if (qName.equals("entry")) {
                 currentTag = "<pc>";
             }
 
@@ -132,20 +132,18 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
 
                 if (tok.equals("+L+")) {
                     //labeled.add("@newline\n");
-                }
-                else if (tok.equals("+PAGE+")) {
+                } else if (tok.equals("+PAGE+")) {
                     // page break should be a distinct feature
                     //labeled.add("@newpage\n");
-                }
-                else {
+                } else {
                     String content = tok;
                     int i = 0;
                     if (content.length() > 0) {
                         if (begin) {
-                            labeled.add(content + " I-" + currentTag + "\n");
+                            labeled.add(content + " " + parentTag + " I-" + currentTag + "\n");
                             begin = false;
                         } else {
-                            labeled.add(content + " " + currentTag + "\n");
+                            labeled.add(content + " " + parentTag + " " + currentTag + "\n");
                         }
                     }
                 }

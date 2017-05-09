@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.SortedSet;
 
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 
 /**
@@ -82,28 +84,38 @@ public class LexicalEntryParser extends AbstractParser {
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = null;
         try {
-            List<LabeledLexicalEntry> entries = new ArrayList<>();
             doc = bodySegmentationParser.processing(originFile);
-            LayoutTokenization layoutTokenization;
+
+            List<LabeledLexicalEntry> entries = new ArrayList<>();
             for (List<LayoutToken> allLayoutokensOfALexicalEntry : doc.getLexicalEntries()) {
-
-                layoutTokenization = new LayoutTokenization(allLayoutokensOfALexicalEntry);
-                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-
-                // if featSeg is null, it usually means that no body segment is found in the dictionary
-
-                if (StringUtils.isNotBlank(featSeg)) {
-                    String labeledFeatures = label(featSeg);
-                    entries.add(transformResponse(labeledFeatures, layoutTokenization.getTokenization()));
-                }
-
+                LabeledLexicalEntry entry = process(allLayoutokensOfALexicalEntry);
+                entries.add(entry);
             }
+
             doc.setLabeledLexicalEntries(entries);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return doc;
+    }
+
+    public LabeledLexicalEntry process(List<LayoutToken> entry) {
+        return process(entry, DICTIONARY_ENTRY_LABEL);
+    }
+
+    public LabeledLexicalEntry process(List<LayoutToken> entry, String parentTag) {
+        LayoutTokenization layoutTokenization = new LayoutTokenization(entry);
+        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization(), parentTag).toString();
+
+        // if featSeg is null, it usually means that no body segment is found in the dictionary
+        LabeledLexicalEntry result = null;
+        if (StringUtils.isNotBlank(featSeg)) {
+            String labeledFeatures = label(featSeg);
+            result = transformResponse(labeledFeatures, layoutTokenization.getTokenization());
+        }
+
+        return result;
     }
 
     public LabeledLexicalEntry transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
@@ -186,6 +198,25 @@ public class LexicalEntryParser extends AbstractParser {
                     }
                 }
                 sb.append("</sense>").append("\n");
+            } else if (label.equals("<re>")) {
+                //I apply the same model recursively on the relative entry
+                sb.append("<re>").append("\n");
+                //I apply the form also to the sense to recognise the grammatical group, if any!
+                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getA(), LEXICAL_ENTRY_RE_LABEL);
+                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
+                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getA()));
+                    String labelForm = lexicalEntry.getB();
+
+                    String content = TextUtilities.HTMLEncode(tokenForm);
+                    content = content.replace("&lt;lb/&gt;", "<lb/>");
+                    if (!labelForm.equals("<other>")) {
+                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                    } else {
+                        sb.append(content);
+                    }
+                }
+                sb.append("</re>").append("\n");
+
             } else {
                 produceXmlNode(sb, token, label);
             }

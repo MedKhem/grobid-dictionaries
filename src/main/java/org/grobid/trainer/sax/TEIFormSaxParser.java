@@ -46,7 +46,7 @@ public class TEIFormSaxParser extends DefaultHandler {
             if (isFormTag(qName)) {
                 currentForm = new LabeledForm();
                 for (int i = 0; i < atts.getLength(); i++) {
-                    if (StringUtils.equals(atts.getLocalName(i), "parent")) {
+                    if (StringUtils.equals(atts.getQName(i), "parent")) {
                         currentForm.setParentTag(atts.getValue(i));
                         break;
                     }

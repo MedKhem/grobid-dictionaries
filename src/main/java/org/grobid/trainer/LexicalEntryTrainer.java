@@ -1,6 +1,7 @@
 package org.grobid.trainer;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
@@ -137,8 +138,10 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                         if (st.hasMoreTokens()) {
                             String localToken = st.nextToken();
                             if (localToken.equals(token)) {
-                                String tag = st.nextToken();
-                                trainingDataLineBuilder.append(line).append(" ").append(tag);
+                                String parentTag = st.nextToken();
+                                trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(parentTag);
+                                String label = st.nextToken();
+                                trainingDataLineBuilder.append(" ").append(label);
                                 q = pp + 1;
                                 pp = q + 10;
                             }

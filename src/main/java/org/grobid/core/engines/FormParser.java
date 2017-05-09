@@ -116,7 +116,6 @@ public class FormParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-
             FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
                     lineStatus, fontStatus, parentTag);
 

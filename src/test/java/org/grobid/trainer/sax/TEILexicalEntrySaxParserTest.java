@@ -28,16 +28,16 @@ public class TEILexicalEntrySaxParserTest {
 
     @Test
     public void testSmallParsing_shouldWork() throws Exception {
-        InputStream input = this.getClass().getResourceAsStream("simple.file.tei.xml");
+        InputStream input = this.getClass().getResourceAsStream("/lexicalEntry.model.sample.training.data.xml");
         SAXParser p = spf.newSAXParser();
         p.parse(input, target);
 
         List<String> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(17));
+        assertThat(labeled.size(), is(93));
 
-        assertThat(labeled.get(0), is("p I-<form>\n"));
+        assertThat(labeled.get(92), is("work <re> <sense>"));
     }
 
 

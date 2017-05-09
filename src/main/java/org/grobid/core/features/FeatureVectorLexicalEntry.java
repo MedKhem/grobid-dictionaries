@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 
 /**
  * Created by med on 19.07.16.
@@ -32,12 +33,20 @@ public class FeatureVectorLexicalEntry {
     public boolean italic = false;
     public String capitalisation = null; // one of INITCAP, ALLCAPS, NOCAPS
     public String punctType = null;
+    public String parentTag = null; //element on which this lexical entry is contained (entry, related entry, etc)
 
     public FeatureVectorLexicalEntry() {
     }
 
     public static FeatureVectorLexicalEntry addFeaturesLexicalEntries(LayoutToken layoutToken,
-                                                                      String label, String lineStatus, String fontStatus) {
+                                                                      String label, String lineStatus,
+                                                                      String fontStatus) {
+        return addFeaturesLexicalEntries(layoutToken, label, lineStatus, fontStatus, DICTIONARY_ENTRY_LABEL);
+    }
+
+    public static FeatureVectorLexicalEntry addFeaturesLexicalEntries(LayoutToken layoutToken,
+                                                                      String label, String lineStatus,
+                                                                      String fontStatus, String parentTag) {
 
         FeatureFactory featureFactory = FeatureFactory.getInstance();
         String word = layoutToken.getText();
@@ -67,6 +76,7 @@ public class FeatureVectorLexicalEntry {
         //Get line and font status as parameters from the line level (upper level class)
         featuresVector.lineStatus = lineStatus;
         featuresVector.fontStatus = fontStatus;
+        featuresVector.parentTag = parentTag;
 
         return featuresVector;
     }
@@ -74,6 +84,10 @@ public class FeatureVectorLexicalEntry {
 
     // This is a key method. It is required by the dictionary parser (by the process() method)
     public static StringBuilder createFeaturesFromLayoutTokens(List<LayoutToken> tokens) {
+        return createFeaturesFromLayoutTokens(tokens, DICTIONARY_ENTRY_LABEL);
+    }
+
+    public static StringBuilder createFeaturesFromLayoutTokens(List<LayoutToken> tokens, String parentTag) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -130,7 +144,7 @@ public class FeatureVectorLexicalEntry {
             String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont);
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
-            FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
+            FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus, parentTag);
             String featureVector = vector.printVector();
             stringBuilder.append(featureVector + "\n");
 
