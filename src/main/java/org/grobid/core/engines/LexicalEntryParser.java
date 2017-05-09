@@ -168,6 +168,23 @@ public class LexicalEntryParser extends AbstractParser {
                 }
                 sb.append("</form>").append("\n");
                 sb.append(gramGrp.toString());
+            } else if (label.equals("<sense>")) {
+                sb.append("<sense>").append("\n");
+                //I apply the form also to the sense to recognise the grammatical group, if any!
+                LabeledForm form = new FormParser().process(entry.getA());
+                for (Pair<String, String> entryForm : form.getLabels()) {
+                    String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
+                    String labelForm = entryForm.getB();
+
+                    String content = TextUtilities.HTMLEncode(tokenForm);
+                    content = content.replace("&lt;lb/&gt;", "<lb/>");
+                    if (labelForm.equals("<gramGrp>")) {
+                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                    } else {
+                        sb.append(content);
+                    }
+                }
+                sb.append("</sense>").append("\n");
             } else {
                 produceXmlNode(sb, token, label);
             }
