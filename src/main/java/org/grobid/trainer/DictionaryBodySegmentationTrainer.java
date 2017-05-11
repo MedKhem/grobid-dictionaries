@@ -1,14 +1,11 @@
 package org.grobid.trainer;
 
 import org.apache.commons.io.IOUtils;
-import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEIDictionaryBodySegmentationSaxParser;
-import org.grobid.trainer.sax.TEIDictionarySegmentationSaxParser;
-import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;

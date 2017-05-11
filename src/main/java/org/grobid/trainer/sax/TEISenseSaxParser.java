@@ -13,26 +13,26 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 
-public class TEIFormSaxParser extends DefaultHandler {
+public class TEISenseSaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
 
-    private SimpleLabeled currentForm = null;
+    private boolean inSense = false;
+    private boolean inInnerSense = false;
+
+    private SimpleLabeled currentSense = null;
     private List<SimpleLabeled> labeled = null;
 
 
-    public TEIFormSaxParser() {
+    public TEISenseSaxParser() {
         labeled = new ArrayList<>();
         currentTags = new Stack<>();
         accumulator = new StringBuffer();
     }
 
-    public void startElement(String namespaceURI,
-                             String localName,
-                             String qName,
-                             Attributes atts)
+    public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
             throws SAXException {
 
         if (qName.equals("lb")) {
@@ -42,8 +42,13 @@ public class TEIFormSaxParser extends DefaultHandler {
         } else if (qName.equals("space")) {
             accumulator.append(" ");
         } else {
-            if (isFormTag(qName)) {
-                currentForm = new SimpleLabeled();
+            if (isSenseTag(qName)) {
+                if(inSense == false) {
+                    currentSense = new SimpleLabeled();
+                    inSense = true;
+                } else {
+                    inInnerSense = true;
+                }
             }
             accumulator.setLength(0);
 
@@ -54,17 +59,22 @@ public class TEIFormSaxParser extends DefaultHandler {
     }
 
     @Override
-    public void endElement(String uri,
-                           String localName,
-                           String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         if (isRelevantTag(qName)) {
             writeData();
+            if (isSenseTag(qName)) inInnerSense = false;
             if (!currentTags.isEmpty()) {
-                currentTag = currentTags.peek();
+                currentTag = currentTags.pop();
             }
-        } else if ("form".equals(qName)) {
-            labeled.add(currentForm);
+        } else if (isSenseTag(qName) && inSense) {
+            labeled.add(currentSense);
+            inSense = false;
+
+            if (!currentTags.isEmpty()) {
+                currentTag = currentTags.pop();
+            }
         }
+
     }
 
     @Override
@@ -101,10 +111,10 @@ public class TEIFormSaxParser extends DefaultHandler {
             String content = tok;
             if (content.length() > 0) {
                 if (begin) {
-                    currentForm.addLabel(new Pair(content, "I-" + currentTag));
+                    currentSense.addLabel(new Pair(content, "I-" + currentTag));
                     begin = false;
                 } else {
-                    currentForm.addLabel(new Pair(content, currentTag));
+                    currentSense.addLabel(new Pair(content, currentTag));
                 }
             }
             begin = false;
@@ -113,15 +123,21 @@ public class TEIFormSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if ("orth".equals(qName) || "pron".equals(qName)
-                || "gramGrp".equals(qName) || "other".equals(qName)) {
+        if (("sense".equals(qName) && inInnerSense) || "gramGrp".equals(qName)) {
             return true;
         }
         return false;
     }
 
-    private boolean isFormTag(String qName) {
-        if ("form".equals(qName)) {
+    private boolean isOuterSenseTag(String qName, int deepness) {
+        if ("sense".equals(qName) && deepness == 3) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSenseTag(String qName) {
+        if ("sense".equals(qName)) {
             return true;
         }
         return false;

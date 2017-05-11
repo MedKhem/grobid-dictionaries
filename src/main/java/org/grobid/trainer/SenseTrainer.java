@@ -7,7 +7,6 @@ import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.trainer.sax.TEIFormSaxParser;
 import org.grobid.trainer.sax.TEISenseSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -18,23 +17,23 @@ import java.util.List;
 /**
  * Created by med on 19.08.16.
  */
-public class FormTrainer extends AbstractTrainer {
+public class SenseTrainer extends AbstractTrainer {
 
-    public FormTrainer() {
-        super(DictionaryModels.FORM);
+    public SenseTrainer() {
+        super(DictionaryModels.SENSE);
     }
 
     public static void main(String[] args) throws Exception {
         MockContext.setInitialContext();
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new FormTrainer());
-        AbstractTrainer.runEvaluation(new FormTrainer());
+        AbstractTrainer.runTraining(new SenseTrainer());
+        AbstractTrainer.runEvaluation(new SenseTrainer());
         MockContext.destroyInitialContext();
     }
 
     @Override
     public int createCRFPPData(File corpusPath, File outputFile) {
-        return addFeaturesSense(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/raw", outputFile);
+        return addFeaturesForm(corpusPath.getAbsolutePath() + "/tei", corpusPath + "/raw", outputFile);
     }
 
     @Override
@@ -45,9 +44,9 @@ public class FormTrainer extends AbstractTrainer {
         return 0;
     }
 
-    public int addFeaturesSense(String sourcePathLabels,
-                                String sourceFeatures,
-                                File outputPath) {
+    public int addFeaturesForm(String sourcePathLabels,
+                               String sourceFeatures,
+                               File outputPath) {
         int totalExamples = 0;
         OutputStream os2 = null;
         Writer writer2 = null;
@@ -82,13 +81,14 @@ public class FormTrainer extends AbstractTrainer {
                 String name = tf.getName();
                 System.out.println("Processing: " + name);
 
-                TEIFormSaxParser parser2 = new TEIFormSaxParser();
+                TEISenseSaxParser parser2 = new TEISenseSaxParser();
 
                 //get a new instance of parser
                 SAXParser p = spf.newSAXParser();
                 p.parse(tf, parser2);
 
                 List<SimpleLabeled> labeled = parser2.getLabeledResult();
+
 
                 // we open the featured file
                 BufferedReader featuresFile = new BufferedReader(

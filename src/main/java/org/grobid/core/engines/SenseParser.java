@@ -3,7 +3,8 @@ package org.grobid.core.engines;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.TaggingLabel;
-import org.grobid.core.features.FeatureVectorForm;
+import org.grobid.core.exceptions.GrobidException;
+import org.grobid.core.features.FeatureVectorSense;
 import org.grobid.core.features.FeaturesUtils;
 import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.layout.LayoutToken;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -23,16 +25,16 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 /**
  * Created by lfoppiano on 05/05/2017.
  */
-public class FormParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FormParser.class);
-    private static volatile FormParser instance;
+public class SenseParser extends AbstractParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SenseParser.class);
+    private static volatile SenseParser instance;
 
-    public FormParser() {
-        super(DictionaryModels.FORM);
+    public SenseParser() {
+        super(DictionaryModels.SENSE);
     }
 
 
-    public static FormParser getInstance() {
+    public static SenseParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -40,10 +42,10 @@ public class FormParser extends AbstractParser {
     }
 
     private static synchronized void getNewInstance() {
-        instance = new FormParser();
+        instance = new SenseParser();
     }
 
-    public SimpleLabeled process(List<LayoutToken> formEntry) {
+    public SimpleLabeled process(List<LayoutToken> senseEntry) {
 
         StringBuilder sb = new StringBuilder();
         String previousFont = null;
@@ -51,8 +53,8 @@ public class FormParser extends AbstractParser {
         String lineStatus = null;
 
         int counter = 0;
-        int nbToken = formEntry.size();
-        for (LayoutToken token : formEntry) {
+        int nbToken = senseEntry.size();
+        for (LayoutToken token : senseEntry) {
             String text = token.getText();
             text = text.replace(" ", "");
 
@@ -79,14 +81,14 @@ public class FormParser extends AbstractParser {
                 Boolean afterNextTokenIsNewLineAfter = false;
 
                 //The existence of the previousToken and nextToken is already check.
-                previousTokenText = formEntry.get(counter - 1).getText();
-                previousTokenIsNewLineAfter = formEntry.get(counter - 1).isNewLineAfter();
-                nextTokenText = formEntry.get(counter + 1).getText();
-                nextTokenIsNewLineAfter = formEntry.get(counter + 1).isNewLineAfter();
+                previousTokenText = senseEntry.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = senseEntry.get(counter - 1).isNewLineAfter();
+                nextTokenText = senseEntry.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = senseEntry.get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (formEntry.get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = formEntry.get(counter + 2).isNewLineAfter();
+                if ((nbToken > counter + 2) && (senseEntry.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = senseEntry.get(counter + 2).isNewLineAfter();
                 }
 
                 lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
@@ -98,7 +100,7 @@ public class FormParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+            FeatureVectorSense featureVectorForm = FeatureVectorSense.addFeaturesSense(token, "",
                     lineStatus, fontStatus);
 
             sb.append(featureVectorForm.printVector() + "\n");
@@ -108,18 +110,18 @@ public class FormParser extends AbstractParser {
         String output = label(features);
 
 
-        SimpleLabeled simpleLabeled = transformResponse(output, formEntry);
+        SimpleLabeled labeledSense = transformResponse(output, senseEntry);
 
-        return simpleLabeled;
+        return labeledSense;
 
     }
 
     public SimpleLabeled transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SENSE,
                 modelOutput, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        SimpleLabeled simpleLabeled = new SimpleLabeled();
+        SimpleLabeled labeledSense = new SimpleLabeled();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -132,10 +134,10 @@ public class FormParser extends AbstractParser {
             String text = LayoutTokensUtil.toText(concatenatedTokens);
             String tagLabel = clusterLabel.getLabel();
 
-            simpleLabeled.addLabel(new Pair(text, tagLabel));
+            labeledSense.addLabel(new Pair(text, tagLabel));
         }
 
-        return simpleLabeled;
+        return labeledSense;
 
     }
 }

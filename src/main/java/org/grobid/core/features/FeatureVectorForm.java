@@ -21,13 +21,12 @@ public class FeatureVectorForm {
     public boolean italic = false;
     public String capitalisation = null; // one of INITCAP, ALLCAPS, NOCAPS
     public String punctType = null;
-    public String parentTag = null;
 
     public FeatureVectorForm() {
     }
 
     public static FeatureVectorForm addFeaturesForm(LayoutToken layoutToken, String label,
-                                                    String lineStatus, String fontStatus, String parentTag) {
+                                                    String lineStatus, String fontStatus) {
 
         String word = layoutToken.getText();
 
@@ -50,7 +49,6 @@ public class FeatureVectorForm {
 
         featuresVector.containsSpecialCharacters = FeaturesUtils.containsSpecialCharacter(word);
         featuresVector.isPureAscii = FeaturesUtils.isPureAscii(word);
-        featuresVector.parentTag = parentTag;
 
         return featuresVector;
     }
@@ -93,8 +91,6 @@ public class FeatureVectorForm {
             res.append(" 1");
         else
             res.append(" 0");*/
-
-        res.append(" ").append(parentTag);
 
         res.append(" ").append(label);
 

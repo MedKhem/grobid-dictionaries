@@ -3,8 +3,8 @@ package org.grobid.core.engines;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
-import org.grobid.core.data.LabeledForm;
 import org.grobid.core.data.LabeledLexicalEntry;
+import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentUtils;
@@ -32,7 +32,6 @@ import java.util.SortedSet;
 
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 
 /**
@@ -163,7 +162,7 @@ public class LexicalEntryParser extends AbstractParser {
 
             if (label.equals("<form>")) {
                 sb.append("<form>").append("\n");
-                LabeledForm form = new FormParser().process(entry.getA());
+                SimpleLabeled form = new FormParser().process(entry.getA());
                 StringBuilder gramGrp = new StringBuilder();
                 for (Pair<String, String> entryForm : form.getLabels()) {
                     String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
@@ -184,38 +183,40 @@ public class LexicalEntryParser extends AbstractParser {
             } else if (label.equals("<sense>")) {
                 sb.append("<sense>").append("\n");
                 //I apply the form also to the sense to recognise the grammatical group, if any!
-                LabeledForm form = new FormParser().process(entry.getA(), LEXICAL_ENTRY_SENSE_LABEL);
-                for (Pair<String, String> entryForm : form.getLabels()) {
-                    String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
-                    String labelForm = entryForm.getB();
+                SimpleLabeled sense = new SenseParser().process(entry.getA());
+                for (Pair<String, String> entryForm : sense.getLabels()) {
+                    String tokenSense = LayoutTokensUtil.normalizeText(entryForm.getA());
+                    String labelSense = entryForm.getB();
 
-                    String content = TextUtilities.HTMLEncode(tokenForm);
+                    String content = TextUtilities.HTMLEncode(tokenSense);
                     content = content.replace("&lt;lb/&gt;", "<lb/>");
-                    if (labelForm.equals("<gramGrp>")) {
-                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                    if (labelSense.equals("<gramGrp>")) {
+                        sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+                    } else if (labelSense.equals("<sense>")) {
+                        sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
                     } else {
                         sb.append(content);
                     }
                 }
                 sb.append("</sense>").append("\n");
-            } else if (label.equals("<re>")) {
-                //I apply the same model recursively on the relative entry
-                sb.append("<re>").append("\n");
-                //I apply the form also to the sense to recognise the grammatical group, if any!
-                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getA(), LEXICAL_ENTRY_RE_LABEL);
-                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
-                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getA()));
-                    String labelForm = lexicalEntry.getB();
-
-                    String content = TextUtilities.HTMLEncode(tokenForm);
-                    content = content.replace("&lt;lb/&gt;", "<lb/>");
-                    if (!labelForm.equals("<other>")) {
-                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-                    } else {
-                        sb.append(content);
-                    }
-                }
-                sb.append("</re>").append("\n");
+//            } else if (label.equals("<re>")) {
+//                //I apply the same model recursively on the relative entry
+//                sb.append("<re>").append("\n");
+//                //I apply the form also to the sense to recognise the grammatical group, if any!
+//                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getA(), LEXICAL_ENTRY_RE_LABEL);
+//                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
+//                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getA()));
+//                    String labelForm = lexicalEntry.getB();
+//
+//                    String content = TextUtilities.HTMLEncode(tokenForm);
+//                    content = content.replace("&lt;lb/&gt;", "<lb/>");
+//                    if (!labelForm.equals("<other>")) {
+//                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+//                    } else {
+//                        sb.append(content);
+//                    }
+//                }
+//                sb.append("</re>").append("\n");
 
             } else {
                 produceXmlNode(sb, token, label);
