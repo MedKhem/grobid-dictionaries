@@ -106,7 +106,6 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
                 System.out.println(name);
 
                 TEIDictionaryBodySegmentationSaxParser parser2 = new TEIDictionaryBodySegmentationSaxParser();
-                //parser2.setMode(TEILexicalEntrySaxParser.FULLTEXT);
 
                 //get a new instance of parser
                 SAXParser p = spf.newSAXParser();
@@ -150,7 +149,7 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
                 bis.close();
 
                 // Add the training data with suffixed label
-                writer2.write(trainingDataLineBuilder.toString() + "");
+                writer2.write(trainingDataLineBuilder.toString() + "\n");
             }
 
         } catch (Exception e) {

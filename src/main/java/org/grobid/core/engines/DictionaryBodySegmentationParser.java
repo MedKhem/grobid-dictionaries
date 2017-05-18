@@ -115,7 +115,6 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         String segmentedBody = new TEIDictionaryFormatter(doc).toTEIFormatDictionaryBodySegmentation(config, null).toString();
 
-
         return segmentedBody;
     }
 
