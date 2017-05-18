@@ -1,6 +1,7 @@
 package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
@@ -121,8 +122,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     public DictionaryDocument processing(File originFile) {
         // This method is to be called by the following parser
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc = parser.initiateProcessing(originFile, config);
+        DictionarySegmentationParser dictionaryParser = new DictionarySegmentationParser();
+        DictionaryDocument doc = dictionaryParser.initiateProcessing(originFile, config);
         try {
             //Get Body
             SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
@@ -144,7 +145,6 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
 
                 structuredBody = processLexicalEntriesLayoutTokens(layoutTokenization, labeledFeatures);
-
 
                 doc.setLexicalEntries(structuredBody);
             }
@@ -205,56 +205,47 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         //Get tokens from the body
         LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
-        String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations.getTokenization()).toString();
+        String bodyTextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations.getTokenization()).toString();
 
-        if (bodytextFeatured != null) {
-            // if featSeg is null, it usually means that no body segment is found in the
-            // document segmentation
+        if (StringUtils.isNotBlank(bodyTextFeatured)) {
+            //Write the features file
+            String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
+            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+            writer.write(bodyTextFeatured);
+            IOUtils.closeWhileHandlingException(writer);
 
-
-            if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
-                //Write the features file
-                String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
-                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-                writer.write(bodytextFeatured);
-                IOUtils.closeWhileHandlingException(writer);
-
-                // also write the raw text as seen before segmentation
-                StringBuffer rawtxt = new StringBuffer();
-                for (LayoutToken txtline : tokenizations.getTokenization()) {
-                    rawtxt.append(txtline.getText());
-                }
-                String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
-                FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
-
-                //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
-                if (bodytextFeatured.length() > 0) {
-                    String rese = label(bodytextFeatured);
-                    StringBuilder bufferFulltext = trainingExtraction(doc, rese, tokenizations);
-
-                    // write the TEI file to reflect the extact layout of the text as extracted from the pdf
-                    String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
-                    writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                                         "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
-                    writer.write("\n\t\t<headnote>");
-                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
-                    writer.write("</headnote>");
-                    writer.write("\n\t\t<body>");
-                    writer.write(bufferFulltext.toString());
-                    writer.write("</body>");
-                    writer.write("\n\t\t<footnote>");
-                    writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
-                    writer.write("</footnote>");
-                    writer.write("\n\t</text>\n</tei>\n");
-                    writer.close();
-                }
+            // also write the raw text as seen before segmentation
+            StringBuffer rawtxt = new StringBuffer();
+            for (LayoutToken txtline : tokenizations.getTokenization()) {
+                rawtxt.append(txtline.getText());
             }
+            String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
+            FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
+            //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
+            if (bodyTextFeatured.length() > 0) {
+                String rese = label(bodyTextFeatured);
+                StringBuilder bufferFulltext = trainingExtraction(doc, rese, tokenizations);
+
+                // write the TEI file to reflect the extact layout of the text as extracted from the pdf
+                String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
+                writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                        "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+                writer.write("\n\t\t<headnote>");
+                writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
+                writer.write("</headnote>");
+                writer.write("\n\t\t<body>");
+                writer.write(bufferFulltext.toString());
+                writer.write("</body>");
+                writer.write("\n\t\t<footnote>");
+                writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
+                writer.write("</footnote>");
+                writer.write("\n\t</text>\n</tei>\n");
+                writer.close();
+            }
         }
-
-
     }
 
     /**
@@ -269,13 +260,4 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         StringBuilder buffer = new TEIDictionaryFormatter(doc).toTEIDictionaryBodySegmentation(result, tokenizations);
         return buffer;
     }
-
-
-    @Override
-    public void close() throws IOException {
-        super.close();
-        // ...
-    }
-
-
 }
