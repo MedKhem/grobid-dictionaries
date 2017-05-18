@@ -15,12 +15,12 @@
                     has been my closest ally in the<lb/>campaign
                 </sense>
             </entry>
-            <entry parent="re">
+            <re>
                 <form type="lemma">aside from</form>
                 <sense>except for Aside from a<lb/>minor infection, his health had been re-<lb/>markably good. I've got
                     to read these<lb/>three articles, and that's aside from all<lb/>my regular work
                 </sense>
-            </entry>
+            </re>
         </body>
         <footnote></footnote>
     </text>

@@ -9,7 +9,6 @@ package org.grobid.trainer.sax;
  * @author Patrice Lopez, Mohamed Khemakhem
  */
 
-import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -72,7 +71,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     public void startElement(String namespaceURI, String localName,
                              String qName, Attributes atts)
             throws SAXException {
-        
+
         if (qName.equals("lb")) {
             accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
@@ -80,13 +79,8 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         } else if (qName.equals("space")) {
             accumulator.append(" ");
         } else {
-            if(qName.equals("entry")) {
-                for (int i = 0; i < atts.getLength(); i++) {
-                    if (StringUtils.equals(atts.getQName(i), "parent")) {
-                        parentTag = "<" + atts.getValue(i) + ">";
-                        break;
-                    }
-                }
+            if (qName.equals("entry") || qName.equals("re")) {
+                parentTag = "<" + qName + ">";
             }
 
             // we have to write first what has been accumulated yet with the upper-level tag
