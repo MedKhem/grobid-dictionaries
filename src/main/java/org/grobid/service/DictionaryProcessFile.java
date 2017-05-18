@@ -81,7 +81,8 @@ public class DictionaryProcessFile {
             response = Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         } catch (Exception e) {
             LOGGER.error("An unexpected exception occurs. ", e);
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getCause().getMessage()).build();
+            String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
         } finally {
             IOUtilities.removeTempFile(originFile);
         }

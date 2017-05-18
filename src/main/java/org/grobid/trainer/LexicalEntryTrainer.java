@@ -102,7 +102,6 @@ public class LexicalEntryTrainer extends AbstractTrainer {
             // get a factory for SAX parser
             SAXParserFactory spf = SAXParserFactory.newInstance();
 
-//            int n = 0;
             for (File tf : refFiles) {
                 String name = tf.getName();
                 System.out.println(name);
@@ -124,9 +123,13 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                 int q = 0;
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
-
                 String line;
                 while ((line = bis.readLine()) != null) {
+
+                    //A new line in the feature file separate the new training example
+                    if(StringUtils.isBlank(line)) {
+                        trainingDataLineBuilder.append("\n");
+                    }
                     int ii = line.indexOf(' ');
                     String token = null;
                     if (ii != -1)
