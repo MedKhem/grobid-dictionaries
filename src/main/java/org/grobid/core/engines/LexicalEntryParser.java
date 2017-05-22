@@ -158,7 +158,7 @@ public class LexicalEntryParser extends AbstractParser {
             String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
             String label = entry.getB();
 
-            if (label.equals("<form>")) {
+            /*if (label.equals("<form>")) {
                 sb.append("<form>").append("\n");
                 SimpleLabeled form = new FormParser().process(entry.getA());
                 StringBuilder gramGrp = new StringBuilder();
@@ -178,7 +178,7 @@ public class LexicalEntryParser extends AbstractParser {
                 }
                 sb.append("</form>").append("\n");
                 sb.append(gramGrp.toString());
-            } else if (label.equals("<sense>")) {
+            } else */if (label.equals("<sense>")) {
                 sb.append("<sense>").append("\n");
                 //I apply the form also to the sense to recognise the grammatical group, if any!
                 SimpleLabeled sense = new SenseParser().process(entry.getA());
