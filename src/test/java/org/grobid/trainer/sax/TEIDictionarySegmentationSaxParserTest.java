@@ -68,7 +68,7 @@ public class TEIDictionarySegmentationSaxParserTest {
 
     @Test
     public void testCrapAtTheEnd() throws Exception {
-        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile3.tei.xml");
+        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile4.tei.xml");
         SAXParser p = spf.newSAXParser();
         p.parse(input, target);
 
@@ -78,6 +78,19 @@ public class TEIDictionarySegmentationSaxParserTest {
         assertThat(labeled.size(), is(4));
 
         assertThat(labeled.get(3), is("crap I-<pc>\n"));
+    }
+    @Test
+    public void testCrapInOther() throws Exception {
+        InputStream input = this.getClass().getResourceAsStream("dictionarySegmentationTestFile3.tei.xml");
+        SAXParser p = spf.newSAXParser();
+        p.parse(input, target);
+
+        List<String> labeled = target.getLabeledResult();
+
+        assertThat(labeled.size(), greaterThan(0));
+        assertThat(labeled.size(), is(4));
+
+        assertThat(labeled.get(0), is("bonjour I-<other>\n"));
     }
 
 }

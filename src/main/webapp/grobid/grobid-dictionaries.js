@@ -7,7 +7,7 @@
 jQuery.fn.prettify = function () {
     this.html(prettyPrintOne(this.html(), 'xml'));
 };
-
+var testStr;
 var grobid = (function ($) {
 
     function defineBaseURL(ext) {
@@ -32,6 +32,7 @@ var grobid = (function ($) {
         $("#divRestI").hide();
         $("#divDoc").hide();
         $('#consolidateBlock').show();
+        $("#btn_download").hide();
 
         createInputFile();
         setBaseUrl('processLexicalEntry');
@@ -164,7 +165,7 @@ var grobid = (function ($) {
     function SubmitSuccesful(responseText, statusText, xhr) {
         var selected = $('#selectedService option:selected').attr('value');
         var display = "<pre class='prettyprint lang-xml' id='xmlCode'>";
-        var testStr = vkbeautify.xml(responseText);
+        testStr = vkbeautify.xml(responseText);
 
         display += htmll(testStr);
 
@@ -172,6 +173,7 @@ var grobid = (function ($) {
         $('#requestResult').html(display);
         window.prettyPrint && prettyPrint();
         $('#requestResult').show();
+        $("#btn_download").show();
     }
 
     $(document).ready(function () {
@@ -233,6 +235,9 @@ var grobid = (function ($) {
         $('#gbdForm').attr('enctype', '');
         $('#gbdForm').attr('method', 'post');
     }
+    
+    
+
 
     /** admin functions */
 
@@ -321,5 +326,33 @@ var grobid = (function ($) {
 
 })(jQuery);
 
+
+// or, if you want to encapsulate variables within the plugin
+(function($) {
+    $.fn.MessageBoxScoped = function(msg) {
+        alert(msg);
+    };
+})(jQuery);
+
+function download(){
+    var a = document.body.appendChild(
+        document.createElement("a")
+    );
+    a.download = "export.xml";
+    console.log(testStr);
+    var xmlData = $.parseXML(testStr);
+
+    if (window.ActiveXObject){
+        var xmlString = xmlData.xml;
+    } else {
+        var xmlString = (new XMLSerializer()).serializeToString(xmlData);
+    }
+    a.href = "data:text/xml," + xmlString; // Grab the HTML
+    a.click(); // Trigger a click on the element
+}
+
+function downloadVisibilty(){
+    $("#btn_download").hide();
+}
 
 

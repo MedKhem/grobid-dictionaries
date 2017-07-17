@@ -116,9 +116,10 @@
                                             <span class="fileupload-preview" style="white-space:normal;"></span>
                                         </div>
 
-										<span class="btn btn-file">
+										<span class="btn btn-file" onclick="downloadVisibilty()">
 											<span class="fileupload-new" id="labelFile">Select file</span>
 											<span class="fileupload-exists">Change</span>
+
 											<input id="input" name="input" type="file" />
 										</span>
 										<a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
@@ -138,12 +139,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest" type="submit" value="Submit" class="btn"/></td>
+                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest" type="submit" value="Submit" class="btn"/> <input id="btn_download" class="btn" onclick="download()" value="Download TEI Result"/></td>
                     </tr>
                 </table>
             </form>
             <br>
+
             <div id="requestResult"></div>
+
+
         </div>
 
         <div id="divAdmin">

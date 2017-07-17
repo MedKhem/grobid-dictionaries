@@ -106,7 +106,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
                 return;
             }
 
-            // For text outside the three principle tags that will go to <other>
+            // For text outside the four principle tags that will go to <pc>
             if (pop) {
                 if (!currentTags.empty()) {
                     currentTags.pop();
