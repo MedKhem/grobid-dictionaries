@@ -7,7 +7,7 @@
 jQuery.fn.prettify = function () {
     this.html(prettyPrintOne(this.html(), 'xml'));
 };
-var testStr;
+var xmlToDownload;
 var grobid = (function ($) {
 
     function defineBaseURL(ext) {
@@ -48,7 +48,10 @@ var grobid = (function ($) {
             error: AjaxError,
             dataType: "text"
         });
-
+        // bind download buttons with download methods
+        $('#btn_download').bind('click', download);
+        $("#btn_download").hide();
+        $('#btn_block_1').bind('click', downloadVisibilty);
         $('#adminForm').attr("action", $(location).attr('href') + "allProperties");
         $('#TabAdminProps').hide();
         $('#adminForm').ajaxForm({
@@ -165,8 +168,10 @@ var grobid = (function ($) {
     function SubmitSuccesful(responseText, statusText, xhr) {
         var selected = $('#selectedService option:selected').attr('value');
         var display = "<pre class='prettyprint lang-xml' id='xmlCode'>";
-        testStr = vkbeautify.xml(responseText);
-
+        var testStr = vkbeautify.xml(responseText);
+        console.log(responseText);
+        console.log(testStr);
+        xmlToDownload = responseText;
         display += htmll(testStr);
 
         display += "</pre>";
@@ -334,21 +339,28 @@ var grobid = (function ($) {
     };
 })(jQuery);
 
-function download(){
-    var a = document.body.appendChild(
-        document.createElement("a")
-    );
-    a.download = "export.xml";
-    console.log(testStr);
-    var xmlData = $.parseXML(testStr);
-
-    if (window.ActiveXObject){
-        var xmlString = xmlData.xml;
-    } else {
-        var xmlString = (new XMLSerializer()).serializeToString(xmlData);
+function download() {
+    var name = "export";
+    if ((document.getElementById("input").files[0].type == 'application/pdf') ||
+        (document.getElementById("input").files[0].name.endsWith(".pdf")) ||
+        (document.getElementById("input").files[0].name.endsWith(".PDF"))) {
+        name = document.getElementById("input").files[0].name;
     }
-    a.href = "data:text/xml," + xmlString; // Grab the HTML
-    a.click(); // Trigger a click on the element
+    var fileName = name + ".tei.xml";
+    var a = document.createElement("a");
+
+
+    var file = new Blob([xmlToDownload], {type: 'application/xml'});
+    var fileURL = URL.createObjectURL(file);
+    a.href = fileURL;
+    a.download = fileName;
+
+    document.body.appendChild(a);
+
+    $(a).ready(function () {
+        a.click();
+        return true;
+    });
 }
 
 function downloadVisibilty(){

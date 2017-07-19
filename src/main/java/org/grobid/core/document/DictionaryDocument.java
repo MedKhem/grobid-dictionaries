@@ -1,7 +1,7 @@
 package org.grobid.core.document;
 
 import org.grobid.core.data.LabeledLexicalEntry;
-import org.grobid.core.engines.SegmentationLabel;
+import org.grobid.core.engines.label.SegmentationLabel;
 import org.grobid.core.layout.LayoutToken;
 
 import java.util.ArrayList;
