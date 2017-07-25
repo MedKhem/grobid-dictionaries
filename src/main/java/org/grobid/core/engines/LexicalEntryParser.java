@@ -151,16 +151,16 @@ public class LexicalEntryParser extends AbstractParser {
         return sb.toString();
     }
 
-    public String toTEILexicalEntryAndBeyond(LabeledLexicalEntry entries) {
+    public String toTEILexicalEntryAndBeyond(LabeledLexicalEntry entry) {
         final StringBuilder sb = new StringBuilder();
 
-        for (Pair<List<LayoutToken>, String> entry : entries.getLabels()) {
-            String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
-            String label = entry.getB();
+        for (Pair<List<LayoutToken>, String> entryComponent : entry.getLabels()) {
+            String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getA()));
+            String label = entryComponent.getB();
 
-            /*if (label.equals("<form>")) {
+            if (label.equals("<form>")) {
                 sb.append("<form>").append("\n");
-                SimpleLabeled form = new FormParser().process(entry.getA());
+                SimpleLabeled form = new FormParser().process(entryComponent.getA());
                 StringBuilder gramGrp = new StringBuilder();
                 for (Pair<String, String> entryForm : form.getLabels()) {
                     String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
@@ -178,19 +178,22 @@ public class LexicalEntryParser extends AbstractParser {
                 }
                 sb.append("</form>").append("\n");
                 sb.append(gramGrp.toString());
-            } else */if (label.equals("<sense>")) {
+            } else if (label.equals("<sense>")) {
                 sb.append("<sense>").append("\n");
                 //I apply the form also to the sense to recognise the grammatical group, if any!
-                SimpleLabeled sense = new SenseParser().process(entry.getA());
-                for (Pair<String, String> entryForm : sense.getLabels()) {
-                    String tokenSense = LayoutTokensUtil.normalizeText(entryForm.getA());
-                    String labelSense = entryForm.getB();
+                SimpleLabeled sense = new SenseParser().process(entryComponent.getA());
+                for (Pair<String, String> entrySense : sense.getLabels()) {
+                    String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
+                    String labelSense = entrySense.getB();
 
                     String content = TextUtilities.HTMLEncode(tokenSense);
                     content = content.replace("&lt;lb/&gt;", "<lb/>");
+
                     if (labelSense.equals("<gramGrp>")) {
+
                         sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
                     } else if (labelSense.equals("<sense>")) {
+
                         sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
                     } else {
                         sb.append(content);
