@@ -1,5 +1,6 @@
 package org.grobid.core.engines;
 
+import org.grobid.core.utilities.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
@@ -51,14 +52,54 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         instance = new DictionaryBodySegmentationParser();
     }
 
-    public static List<List<LayoutToken>> processLexicalEntriesLayoutTokens(LayoutTokenization layoutTokenization, String contentFeatured) {
-        //Extract the lexical entries in a clusters of tokens for each lexical entry
+
+    public DictionaryDocument processing(File originFile) {
+        // This method is to be called by the following parser
+        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+        DictionarySegmentationParser dictionaryParser = new DictionarySegmentationParser();
+        DictionaryDocument doc = dictionaryParser.initiateProcessing(originFile, config);
+        try {
+            //Get Body
+            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+            //Get tokens from the body
+            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+            String labeledFeatures = null;
+
+
+            List<Pair<List<LayoutToken>,String>> structuredBody = null;
+            if (bodytextFeatured != null) {
+                // if bodytextFeatured is null, it usually means that no body segment is found in the
+                // document segmentation
+
+                if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
+                    labeledFeatures = label(bodytextFeatured);
+                }
+
+                structuredBody = extractBodyComponents(layoutTokenization, labeledFeatures);
+
+                doc.setBodyComponents(structuredBody);
+            }
+
+            return doc;
+        } catch (GrobidException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        }
+    }
+
+
+    public static List<Pair<List<LayoutToken>,String>> extractBodyComponents(LayoutTokenization layoutTokenization, String contentFeatured) {
+        //Extract the lexical entries in a clusters of tokens for each lexical entry, ponctuation and other parts
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        List<List<LayoutToken>> list1 = new ArrayList<>();
+        List<Pair<List<LayoutToken>,String>> list1 = new ArrayList<>();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -70,11 +111,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                list1.add(cluster.concatTokens());
+                list1.add(new Pair(cluster.concatTokens(),tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
-//                list1.add(cluster.concatTokens());
+                list1.add(new Pair(cluster.concatTokens(),tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-//                list1.add(cluster.concatTokens());
+                list1.add(new Pair(cluster.concatTokens(),tagLabel));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
@@ -84,22 +125,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         return list1;
     }
-
-    public static String createMyXMLString(String elementName, String elementContent) {
-        StringBuilder xmlStringElement = new StringBuilder();
-        xmlStringElement.append("<");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
-        xmlStringElement.append("</");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append("\n");
-
-        return xmlStringElement.toString();
-    }
-
-    public String process(File originFile) {
+    public String processToTEI(File originFile) {
         //This method is used by the service mode to display the segmentation result as text in tei-xml format
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
@@ -118,43 +144,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return segmentedBody;
     }
 
-    public DictionaryDocument processing(File originFile) {
-        // This method is to be called by the following parser
-        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionarySegmentationParser dictionaryParser = new DictionarySegmentationParser();
-        DictionaryDocument doc = dictionaryParser.initiateProcessing(originFile, config);
-        try {
-            //Get Body
-            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
-
-            //Get tokens from the body
-            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
-
-            String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-            String labeledFeatures = null;
 
 
-            List<List<LayoutToken>> structuredBody = null;
-            if (bodytextFeatured != null) {
-                // if bodytextFeatured is null, it usually means that no body segment is found in the
-                // document segmentation
-
-                if ((bodytextFeatured != null) && (bodytextFeatured.trim().length() > 0)) {
-                    labeledFeatures = label(bodytextFeatured);
-                }
-
-                structuredBody = processLexicalEntriesLayoutTokens(layoutTokenization, labeledFeatures);
-
-                doc.setLexicalEntries(structuredBody);
-            }
-
-            return doc;
-        } catch (GrobidException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new GrobidException("An exception occurred while running Grobid.", e);
-        }
-    }
 
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
@@ -259,4 +250,19 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         StringBuilder buffer = new TEIDictionaryFormatter(doc).toTEIDictionaryBodySegmentation(result, tokenizations);
         return buffer;
     }
+
+    public static String createMyXMLString(String elementName, String elementContent) {
+        StringBuilder xmlStringElement = new StringBuilder();
+        xmlStringElement.append("<");
+        xmlStringElement.append(elementName);
+        xmlStringElement.append(">");
+        xmlStringElement.append(elementContent);
+        xmlStringElement.append("</");
+        xmlStringElement.append(elementName);
+        xmlStringElement.append(">");
+        xmlStringElement.append("\n");
+
+        return xmlStringElement.toString();
+    }
+
 }

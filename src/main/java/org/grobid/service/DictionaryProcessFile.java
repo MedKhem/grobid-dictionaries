@@ -156,7 +156,7 @@ public class DictionaryProcessFile {
                 // starts conversion process - single thread! :)
                 DictionaryBodySegmentationParser dictionaryBodySegmentationParser = new DictionaryBodySegmentationParser();
 
-                response = Response.ok(dictionaryBodySegmentationParser.process(originFile)).build();
+                response = Response.ok(dictionaryBodySegmentationParser.processToTEI(originFile)).build();
             }
         } catch (NoSuchElementException nseExp) {
             LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);

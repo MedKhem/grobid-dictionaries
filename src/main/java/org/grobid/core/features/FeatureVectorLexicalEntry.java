@@ -198,6 +198,7 @@ public class FeatureVectorLexicalEntry {
         res.append(" ").append(lineStatus);
         res.append(" ").append(fontStatus);
         res.append(" ").append(label);
+        // parentTag is not yet used
 
         return res.toString();
     }

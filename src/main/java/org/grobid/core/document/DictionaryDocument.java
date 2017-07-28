@@ -1,8 +1,8 @@
 package org.grobid.core.document;
 
 import org.grobid.core.data.LabeledLexicalEntry;
-import org.grobid.core.engines.label.SegmentationLabel;
 import org.grobid.core.layout.LayoutToken;
+import org.grobid.core.utilities.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.SortedSet;
  * Created by med on 08.11.16.
  */
 public class DictionaryDocument extends Document {
-    private List<List<LayoutToken>> lexicalEntries;
-    private List<LabeledLexicalEntry> labeledLexicalEntries = new ArrayList<>();
+    private List<Pair<List<LayoutToken>,String>> bodyComponents= new ArrayList<>();
+    private List<Pair<List<LayoutToken>,String>> labeledLexicalEntries = new ArrayList<>();
 
     public DictionaryDocument(Document document) {
         super(document.documentSource);
-        lexicalEntries = null;
+        bodyComponents = null;
 
     }
 
@@ -41,25 +41,25 @@ public class DictionaryDocument extends Document {
             return getDocumentPieceText(getDocumentDictionaryPart(segmentationLabel));
         }
     }
-    public void setLexicalEntries(List<List<LayoutToken>> LTs){
-        this.lexicalEntries = LTs;
+    public void setBodyComponents(List<Pair<List<LayoutToken>,String>> LTs){
+        this.bodyComponents = LTs;
     }
 
-    public List<List<LayoutToken>> getLexicalEntries(){
-        if (this.lexicalEntries == null) {
-            LOGGER.debug("lexicalEntries block is null");
+    public List<Pair<List<LayoutToken>,String>> getBodyComponents(){
+        if (this.bodyComponents == null) {
+            LOGGER.debug("bodyComponents block is null");
             return null;
         } else {
 
-            return this.lexicalEntries;
+            return this.bodyComponents;
         }
     }
 
-    public List<LabeledLexicalEntry> getLabeledLexicalEntries() {
+    public List<Pair<List<LayoutToken>,String>> getLabeledLexicalEntries() {
         return labeledLexicalEntries;
     }
 
-    public void setLabeledLexicalEntries(List<LabeledLexicalEntry> labeledLexicalEntries) {
+    public void setLabeledLexicalEntries(List<Pair<List<LayoutToken>,String>> labeledLexicalEntries) {
         this.labeledLexicalEntries = labeledLexicalEntries;
     }
 }

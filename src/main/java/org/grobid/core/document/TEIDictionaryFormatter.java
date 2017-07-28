@@ -12,10 +12,7 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.layout.Page;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
-import org.grobid.core.utilities.GrobidProperties;
-import org.grobid.core.utilities.KeyGen;
-import org.grobid.core.utilities.LayoutTokensUtil;
-import org.grobid.core.utilities.TextUtilities;
+import org.grobid.core.utilities.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -147,16 +144,16 @@ public class TEIDictionaryFormatter {
 
         // Prepare an offset based index for LEs
         List<Integer> lexicalEntriesOffsetArray = new ArrayList<Integer>();
-        List<List<LayoutToken>> listOfLEs = doc.getLexicalEntries();
-        int lexicalEntriesNumber = listOfLEs.size();
+        List<Pair<List<LayoutToken>,String>> bodyComponents = doc.getBodyComponents();
+        int lexicalEntriesNumber = bodyComponents.size();
 
         for (int i = 0; i < lexicalEntriesNumber; i++) {
-            int beginLEOffSet = listOfLEs.get(i).get(0).getOffset();
+            int beginLEOffSet = bodyComponents.get(i).getA().get(0).getOffset();
             lexicalEntriesOffsetArray.add(beginLEOffSet);
         }
 
         Boolean bigEntryIsInsideDetected = false;
-        List<List<LayoutToken>> lexicalEntriesSubList = new ArrayList<>();
+        List<Pair<List<LayoutToken>,String>>lexicalEntriesSubList = new ArrayList<>();
         if (lexicalEntriesNumber > pagesNumber) {
             tei.append("\t\t<fw " + "type=\"header\">");
             tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
@@ -181,13 +178,14 @@ public class TEIDictionaryFormatter {
                         bigEntryIsInsideDetected = true;
                         break;
                     }
-                    lexicalEntriesSubList = listOfLEs.subList(lexicalEntryBeginIndex, k);
+                    lexicalEntriesSubList = bodyComponents.subList(lexicalEntryBeginIndex, k);
                     int subListSize = lexicalEntriesSubList.size();
-                    List<LayoutToken> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
+                    Pair<List<LayoutToken>,String> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
 
                     //Check if the last entry in the page is cut by the footer and header
-                    if (lastEntryInSublist.get(lastEntryInSublist.size() - 1).getOffset() <= newPageOffset) {
-                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
+                    if (lastEntryInSublist.getA().get(lastEntryInSublist.getA().size() - 1).getOffset() <= newPageOffset) {
+                        for (Pair<List<LayoutToken>,String> bodyComponent : lexicalEntriesSubList) {
+                            List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                             tei.append(createMyXMLString("entry", clusterContent));
                         }
@@ -231,9 +229,9 @@ public class TEIDictionaryFormatter {
 
                     } else {
                         int indexOfLastTokenInThePage = 0;
-                        List<LayoutToken> lexicalEntry = listOfLEs.get(k);
+                        List<LayoutToken> lexicalEntry = bodyComponents.get(k).getA();
 
-                        for (LayoutToken token : lastEntryInSublist) {
+                        for (LayoutToken token : lastEntryInSublist.getA()) {
                             //Check offset of each token in the LE to insert the header and footer blocks
                             if (token.getOffset() < newPageOffset) {
 
@@ -247,12 +245,12 @@ public class TEIDictionaryFormatter {
 
 
                         for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++) {
-                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h)));
+                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntriesSubList.get(h).getA()));
                             tei.append(createMyXMLString("entry", clusterContent));
                         }
 
-                        List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.subList(0, indexOfLastTokenInThePage);
-                        List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.subList(indexOfLastTokenInThePage, lastEntryInSublist.size());
+                        List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.getA().subList(0, indexOfLastTokenInThePage);
+                        List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.getA().subList(indexOfLastTokenInThePage, lastEntryInSublist.getA().size());
                         //Compound the last entry in tokens and insert the oher page blocks
                         textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
 
@@ -294,10 +292,11 @@ public class TEIDictionaryFormatter {
 
                     }
                     if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
-                        lexicalEntriesSubList = listOfLEs.subList(k, listOfLEs.size());
+                        lexicalEntriesSubList = bodyComponents.subList(k, bodyComponents.size());
 
 
-                        for (List<LayoutToken> allTokensOfaLE : lexicalEntriesSubList) {
+                        for (Pair<List<LayoutToken>,String> bodyComponent : lexicalEntriesSubList) {
+                            List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                             tei.append(createMyXMLString("entry", clusterContent));
                         }
@@ -332,8 +331,8 @@ public class TEIDictionaryFormatter {
             } else {
                 // In this case, the input file has just one page
 
-                for (List<LayoutToken> lexialEntry : listOfLEs) {
-                    String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+                for (Pair<List<LayoutToken>,String> bodyComponent : bodyComponents) {
+                    String clusterContent = LayoutTokensUtil.normalizeText(bodyComponent.getA());
                     tei.append(createMyXMLString("entry", clusterContent));
                 }
 
@@ -364,9 +363,19 @@ public class TEIDictionaryFormatter {
                     tei.append("</fw>");
                 }
 
-                for (List<LayoutToken> lexialEntry : listOfLEs) {
-                    String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
-                    tei.append(createMyXMLString("entry", clusterContent));
+                for (Pair<List<LayoutToken>,String> bodyComponent : bodyComponents) {
+                    String clusterContent = LayoutTokensUtil.normalizeText(bodyComponent.getA());
+                    if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)){
+                        tei.append(createMyXMLString("entry", clusterContent));
+                    }
+                    else if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_BODY_OTHER)){
+                        tei.append(createMyXMLString("other", clusterContent));
+
+                    }else {
+                        tei.append(createMyXMLString("pc", clusterContent));
+
+                    }
+
                 }
 
                 for (DocumentPiece footer : footNotesOfAllPages) {
@@ -395,8 +404,8 @@ public class TEIDictionaryFormatter {
                 tei.append("</fw>");
             }
 
-            for (List<LayoutToken> lexialEntry : listOfLEs) {
-                String clusterContent = LayoutTokensUtil.normalizeText(lexialEntry);
+            for (Pair<List<LayoutToken>,String> bodyComponent : bodyComponents) {
+                String clusterContent = LayoutTokensUtil.normalizeText(bodyComponent.getA());
                 tei.append(createMyXMLString("entry", clusterContent));
             }
 
