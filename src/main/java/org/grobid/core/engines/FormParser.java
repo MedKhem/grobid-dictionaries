@@ -1,5 +1,6 @@
 package org.grobid.core.engines;
 
+import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.TaggingLabel;
@@ -16,9 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 
 /**
  * Created by lfoppiano on 05/05/2017.
@@ -43,9 +46,9 @@ public class FormParser extends AbstractParser {
         instance = new FormParser();
     }
 
-    public SimpleLabeled process(List<LayoutToken> formEntry) {
-
-        StringBuilder sb = new StringBuilder();
+    public StringBuilder processToTEI(List<LayoutToken> formEntry) {
+        //This method is used by the parent parser to get the TEI to include the general TEI output
+        StringBuilder featureMatrix = new StringBuilder();
         String previousFont = null;
         String fontStatus = null;
         String lineStatus = null;
@@ -101,41 +104,61 @@ public class FormParser extends AbstractParser {
             FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
                     lineStatus, fontStatus);
 
-            sb.append(featureVectorForm.printVector() + "\n");
+            featureMatrix.append(featureVectorForm.printVector() + "\n");
         }
 
-        String features = sb.toString();
+        String features = featureMatrix.toString();
         String output = label(features);
 
 
-        SimpleLabeled simpleLabeled = transformResponse(output, formEntry);
+        LabeledLexicalInformation labeledForm = process(output, formEntry);
 
-        return simpleLabeled;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<form>").append("\n");
+        StringBuilder gramGrp = new StringBuilder();
+        for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
+            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
+            String labelForm = entryForm.getB();
+
+            String content = TextUtilities.HTMLEncode(tokenForm);
+            content = content.replace("&lt;lb/&gt;", "<lb/>");
+            if (!labelForm.equals("<gramGrp>")) {
+                sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+            } else if (labelForm.equals("<gramGrp>")) {
+                gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+            }
+        }
+        sb.append("</form>").append("\n");
+        sb.append(gramGrp.toString()).append("\n");
+
+
+        return sb;
 
     }
 
-    public SimpleLabeled transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
+    public LabeledLexicalInformation process(String modelOutput, List<LayoutToken> layoutTokens) {
+        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
                 modelOutput, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        SimpleLabeled simpleLabeled = new SimpleLabeled();
 
+        LabeledLexicalInformation labelledLayoutTokens = new LabeledLexicalInformation();
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
                 continue;
             }
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
             Engine.getCntManager().i((TaggingLabel) clusterLabel);
-
-            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
-            String text = LayoutTokensUtil.toText(concatenatedTokens);
             String tagLabel = clusterLabel.getLabel();
+            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
 
-            simpleLabeled.addLabel(new Pair(text, tagLabel));
+            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens,tagLabel));
+
         }
 
-        return simpleLabeled;
+        return labelledLayoutTokens;
 
     }
 }

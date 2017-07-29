@@ -1,5 +1,6 @@
 package org.grobid.core.engines;
 
+import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.TaggingLabel;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 
 /**
  * Created by lfoppiano on 05/05/2017.
@@ -45,9 +47,9 @@ public class SenseParser extends AbstractParser {
         instance = new SenseParser();
     }
 
-    public SimpleLabeled process(List<LayoutToken> senseEntry) {
-
-        StringBuilder sb = new StringBuilder();
+    public StringBuilder processToTEI(List<LayoutToken> senseEntry) {
+        //This method is used by the parent parser to get the TEI to include the general TEI output
+        StringBuilder featureMatrix = new StringBuilder();
         String previousFont = null;
         String fontStatus = null;
         String lineStatus = null;
@@ -100,28 +102,44 @@ public class SenseParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorSense featureVectorForm = FeatureVectorSense.addFeaturesSense(token, "",
+            FeatureVectorSense featureVectorSense = FeatureVectorSense.addFeaturesSense(token, "",
                     lineStatus, fontStatus);
 
-            sb.append(featureVectorForm.printVector() + "\n");
+            featureMatrix.append(featureVectorSense.printVector() + "\n");
         }
 
-        String features = sb.toString();
+        String features = featureMatrix.toString();
         String output = label(features);
 
 
-        SimpleLabeled labeledSense = transformResponse(output, senseEntry);
+        LabeledLexicalInformation labeledSense = process(output, senseEntry);
+        StringBuilder sb = new StringBuilder();
 
-        return labeledSense;
+        sb.append("<sense>").append("\n");
+        //I apply the form also to the sense to recognise the grammatical group, if any!
+
+        for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
+            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
+            String labelSense = entrySense.getB();
+
+            String content = TextUtilities.HTMLEncode(tokenSense);
+            content = content.replace("&lt;lb/&gt;", "<lb/>");
+
+            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+
+        }
+        sb.append("</sense>").append("\n");
+        return sb;
 
     }
 
-    public SimpleLabeled transformResponse(String modelOutput, List<LayoutToken> layoutTokens) {
+    public LabeledLexicalInformation process(String modelOutput, List<LayoutToken> layoutTokens) {
+        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SENSE,
                 modelOutput, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        SimpleLabeled labeledSense = new SimpleLabeled();
+        LabeledLexicalInformation labelledLayoutTokens = new LabeledLexicalInformation();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -129,15 +147,14 @@ public class SenseParser extends AbstractParser {
             }
             TaggingLabel clusterLabel = cluster.getTaggingLabel();
             Engine.getCntManager().i((TaggingLabel) clusterLabel);
-
-            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
-            String text = LayoutTokensUtil.toText(concatenatedTokens);
             String tagLabel = clusterLabel.getLabel();
+            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
 
-            labeledSense.addLabel(new Pair(text, tagLabel));
+
+            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens,tagLabel));
         }
 
-        return labeledSense;
+        return labelledLayoutTokens;
 
     }
 }
