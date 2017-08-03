@@ -236,7 +236,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         return doc;
     }
 
-    public String process(File originFile) {
+    public String processToTEI(File originFile) {
         // GrobidConfig needs to be always initiated before calling initiateProcessing()
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
         DictionaryDocument doc = initiateProcessing(originFile, config);

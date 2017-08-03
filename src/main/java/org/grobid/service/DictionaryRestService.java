@@ -62,7 +62,7 @@ public class DictionaryRestService implements DictionaryPaths {
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream);
+        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream,PATH_DICTIONARY_BODY_SEGMENTATATION);
     }
 
     @Path(PATH_LEXICAL_ENTRY)
@@ -70,7 +70,7 @@ public class DictionaryRestService implements DictionaryPaths {
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processLexicalEntries(inputStream);
+        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY);
     }
 
     @Path(PATH_FULL_DICTIONARY)
@@ -78,6 +78,6 @@ public class DictionaryRestService implements DictionaryPaths {
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processFullDictionary(inputStream);
+        return DictionaryProcessFile.processFullDictionary(inputStream, PATH_FULL_DICTIONARY);
     }
 }
