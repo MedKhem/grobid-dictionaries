@@ -17,6 +17,9 @@ public class LabeledLexicalInformation {
     public boolean addLabel(Pair<List<LayoutToken>, String> label) {
         return labels.add(label);
     }
+    public boolean addLabels(List<Pair<List<LayoutToken>, String>> labels) {
+        return labels.addAll(labels);
+    }
 
     public List<Pair<List<LayoutToken>, String>> getLabels() {
         return labels;

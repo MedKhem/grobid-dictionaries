@@ -49,14 +49,40 @@ public class SenseParser extends AbstractParser {
 
     public StringBuilder processToTEI(List<LayoutToken> senseEntry) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
+
+
+
+        LabeledLexicalInformation labeledSense = process(senseEntry);
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<sense>").append("\n");
+        //I apply the form also to the sense to recognise the grammatical group, if any!
+
+        for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
+            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
+            String labelSense = entrySense.getB();
+
+            String content = TextUtilities.HTMLEncode(tokenSense);
+            content = content.replace("&lt;lb/&gt;", "<lb/>");
+
+            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+
+        }
+        sb.append("</sense>").append("\n");
+        return sb;
+
+    }
+
+    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
+        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
         StringBuilder featureMatrix = new StringBuilder();
         String previousFont = null;
         String fontStatus = null;
         String lineStatus = null;
 
         int counter = 0;
-        int nbToken = senseEntry.size();
-        for (LayoutToken token : senseEntry) {
+        int nbToken = layoutTokens.size();
+        for (LayoutToken token : layoutTokens) {
             String text = token.getText();
             text = text.replace(" ", "");
 
@@ -83,14 +109,14 @@ public class SenseParser extends AbstractParser {
                 Boolean afterNextTokenIsNewLineAfter = false;
 
                 //The existence of the previousToken and nextToken is already check.
-                previousTokenText = senseEntry.get(counter - 1).getText();
-                previousTokenIsNewLineAfter = senseEntry.get(counter - 1).isNewLineAfter();
-                nextTokenText = senseEntry.get(counter + 1).getText();
-                nextTokenIsNewLineAfter = senseEntry.get(counter + 1).isNewLineAfter();
+                previousTokenText = layoutTokens.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = layoutTokens.get(counter - 1).isNewLineAfter();
+                nextTokenText = layoutTokens.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = layoutTokens.get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (senseEntry.get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = senseEntry.get(counter + 2).isNewLineAfter();
+                if ((nbToken > counter + 2) && (layoutTokens.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = layoutTokens.get(counter + 2).isNewLineAfter();
                 }
 
                 lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
@@ -110,33 +136,8 @@ public class SenseParser extends AbstractParser {
 
         String features = featureMatrix.toString();
         String output = label(features);
-
-
-        LabeledLexicalInformation labeledSense = process(output, senseEntry);
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<sense>").append("\n");
-        //I apply the form also to the sense to recognise the grammatical group, if any!
-
-        for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
-            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
-            String labelSense = entrySense.getB();
-
-            String content = TextUtilities.HTMLEncode(tokenSense);
-            content = content.replace("&lt;lb/&gt;", "<lb/>");
-
-            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
-
-        }
-        sb.append("</sense>").append("\n");
-        return sb;
-
-    }
-
-    public LabeledLexicalInformation process(String modelOutput, List<LayoutToken> layoutTokens) {
-        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SENSE,
-                modelOutput, layoutTokens);
+                output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
         LabeledLexicalInformation labelledLayoutTokens = new LabeledLexicalInformation();

@@ -1,6 +1,7 @@
 package org.grobid.core.document;
 
 import org.grobid.core.data.LabeledLexicalEntry;
+import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.utilities.Pair;
 
@@ -12,8 +13,8 @@ import java.util.SortedSet;
  * Created by med on 08.11.16.
  */
 public class DictionaryDocument extends Document {
-    private List<Pair<List<LayoutToken>,String>> bodyComponents= new ArrayList<>();
-    private List<Pair<List<LayoutToken>,String>> labeledLexicalEntries = new ArrayList<>();
+    private LabeledLexicalInformation bodyComponents = new LabeledLexicalInformation();
+
 
     public DictionaryDocument(Document document) {
         super(document.documentSource);
@@ -41,11 +42,11 @@ public class DictionaryDocument extends Document {
             return getDocumentPieceText(getDocumentDictionaryPart(segmentationLabel));
         }
     }
-    public void setBodyComponents(List<Pair<List<LayoutToken>,String>> LTs){
+    public void setBodyComponents(LabeledLexicalInformation LTs){
         this.bodyComponents = LTs;
     }
 
-    public List<Pair<List<LayoutToken>,String>> getBodyComponents(){
+    public LabeledLexicalInformation getBodyComponents(){
         if (this.bodyComponents == null) {
             LOGGER.debug("bodyComponents block is null");
             return null;
@@ -55,11 +56,5 @@ public class DictionaryDocument extends Document {
         }
     }
 
-    public List<Pair<List<LayoutToken>,String>> getLabeledLexicalEntries() {
-        return labeledLexicalEntries;
-    }
 
-    public void setLabeledLexicalEntries(List<Pair<List<LayoutToken>,String>> labeledLexicalEntries) {
-        this.labeledLexicalEntries = labeledLexicalEntries;
-    }
 }

@@ -48,14 +48,45 @@ public class FormParser extends AbstractParser {
 
     public StringBuilder processToTEI(List<LayoutToken> formEntry) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
+
+
+        LabeledLexicalInformation labeledForm = process(formEntry);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<form type=\"Lemma\">").append("\n");
+        StringBuilder gramGrp = new StringBuilder();
+        for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
+            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
+            String labelForm = entryForm.getB();
+
+            String content = TextUtilities.HTMLEncode(tokenForm);
+            content = content.replace("&lt;lb/&gt;", "<lb/>");
+            if (!labelForm.equals("<gramGrp>")) {
+                sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+            } else if (labelForm.equals("<gramGrp>")) {
+                gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+            }
+        }
+        sb.append(gramGrp.toString()).append("\n");
+        sb.append("</form>").append("\n");
+
+
+        return sb;
+
+    }
+
+    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
+        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
+
         StringBuilder featureMatrix = new StringBuilder();
         String previousFont = null;
         String fontStatus = null;
         String lineStatus = null;
 
         int counter = 0;
-        int nbToken = formEntry.size();
-        for (LayoutToken token : formEntry) {
+        int nbToken = layoutTokens.size();
+        for (LayoutToken token : layoutTokens) {
             String text = token.getText();
             text = text.replace(" ", "");
 
@@ -82,14 +113,14 @@ public class FormParser extends AbstractParser {
                 Boolean afterNextTokenIsNewLineAfter = false;
 
                 //The existence of the previousToken and nextToken is already check.
-                previousTokenText = formEntry.get(counter - 1).getText();
-                previousTokenIsNewLineAfter = formEntry.get(counter - 1).isNewLineAfter();
-                nextTokenText = formEntry.get(counter + 1).getText();
-                nextTokenIsNewLineAfter = formEntry.get(counter + 1).isNewLineAfter();
+                previousTokenText = layoutTokens.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = layoutTokens.get(counter - 1).isNewLineAfter();
+                nextTokenText = layoutTokens.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = layoutTokens.get(counter + 1).isNewLineAfter();
 
                 // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (formEntry.get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = formEntry.get(counter + 2).isNewLineAfter();
+                if ((nbToken > counter + 2) && (layoutTokens.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = layoutTokens.get(counter + 2).isNewLineAfter();
                 }
 
                 lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
@@ -110,37 +141,8 @@ public class FormParser extends AbstractParser {
         String features = featureMatrix.toString();
         String output = label(features);
 
-
-        LabeledLexicalInformation labeledForm = process(output, formEntry);
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<form>").append("\n");
-        StringBuilder gramGrp = new StringBuilder();
-        for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
-            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
-            String labelForm = entryForm.getB();
-
-            String content = TextUtilities.HTMLEncode(tokenForm);
-            content = content.replace("&lt;lb/&gt;", "<lb/>");
-            if (!labelForm.equals("<gramGrp>")) {
-                sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-            } else if (labelForm.equals("<gramGrp>")) {
-                gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-            }
-        }
-        sb.append("</form>").append("\n");
-        sb.append(gramGrp.toString()).append("\n");
-
-
-        return sb;
-
-    }
-
-    public LabeledLexicalInformation process(String modelOutput, List<LayoutToken> layoutTokens) {
-        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
-                modelOutput, layoutTokens);
+                output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
 

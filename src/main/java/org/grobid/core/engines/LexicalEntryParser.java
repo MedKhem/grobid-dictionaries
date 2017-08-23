@@ -56,61 +56,28 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
-//        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-//        //Initiate processing to be moved to the previous parser
-//        DictionaryDocument doc = initiateProcess(originFile);
-//
-//        LabeledLexicalInformation entriesWithBodyElements = new LabeledLexicalInformation();
-//        entriesWithBodyElements.setLabels(doc.getBodyComponents());
-//
-//
-//
-//
-//        for (Pair<List<LayoutToken>, String> aPairElement : entriesWithBodyElements.getLabels()) {
-//            String label = aPairElement.getB();
-//            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(aPairElement.getA()));
-
-//            if (label.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-//                List<LayoutToken> entry = aPairElement.getA();
 
 
+        // Get the clustors of token in the LE
+        LabeledLexicalInformation labeledEntry = process(entry, DICTIONARY_ENTRY_LABEL);
 
 
-                    // Get the clustors of token in the LE
-                    LabeledLexicalInformation labeledEntry = process(entry, DICTIONARY_ENTRY_LABEL);
+        //According the request, either show the text of the lexical entry or process its components
+
+        if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
+            //In the simple case, just return segmentation of the LE
+            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
+                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+            }
+        } else {
+            //In the complete case, parse the component of the LE
+            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
+                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
+            }
 
 
-                    //According the request, either show the text of the lexical entry or process its components
-//                    bodyWithSegmentedLexicalEntries.append("<entry>");
-                    if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
-                        //In the simple case, just return segmentation of the LE
-                        for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
-                            bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
-                        }
-                    } else {
-                        //In the complete case, parse the component of the LE
+        }
 
-                        for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
-                            bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
-                        }
-
-
-                    }
-//                    bodyWithSegmentedLexicalEntries.append("</entry>");
-
-
-
-
-
-//            } else {
-//                //if the bodyComponent is not a LE, then just display in text format with its corresponding label (other or pc)
-//                produceXmlNode(bodyWithSegmentedLexicalEntries, clusterContent, label);
-//            }
-
-//        }
-
-//        String LEs = new TEIDictionaryFormatter(doc)
-//                .toTEIFormatLexicalEntry(config, null, bodyWithSegmentedLexicalEntries.toString()).toString();
         return bodyWithSegmentedLexicalEntries.toString();
     }
 
@@ -129,7 +96,7 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
 
-    public LabeledLexicalInformation process( List<LayoutToken> entry, String parentTag) {
+    public LabeledLexicalInformation process(List<LayoutToken> entry, String parentTag) {
         LabeledLexicalInformation labeledLexicalEntry = new LabeledLexicalInformation();
 
         LayoutTokenization layoutTokenization = new LayoutTokenization(entry);
@@ -335,7 +302,7 @@ public class LexicalEntryParser extends AbstractParser {
         StringBuffer rawtxt = new StringBuffer();
 
         StringBuffer lexicalEntries = new StringBuffer();
-        for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents()) {
+        for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
             if (lexicalEntryLayoutTokens.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 for (LayoutToken txtline : lexicalEntryLayoutTokens.getA()) {

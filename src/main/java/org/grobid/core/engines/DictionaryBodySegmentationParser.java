@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 import static org.grobid.core.engines.label.TaggingLabels.OTHER_LABEL;
 import static org.grobid.service.DictionaryPaths.PATH_DICTIONARY_BODY_SEGMENTATATION;
@@ -47,6 +47,15 @@ import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 public class DictionaryBodySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     private static volatile DictionaryBodySegmentationParser instance;
+    private SortedSet<DocumentPiece> headNotesOfAllPages ;
+    private SortedSet<DocumentPiece> footNotesOfAllPages ;
+    private SortedSet<DocumentPiece> otherOfAllPages ;
+
+
+    int pagesNumber;
+    int currentHeadIndex;
+    int currentFootIndex;
+    int currentOtherIndex;
 
     public DictionaryBodySegmentationParser() {
 
@@ -102,7 +111,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             String labeledFeatures = null;
 
 
-            List<Pair<List<LayoutToken>, String>> structuredBody = null;
+            LabeledLexicalInformation structuredBody = new LabeledLexicalInformation();
             if (bodytextFeatured != null) {
                 // if bodytextFeatured is null, it usually means that no body segment is found in the
                 // document segmentation
@@ -125,14 +134,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     }
 
 
-    public static List<Pair<List<LayoutToken>, String>> extractBodyComponents(LayoutTokenization layoutTokenization, String contentFeatured) {
+    public static LabeledLexicalInformation extractBodyComponents(LayoutTokenization layoutTokenization, String contentFeatured) {
         //Extract the lexical entries in a clusters of tokens for each lexical entry, ponctuation and other parts
         List<LayoutToken> tokenizations = layoutTokenization.getTokenization();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, contentFeatured, tokenizations);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
-        List<Pair<List<LayoutToken>, String>> list1 = new ArrayList<>();
+        LabeledLexicalInformation list1 = new LabeledLexicalInformation();
 
         for (TaggingTokenCluster cluster : clusters) {
             if (cluster == null) {
@@ -144,11 +153,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                list1.add(new Pair(cluster.concatTokens(), tagLabel));
+                list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
-                list1.add(new Pair(cluster.concatTokens(), tagLabel));
+                list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-                list1.add(new Pair(cluster.concatTokens(), tagLabel));
+                list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
@@ -250,15 +259,15 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         StringBuilder tei = formatHeader(config, schemaDeclaration, doc);
         tei.append(headerTEI);
 
-        SortedSet<DocumentPiece> headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
-        SortedSet<DocumentPiece> footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
-        SortedSet<DocumentPiece> otherOfAllPages = doc.getDocumentDictionaryPart(OTHER_LABEL);
+        headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
+        footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
+        otherOfAllPages = doc.getDocumentDictionaryPart(OTHER_LABEL);
 
 
-        int pagesNumber = doc.getPages().size();
-        int currentHeadIndex = 1;
-        int currentFootIndex = 0;
-        int currentOtherIndex = 0;
+        pagesNumber = doc.getPages().size();
+        currentHeadIndex = 1;
+        currentFootIndex = 0;
+        currentOtherIndex = 0;
         LayoutToken lastVisitedLayoutToken = new LayoutToken();
         lastVisitedLayoutToken.setPage(1);
 
@@ -278,11 +287,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         // Prepare an offset based index for LEs
         List<Integer> lexicalEntriesOffsetArray = new ArrayList<Integer>();
-        List<Pair<List<LayoutToken>, String>> bodyComponents = doc.getBodyComponents();
-        int lexicalEntriesNumber = bodyComponents.size();
+        LabeledLexicalInformation bodyComponents = doc.getBodyComponents();
+        int lexicalEntriesNumber = bodyComponents.getLabels().size();
 
         for (int i = 0; i < lexicalEntriesNumber; i++) {
-            int beginLEOffSet = bodyComponents.get(i).getA().get(0).getOffset();
+            int beginLEOffSet = bodyComponents.getLabels().get(i).getA().get(0).getOffset();
             lexicalEntriesOffsetArray.add(beginLEOffSet);
         }
 
@@ -314,12 +323,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             bigEntryIsInsideDetected = true;
                             break;
                         }
-                        lexicalEntriesSubList = bodyComponents.subList(lexicalEntryBeginIndex, k);
+                        lexicalEntriesSubList = bodyComponents.getLabels().subList(lexicalEntryBeginIndex, k);
                         int subListSize = lexicalEntriesSubList.size();
                         Pair<List<LayoutToken>, String> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
 
                         //Check if the last entry in the page is cut by the footer and header
-                        if (lastEntryInSublist.getA().get(lastEntryInSublist.getA().size() - 1).getOffset() <= newPageOffset) {
+                        if (lastEntryInSublist.getA().get(lastEntryInSublist.getA().size() - 1).getOffset() < newPageOffset) {
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
                                 List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                                 String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
@@ -327,46 +336,13 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                                // This is caused by the forced check of the footnote'a index and its supposed page
-                                // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                                tei.append("\t\t<fw type=\"footer\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                currentFootIndex++;
-                                tei.append("</fw>");
-                                tei.append("\n");
-//                                }
-                            }
-
-
-                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                // Same logic as the footnote
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                                tei.append("\t\t<other>");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                currentOtherIndex++;
-                                tei.append("</other>");
-                                tei.append("\n");
-//                                }
-                            }
-
-                            tei.append("<pb/>");
-
-                            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-                                tei.append("\t\t<fw type=\"header\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                                currentHeadIndex++;
-                                tei.append("</fw>");
-
-                            }
+                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
 
 
                         } else {
                             List<LayoutToken> textToShowInTokens = new ArrayList<>();
                             int indexOfLastTokenInThePage = 0;
-                            List<LayoutToken> lexicalEntry = bodyComponents.get(k).getA();
+                            List<LayoutToken> lexicalEntry = bodyComponents.getLabels().get(k).getA();
 
                             for (LayoutToken token : lastEntryInSublist.getA()) {
                                 //Check offset of each token in the LE to insert the header and footer blocks
@@ -395,34 +371,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
 
 
-                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
-                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                currentFootIndex++;
-                                textToShowInTokens.add(new LayoutToken("</fw>"));
-                                textToShowInTokens.add(new LayoutToken("\n"));
-
-                            }
-
-
-                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                textToShowInTokens.add(new LayoutToken("\t\t<other>"));
-                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                currentOtherIndex++;
-                                textToShowInTokens.add(new LayoutToken("</other>"));
-                                textToShowInTokens.add(new LayoutToken("\n"));
-                            }
-
-
-                            textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
-
-                            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-
-                                textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
-                                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                                currentHeadIndex++;
-                                textToShowInTokens.add(new LayoutToken("</fw>"));
-                            }
+                            treatEndOfSplitPage(textToShowInTokens,doc);
 
 
                             textToShowInTokens.addAll(restOfLexicalEntryTokens);
@@ -432,7 +381,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                         }
                         if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
-                            lexicalEntriesSubList = bodyComponents.subList(k, bodyComponents.size());
+                            lexicalEntriesSubList = bodyComponents.getLabels().subList(k, bodyComponents.getLabels().size());
 
 
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
@@ -443,27 +392,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                                // This is caused by the forced check of the footnote'a index and its supposed page
-                                // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-                                tei.append("\t\t<fw type=\"footer\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                currentFootIndex++;
-                                tei.append("</fw>");
-                                tei.append("\n");
-
-                            }
-
-
-                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                // Same logic as the footnote
-                                tei.append("\t\t<other>");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                currentOtherIndex++;
-                                tei.append("</other>");
-                                tei.append("\n");
-                            }
+                            treatEndOfLastPage(tei,doc);
 
 
                         }
@@ -472,30 +401,16 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 } else {
                     // In this case, the input file has just one page
 
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
+                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                         String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                         String tagLabel = bodyComponent.getB();
                         produceXmlNode(tei, clusterContent, tagLabel);
                     }
 
-                    for (DocumentPiece footer : footNotesOfAllPages) {
-
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
-                    }
+                    simpleDisplayEndOfPage(tei,doc);
 
 
-                    for (DocumentPiece other : otherOfAllPages) {
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-                    }
 
                 }
                 if (bigEntryIsInsideDetected) {
@@ -506,7 +421,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         tei.append("</fw>");
                     }
 
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
+                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                         String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                         String tagLabel = bodyComponent.getB();
@@ -516,21 +431,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                     }
 
-                    for (DocumentPiece footer : footNotesOfAllPages) {
+                    simpleDisplayEndOfPage(tei,doc);
 
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
-                    }
-                    for (DocumentPiece other : otherOfAllPages) {
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-                    }
+
                 }
             } else {
                 // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
@@ -542,28 +445,16 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     tei.append("</fw>");
                 }
 
-                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
+                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                     String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                     String tagLabel = bodyComponent.getB();
                     produceXmlNode(tei, clusterContent, tagLabel);
                 }
 
-                for (DocumentPiece footer : footNotesOfAllPages) {
+                simpleDisplayEndOfPage(tei,doc);
 
-                    tei.append("\t\t<fw type=\"footer\">");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                    currentFootIndex++;
-                    tei.append("</fw>");
-                    tei.append("\n");
-                }
-                for (DocumentPiece other : otherOfAllPages) {
-                    tei.append("\t\t<other>");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                    currentOtherIndex++;
-                    tei.append("</other>");
-                    tei.append("\n");
-                }
+
 
 
             }
@@ -594,7 +485,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             bigEntryIsInsideDetected = true;
                             break;
                         }
-                        lexicalEntriesSubList = bodyComponents.subList(lexicalEntryBeginIndex, k);
+                        lexicalEntriesSubList = bodyComponents.getLabels().subList(lexicalEntryBeginIndex, k);
                         int subListSize = lexicalEntriesSubList.size();
                         LabeledLexicalInformation lastEntryInSublist = lexicalEntryParser.process(lexicalEntriesSubList.get(subListSize - 1).getA(), DICTIONARY_ENTRY_LABEL);
 
@@ -615,40 +506,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                                // This is caused by the forced check of the footnote'a index and its supposed page
-                                // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                                tei.append("\t\t<fw type=\"footer\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                currentFootIndex++;
-                                tei.append("</fw>");
-                                tei.append("\n");
-//                                }
-                            }
-
-
-                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                // Same logic as the footnote
-//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-                                tei.append("\t\t<other>");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                currentOtherIndex++;
-                                tei.append("</other>");
-                                tei.append("\n");
-//                                }
-                            }
-
-                            tei.append("<pb/>");
-
-                            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-                                tei.append("\t\t<fw type=\"header\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                                currentHeadIndex++;
-                                tei.append("</fw>");
-
-                            }
+                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
 
 
                         } else {
@@ -703,32 +561,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     textToShowInTokens.addAll(firstPartOfSplitComponent);
 
 
-                                    if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                        textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
-                                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                        currentFootIndex++;
-                                        textToShowInTokens.add(new LayoutToken("</fw>"));
-                                        textToShowInTokens.add(new LayoutToken("\n"));
-
-                                    }
-
-
-                                    if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                        textToShowInTokens.add(new LayoutToken("\t\t<other>"));
-                                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                        currentOtherIndex++;
-                                        textToShowInTokens.add(new LayoutToken("</other>"));
-                                        textToShowInTokens.add(new LayoutToken("\n"));
-                                    }
-                                    textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
-
-                                    if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-
-                                        textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
-                                        textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-                                        currentHeadIndex++;
-                                        textToShowInTokens.add(new LayoutToken("</fw>"));
-                                    }
+                                    treatEndOfSplitPage(textToShowInTokens,doc);
 
 
                                     textToShowInTokens.addAll(restOfSplitComponentTokens);
@@ -746,7 +579,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                         }
                         if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
-                            lexicalEntriesSubList = bodyComponents.subList(k, bodyComponents.size());
+                            lexicalEntriesSubList = bodyComponents.getLabels().subList(k, bodyComponents.getLabels().size());
 
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
                                 List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
@@ -761,27 +594,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
-                                // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
-                                // This is caused by the forced check of the footnote'a index and its supposed page
-                                // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
-                                tei.append("\t\t<fw type=\"footer\">");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
-                                currentFootIndex++;
-                                tei.append("</fw>");
-                                tei.append("\n");
-
-                            }
-
-
-                            if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-                                // Same logic as the footnote
-                                tei.append("\t\t<other>");
-                                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
-                                currentOtherIndex++;
-                                tei.append("</other>");
-                                tei.append("\n");
-                            }
+                            treatEndOfLastPage(tei,doc);
 
 
                         }
@@ -790,7 +603,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 } else {
                     // In this case, the input file has just one page
 
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
+                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                         String clusterContent;
                         String tagLabel = bodyComponent.getB();
@@ -802,64 +615,15 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         produceXmlNode(tei, clusterContent, tagLabel);
                     }
 
-                    for (DocumentPiece footer : footNotesOfAllPages) {
-
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
-                    }
+                    simpleDisplayEndOfPage(tei,doc);
 
 
-                    for (DocumentPiece other : otherOfAllPages) {
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-                    }
 
                 }
                 if (bigEntryIsInsideDetected) {
                     tei = headerTEI;
-                    for (DocumentPiece header : headNotesOfAllPages) {
-                        tei.append("\t\t<fw type=\"header\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                        tei.append("</fw>");
-                    }
+                    tei = bigEntryFormat(modelToRun, tei, bodyComponents, doc);
 
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
-                        List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
-                        String clusterContent;
-                        String tagLabel = bodyComponent.getB();
-
-                        if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-                            clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                        } else {
-                            clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
-                        }
-//                        if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                        produceXmlNode(tei, clusterContent, tagLabel);
-//                        }
-
-                    }
-
-                    for (DocumentPiece footer : footNotesOfAllPages) {
-
-                        tei.append("\t\t<fw type=\"footer\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                        currentFootIndex++;
-                        tei.append("</fw>");
-                        tei.append("\n");
-                    }
-                    for (DocumentPiece other : otherOfAllPages) {
-                        tei.append("\t\t<other>");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                        currentOtherIndex++;
-                        tei.append("</other>");
-                        tei.append("\n");
-                    }
                 }
             } else {
                 // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
@@ -871,7 +635,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     tei.append("</fw>");
                 }
 
-                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents) {
+                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                     String clusterContent;
                     String tagLabel = bodyComponent.getB();
@@ -883,27 +647,275 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     produceXmlNode(tei, clusterContent, tagLabel);
                 }
 
-                for (DocumentPiece footer : footNotesOfAllPages) {
+                simpleDisplayEndOfPage(tei,doc);
 
-                    tei.append("\t\t<fw type=\"footer\">");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-                    currentFootIndex++;
-                    tei.append("</fw>");
-                    tei.append("\n");
-                }
-                for (DocumentPiece other : otherOfAllPages) {
-                    tei.append("\t\t<other>");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-                    currentOtherIndex++;
-                    tei.append("</other>");
-                    tei.append("\n");
-                }
+
 
 
             }
 
         } else if (modelToRun.equals(PATH_FULL_DICTIONARY)) {
+            LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+            FormParser formParser = new FormParser();
+            SenseParser senseParser = new SenseParser();
+            if (lexicalEntriesNumber > pagesNumber) {
+                tei.append("\t\t<fw " + "type=\"header\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+                tei.append("</fw>\n");
 
+
+                if (pagesOffsetArray.size() > 1) {
+                    int k = 0;
+                    int lexicalEntryBeginIndex;
+                    for (int pageOffsetIndex = 1; pageOffsetIndex <= pagesOffsetArray.size() - 1; pageOffsetIndex++) {
+
+                        int newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
+                        lexicalEntryBeginIndex = k;
+                        // Check if the lexical entries are recognized (exist)
+                        if (k < lexicalEntriesOffsetArray.size()) {
+                            while (lexicalEntriesOffsetArray.get(k) < newPageOffset) {
+                                k++;
+                            }
+                        }
+                        if (lexicalEntryBeginIndex >= k) {
+                            // When entry is on more than one page, this is considered as anomaly for the moment. So quit and show in second form of the output
+                            bigEntryIsInsideDetected = true;
+                            break;
+                        }
+                        lexicalEntriesSubList = bodyComponents.getLabels().subList(lexicalEntryBeginIndex, k);
+                        int subListSize = lexicalEntriesSubList.size();
+                        LabeledLexicalInformation lastEntryInSublist = lexicalEntryParser.process(lexicalEntriesSubList.get(subListSize - 1).getA(), DICTIONARY_ENTRY_LABEL);
+
+                        //Check if the last entry in the page is cut by the footer and header
+                        List<LayoutToken> lastComponent = lastEntryInSublist.getLabels().get(lastEntryInSublist.getLabels().size() - 1).getA();
+
+                        if (lastComponent.get(lastComponent.size() - 1).getOffset() < newPageOffset) {
+                            for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
+                                List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
+                                String clusterContent="";
+                                String tagLabel = bodyComponent.getB();
+                                if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                                    clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+                                }else {
+                                    LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
+                                    for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
+                                        if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                                            clusterContent = clusterContent + formParser.processToTEI(segmentedEntryComponent.getA()).toString();
+
+                                        } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_SENSE_LABEL)) {
+
+                                            clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
+                                        } else {
+                                            String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
+                                            clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));
+
+
+                                        }
+
+                                    }
+
+                                }
+                                produceXmlNode(tei, clusterContent, tagLabel);
+                            }
+
+
+                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
+
+
+                        } else {
+                            List<LayoutToken> textToShowInTokens = new ArrayList<>();
+
+
+                            //Parse all components of the lexical entries, which come just before the last LE
+                            for (int h = 0; h < lexicalEntriesSubList.size() - 1; h++) {
+                                Pair<List<LayoutToken>, String> bodyComponent = lexicalEntriesSubList.get(h);
+                                processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+
+                            }
+                            //Take care of the components of the last LE to wrap the split element
+                            boolean splitProcessed = false;
+                            int indexOfLastTokenInThePage;
+
+
+                            for (int h = 0; h < lastEntryInSublist.getLabels().size(); h++) {
+                                LabeledLexicalInformation segmentedEntryComponent = new LabeledLexicalInformation();
+                                String tagOfSplitEntryComponent = lastEntryInSublist.getLabels().get(h).getB();
+                                List<LayoutToken> componentOfLastLexicalEntry = lastEntryInSublist.getLabels().get(h).getA();
+                                //Gather all segmented forms, senses..
+                                if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_FORM_LABEL) || tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
+                                    if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                                        segmentedEntryComponent.setLabels(formParser.process(componentOfLastLexicalEntry).getLabels());
+                                    }
+                                    if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
+                                        segmentedEntryComponent.setLabels(senseParser.process(componentOfLastLexicalEntry).getLabels());
+                                    }
+                                    // lastSecondLevelComponent could be, for example, a component of form or sense
+                                    List<LayoutToken> lastSecondLevelComponent = segmentedEntryComponent.getLabels().get(segmentedEntryComponent.getLabels().size() - 1).getA();
+                                    if (lastSecondLevelComponent.get(lastSecondLevelComponent.size() - 1).getOffset() >= newPageOffset) {
+                                        //Parse all the components in form, sense.., to find the split token or just to add the component to the textToShowInTokens
+
+                                        //Insert first the segmentedEntry label in textToShowInTokens
+                                        textToShowInTokens.add(new LayoutToken(tagOfSplitEntryComponent));
+                                        for (Pair<List<LayoutToken>, String> secondLevelComponent : segmentedEntryComponent.getLabels()) {
+                                            indexOfLastTokenInThePage = 0;
+                                            LayoutToken lastTokenOfTheSecondLevelComponent = secondLevelComponent.getA().get(secondLevelComponent.getA().size() - 1);
+
+                                            if ((lastTokenOfTheSecondLevelComponent.getOffset() >= newPageOffset) && (splitProcessed == false)) {
+                                                splitProcessed = true;
+                                                for (LayoutToken token : secondLevelComponent.getA()) {
+                                                    if (token.getOffset() < newPageOffset) {
+                                                        //Increment until the split token is found
+                                                        indexOfLastTokenInThePage++;
+
+                                                    } else {
+                                                        //The split token is found, so wrap the current component
+                                                        List<LayoutToken> firstPartOfSplitComponent = lastSecondLevelComponent.subList(0, indexOfLastTokenInThePage);
+                                                        List<LayoutToken> restOfSplitComponentTokens = lastSecondLevelComponent.subList(indexOfLastTokenInThePage, lastSecondLevelComponent.size());
+
+                                                        //Wrap the second level element
+                                                        textToShowInTokens.add(new LayoutToken(secondLevelComponent.getB()));
+                                                        textToShowInTokens.addAll(firstPartOfSplitComponent);
+
+
+                                                        treatEndOfSplitPage(textToShowInTokens,doc);
+
+
+                                                        textToShowInTokens.addAll(restOfSplitComponentTokens);
+                                                        textToShowInTokens.add(new LayoutToken(secondLevelComponent.getB().replace("<", "</")));
+                                                        break;
+                                                    }
+
+                                                }
+
+                                            } else {
+                                                //if the split component is not the current or if it's already processed
+                                                textToShowInTokens.add(new LayoutToken(secondLevelComponent.getB()));
+                                                textToShowInTokens.addAll(secondLevelComponent.getA());
+                                                textToShowInTokens.add(new LayoutToken(secondLevelComponent.getB().replace("<", "</")));
+                                            }
+                                        }
+
+                                        textToShowInTokens.add(new LayoutToken(tagOfSplitEntryComponent.replace("<", "</")));
+
+
+                                    } else {
+                                        //Case where there is nothing to split
+                                        String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
+                                        String   formattedSecondLevelComponent = checkFullABodyComponentToTEI(tag,componentOfLastLexicalEntry,modelToRun);
+                                        textToShowInTokens.add(new LayoutToken(createMyXMLString(tag, formattedSecondLevelComponent)));
+                                    }
+
+
+                                } else {
+                                    // Elements not yet segmented (like other or pc) add them as well
+                                    //Find first the split token (like in the lexical entry level)
+
+
+                                    //if the last token of the component is on the second page && the split is not yet processed, then split
+                                    if ((componentOfLastLexicalEntry.get(componentOfLastLexicalEntry.size() - 1).getOffset() > newPageOffset) && (splitProcessed == false)) {
+                                        indexOfLastTokenInThePage = 0;
+                                        textToShowInTokens = new ArrayList<>();
+
+                                        //Find first the token just before the split
+                                        for (Pair<List<LayoutToken>, String> entryComponent : lastEntryInSublist.getLabels()) {
+                                            //Check offset of each token in the LE to insert the header and footer blocks
+                                            LayoutToken lastTokenOfTheEntryComponent = entryComponent.getA().get(entryComponent.getA().size() - 1);
+
+                                            if (lastTokenOfTheEntryComponent.getOffset() > newPageOffset) {
+                                                for (LayoutToken token : entryComponent.getA()) {
+                                                    if (token.getOffset() < newPageOffset) {
+                                                        indexOfLastTokenInThePage++;
+                                                    } else {
+                                                        break;
+                                                    }
+
+                                                }
+                                                break;
+                                            }
+
+                                        }
+                                        splitProcessed = true;
+                                        List<LayoutToken> firstPartOfSplitComponent = componentOfLastLexicalEntry.subList(0, indexOfLastTokenInThePage);
+                                        List<LayoutToken> restOfSplitComponentTokens = componentOfLastLexicalEntry.subList(indexOfLastTokenInThePage, componentOfLastLexicalEntry.size());
+
+                                        //Compound the element to split in tokens and insert the oher page blocks
+                                        textToShowInTokens.add(new LayoutToken(tagOfSplitEntryComponent));
+                                        textToShowInTokens.addAll(firstPartOfSplitComponent);
+
+
+                                        treatEndOfSplitPage(textToShowInTokens,doc);
+
+
+                                        textToShowInTokens.addAll(restOfSplitComponentTokens);
+                                        textToShowInTokens.add(new LayoutToken(tagOfSplitEntryComponent.replace("<", "</")));
+
+                                    } else {
+                                        String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
+                                        textToShowInTokens.add(new LayoutToken(createMyXMLString(tag, LayoutTokensUtil.toText(componentOfLastLexicalEntry))));
+                                    }
+
+
+
+                                }
+
+
+                            }
+                            String tagLabel = lexicalEntriesSubList.get(lexicalEntriesSubList.size() - 1).getB();
+                            String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
+                            produceXmlNode(tei, clusterContent, tagLabel);
+
+
+                        }
+                        if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
+                            lexicalEntriesSubList = bodyComponents.getLabels().subList(k, bodyComponents.getLabels().size());
+
+                            for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
+                                processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                            }
+
+
+                            treatEndOfLastPage(tei,doc);
+
+
+                        }
+                    }
+
+                } else {
+                    // In this case, the input file has just one page
+
+                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
+                        processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                    }
+
+                    simpleDisplayEndOfPage(tei,doc);
+
+
+
+                }
+                if (bigEntryIsInsideDetected) {
+                    tei = headerTEI;
+                    tei = bigEntryFormat(modelToRun, tei, bodyComponents, doc);
+
+                }
+            } else {
+                // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
+
+
+                for (DocumentPiece header : headNotesOfAllPages) {
+                    tei.append("\t\t<fw type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                    tei.append("</fw>");
+                }
+
+                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
+                    processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                }
+
+                simpleDisplayEndOfPage(tei,doc);
+
+
+
+            }
         } else {
 
         }
@@ -1075,6 +1087,197 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         xmlStringElement.append("\n");
 
         return xmlStringElement.toString();
+    }
+
+    public StringBuilder bigEntryFormat(String modelToRun, StringBuilder tei, LabeledLexicalInformation bodyComponents, DictionaryDocument doc) {
+
+
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+        FormParser formParser = new FormParser();
+        SenseParser senseParser = new SenseParser();
+        for (DocumentPiece header : headNotesOfAllPages) {
+            tei.append("\t\t<fw type=\"header\">");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+            tei.append("</fw>");
+        }
+
+        for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
+            List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
+            String clusterContent = "";
+            String tagLabel = bodyComponent.getB();
+            if (modelToRun.equals(PATH_DICTIONARY_BODY_SEGMENTATATION)) {
+
+            } else if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
+
+                if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                    clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+                } else {
+                    clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
+                }
+
+            } else if (modelToRun.equals(PATH_FULL_DICTIONARY)) {
+                LabeledLexicalInformation segmentedEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
+                for (Pair<List<LayoutToken>, String> entryComoonent : segmentedEntry.getLabels()) {
+
+
+                }
+
+            }
+
+
+//                        if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+            produceXmlNode(tei, clusterContent, tagLabel);
+//                        }
+
+        }
+
+        simpleDisplayEndOfPage(tei,doc);
+
+
+
+        return tei;
+    }
+    private void treatEndOfPageAndBeginingOfSecondPage(StringBuilder tei, DictionaryDocument doc){
+        if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
+            // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
+            // This is caused by the forced check of the footnote'a index and its supposed page
+            // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
+//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
+            tei.append("\t\t<fw type=\"footer\">");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+            currentFootIndex++;
+            tei.append("</fw>");
+            tei.append("\n");
+//                                }
+        }
+
+
+        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+            // Same logic as the footnote
+//                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
+            tei.append("\t\t<other>");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+            currentOtherIndex++;
+            tei.append("</other>");
+            tei.append("\n");
+//                                }
+        }
+
+        tei.append("<pb/>");
+
+        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
+            tei.append("\t\t<fw type=\"header\">");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+            currentHeadIndex++;
+            tei.append("</fw>");
+
+        }
+    }
+    private void simpleDisplayEndOfPage(StringBuilder tei, DictionaryDocument doc){
+        for (DocumentPiece footer : footNotesOfAllPages) {
+
+            tei.append("\t\t<fw type=\"footer\">");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
+            currentFootIndex++;
+            tei.append("</fw>");
+            tei.append("\n");
+        }
+        for (DocumentPiece other : otherOfAllPages) {
+            tei.append("\t\t<other>");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
+            currentOtherIndex++;
+            tei.append("</other>");
+            tei.append("\n");
+        }
+
+    }
+    private void treatEndOfLastPage(StringBuilder tei, DictionaryDocument doc){
+        if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
+            // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
+            // This is caused by the forced check of the footnote'a index and its supposed page
+            // Need to choose between showing things in their right spots or show them and it  doesn't matter if they are correctly labelled
+            tei.append("\t\t<fw type=\"footer\">");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+            currentFootIndex++;
+            tei.append("</fw>");
+            tei.append("\n");
+
+        }
+
+
+        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+            // Same logic as the footnote
+            tei.append("\t\t<other>");
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+            currentOtherIndex++;
+            tei.append("</other>");
+            tei.append("\n");
+        }
+    }
+    private void treatEndOfSplitPage(List<LayoutToken> textToShowInTokens, DictionaryDocument doc){
+        if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
+            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
+            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
+            currentFootIndex++;
+            textToShowInTokens.add(new LayoutToken("</fw>"));
+            textToShowInTokens.add(new LayoutToken("\n"));
+
+        }
+
+
+        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+            textToShowInTokens.add(new LayoutToken("\t\t<other>"));
+            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+            currentOtherIndex++;
+            textToShowInTokens.add(new LayoutToken("</other>"));
+            textToShowInTokens.add(new LayoutToken("\n"));
+        }
+        textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
+
+        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
+
+            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
+            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+            currentHeadIndex++;
+            textToShowInTokens.add(new LayoutToken("</fw>"));
+        }
+    }
+    private void processFullABodyComponentToTEI(Pair<List<LayoutToken>, String> bodyComponent, StringBuilder tei, String modelToRun){
+        String clusterContent="";
+        List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
+
+        String tagLabel = bodyComponent.getB();
+        clusterContent = checkFullABodyComponentToTEI(tagLabel, allTokensOfaLE, modelToRun);
+
+        produceXmlNode(tei, clusterContent, tagLabel);
+    }
+    private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun){
+        String clusterContent="";
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+        FormParser formParser = new FormParser();
+        SenseParser senseParser = new SenseParser();
+        if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+            clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+        }else {
+            LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
+            for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
+                if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                    clusterContent = clusterContent + formParser.processToTEI(segmentedEntryComponent.getA()).toString();
+
+                } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_SENSE_LABEL)) {
+
+                    clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
+                } else {
+                    String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
+                    clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));
+
+
+                }
+
+            }
+
+        }
+        return clusterContent;
     }
 
 }
