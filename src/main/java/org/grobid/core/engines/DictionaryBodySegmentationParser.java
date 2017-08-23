@@ -1155,10 +1155,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
             // Same logic as the footnote
 //                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
-            tei.append("\t\t<other>");
+            tei.append("\t\t<dictScrap>");
             tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
             currentOtherIndex++;
-            tei.append("</other>");
+            tei.append("</dictScrap>");
             tei.append("\n");
 //                                }
         }
@@ -1183,10 +1183,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             tei.append("\n");
         }
         for (DocumentPiece other : otherOfAllPages) {
-            tei.append("\t\t<other>");
+            tei.append("\t\t<dictScrap>");
             tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
             currentOtherIndex++;
-            tei.append("</other>");
+            tei.append("</dictScrap>");
             tei.append("\n");
         }
 
@@ -1207,10 +1207,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
             // Same logic as the footnote
-            tei.append("\t\t<other>");
+            tei.append("\t\t<dictScrap>");
             tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
             currentOtherIndex++;
-            tei.append("</other>");
+            tei.append("</dictScrap>");
             tei.append("\n");
         }
     }
@@ -1226,10 +1226,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
         if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
-            textToShowInTokens.add(new LayoutToken("\t\t<other>"));
+            textToShowInTokens.add(new LayoutToken("\t\t<dictScrap>"));
             textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
             currentOtherIndex++;
-            textToShowInTokens.add(new LayoutToken("</other>"));
+            textToShowInTokens.add(new LayoutToken("</dictScrap>"));
             textToShowInTokens.add(new LayoutToken("\n"));
         }
         textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));

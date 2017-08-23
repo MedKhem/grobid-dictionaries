@@ -90,7 +90,7 @@ public class TEIDictionarySegmentationSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(4));
 
-        assertThat(labeled.get(0), is("bonjour I-<other>\n"));
+        assertThat(labeled.get(0), is("bonjour I-<dictScrap>\n"));
     }
 
 }

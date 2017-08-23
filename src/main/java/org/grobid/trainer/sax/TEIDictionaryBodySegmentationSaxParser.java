@@ -78,7 +78,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
-                // For text outside the entry tags that will go to <other>
+                // For text outside the entry tags that will go to <dictScrap>
                 currentTag = "<pc>";
                 writeData(qName, false);
 
@@ -103,7 +103,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
                     currentTags.pop();
                 }
             }
-            // For text outside the entry tags that will go to <other>
+            // For text outside the entry tags that will go to <dictScrap>
             if(qName.equals("body")){
                 currentTag = "<pc>";
             }

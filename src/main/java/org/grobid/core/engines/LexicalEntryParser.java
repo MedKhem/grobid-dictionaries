@@ -162,7 +162,7 @@ public class LexicalEntryParser extends AbstractParser {
 //
 //                    String content = TextUtilities.HTMLEncode(tokenForm);
 //                    content = content.replace("&lt;lb/&gt;", "<lb/>");
-//                    if (!labelForm.equals("<other>")) {
+//                    if (!labelForm.equals("<dictScrap>")) {
 //                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
 //                    } else {
 //                        sb.append(content);

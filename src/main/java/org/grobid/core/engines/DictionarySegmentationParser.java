@@ -1020,7 +1020,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<pc>", "<pc>", addSpace, 3);
                 }
                 if (!output) {
-                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
+                    output = writeFieldForTrainingData(buffer, line, s1, lastTag0, s2, "<dictScrap>", "<dictScrap>", addSpace, 3);
                 }
 
                 lastTag = s1;
@@ -1173,7 +1173,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<pc>", "<pc>", addSpace, 3);
                 }
                 if (!output) {
-                    output = writeField(buffer, line, s1, lastTag0, s2, "<other>", "<other>", addSpace, 3);
+                    output = writeField(buffer, line, s1, lastTag0, s2, "<dictScrap>", "<dictScrap>", addSpace, 3);
                 }
 
                 lastTag = s1;
@@ -1307,8 +1307,8 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append("</ab>");
             } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</fw>");
-            } else if (lastTag0.equals("<other>")) {
-                buffer.append("</other>");
+            } else if (lastTag0.equals("<dictScrap>")) {
+                buffer.append("</dictScrap>");
             } else if (lastTag0.equals("<pc>")) {
                 buffer.append("</pc>");
             } else {
@@ -1339,8 +1339,8 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append("</body>");
             } else if (lastTag0.equals("<footnote>")) {
                 buffer.append("</footnote>");
-            } else if (lastTag0.equals("<other>")) {
-                buffer.append("</other>");
+            } else if (lastTag0.equals("<dictScrap>")) {
+                buffer.append("</dictScrap>");
             } else if (lastTag0.equals("<pc>")) {
                 buffer.append("</pc>");
             } else {

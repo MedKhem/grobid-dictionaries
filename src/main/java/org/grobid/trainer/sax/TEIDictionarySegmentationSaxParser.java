@@ -82,7 +82,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (!isBlank(text)) {
-                // For text outside the three principle tags that will go to <other>
+                // For text outside the three principle tags that will go to <dictScrap>
                 currentTag = "<pc>";
                 writeData(qName, false);
 
