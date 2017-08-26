@@ -9,6 +9,22 @@
 
 GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning library, for structuring digitized lexical resources. It allows the parsing, extraction and structuring of text information in such resources. 
 
+## To Cite
+
+Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands. <hal-01508868>
+
+>@inproceedings{khemakhem:hal-01508868,
+  TITLE = {{Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields}},
+  AUTHOR = {Khemakhem, Mohamed and Foppiano, Luca and Romary, Laurent},
+  URL = {https://hal.archives-ouvertes.fr/hal-01508868},
+  BOOKTITLE = {{electronic lexicography, eLex 2017}},
+  ADDRESS = {Leiden, Netherlands},
+  YEAR = {2017},
+  MONTH = Sep,
+  KEYWORDS = {machine learning ;  CRF ;  TEI ;  automatic structuring ;  digitized dictionaries },
+  HAL_ID = {hal-01508868},
+}
+
 ## Approach
 
 GROBID-Dictionaries is based on cascading CRF models. The diagram below presents the architecture enabling the processing and the transfer of the text information through the models.
