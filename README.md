@@ -11,19 +11,21 @@ GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning
 
 ## To Cite
 
-Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands. <hal-01508868>
-
->@inproceedings{khemakhem:hal-01508868,
-  TITLE = {{Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields}},
-  AUTHOR = {Khemakhem, Mohamed and Foppiano, Luca and Romary, Laurent},
-  URL = {https://hal.archives-ouvertes.fr/hal-01508868},
-  BOOKTITLE = {{electronic lexicography, eLex 2017}},
-  ADDRESS = {Leiden, Netherlands},
-  YEAR = {2017},
-  MONTH = Sep,
-  KEYWORDS = {machine learning ;  CRF ;  TEI ;  automatic structuring ;  digitized dictionaries },
-  HAL_ID = {hal-01508868},
-}
+Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands. <hal-01508868v2>
+```@inproceedings{khemakhem:hal-01508868,
+     TITLE = {{Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields}},
+     AUTHOR = {Khemakhem, Mohamed and Foppiano, Luca and Romary, Laurent},
+     URL = {https://hal.archives-ouvertes.fr/hal-01508868},
+     BOOKTITLE = {{electronic lexicography, eLex 2017}},
+     ADDRESS = {Leiden, Netherlands},
+     YEAR = {2017},
+     MONTH = Sep,
+     KEYWORDS = { digitized dictionaries  ;  automatic structuring ;  CRF ;  TEI ; machine learning},
+     PDF = {https://hal.archives-ouvertes.fr/hal-01508868/file/eLex-2017-Template.pdf},
+     HAL_ID = {hal-01508868},
+     HAL_VERSION = {v2},
+   }
+```
 
 ## Approach
 
