@@ -100,7 +100,7 @@ public class TEIDictionarySegmentationSaxParser extends DefaultHandler {
         if ( (qName.equals("body")||
                 (qName.equals("headnote"))) ||
                 (qName.equals("footnote"))||
-        (qName.equals("other")) ||
+        (qName.equals("dictScrap")) ||
                 (qName.equals("text")) ) {
             if (currentTag == null) {
                 return;

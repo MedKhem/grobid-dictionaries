@@ -34,12 +34,11 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 import static org.grobid.core.engines.label.TaggingLabels.OTHER_LABEL;
-import static org.grobid.service.DictionaryPaths.PATH_DICTIONARY_BODY_SEGMENTATATION;
-import static org.grobid.service.DictionaryPaths.PATH_FULL_DICTIONARY;
-import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
+import static org.grobid.service.DictionaryPaths.*;
 
 /**
  * Created by med on 02.08.16.
@@ -916,7 +915,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
             }
-        } else {
+        } else  {
 
         }
 
@@ -1069,8 +1068,20 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else {
+            buffer.append(createMyXMLString("attForm", clusterContent));
+        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("etymRel", clusterContent));
+        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("seg", clusterContent));
+        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("litCitation", clusterContent));
+        }else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
     }
@@ -1256,6 +1267,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
+        EtymParser etymParser = new EtymParser();
         if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
             clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
         }else {
@@ -1267,6 +1279,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_SENSE_LABEL)) {
 
                     clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
+                } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
+
+                    clusterContent = clusterContent + etymParser.processToTei(segmentedEntryComponent.getA()).toString();
                 } else {
                     String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
                     clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));

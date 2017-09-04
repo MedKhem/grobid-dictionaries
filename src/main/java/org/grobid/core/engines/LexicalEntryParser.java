@@ -308,22 +308,23 @@ public class LexicalEntryParser extends AbstractParser {
                 for (LayoutToken txtline : lexicalEntryLayoutTokens.getA()) {
                     rawtxt.append(txtline.getText());
                 }
+                lexicalEntries.append("<entry>");
+                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getA());
+                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                String labeledFeatures = null;
+                // if featSeg is null, it usually means that no body segment is found in the
+
+                if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                    featureWriter.write(featSeg + "\n");
+
+                    labeledFeatures = label(featSeg);
+                    lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                }
+                lexicalEntries.append("</entry>");
             }
 
 
-            lexicalEntries.append("<entry>");
-            LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getA());
-            String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-            String labeledFeatures = null;
-            // if featSeg is null, it usually means that no body segment is found in the
 
-            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                featureWriter.write(featSeg);
-
-                labeledFeatures = label(featSeg);
-                lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
-            }
-            lexicalEntries.append("</entry>");
         }
 
         //Writing RAW file (only text)

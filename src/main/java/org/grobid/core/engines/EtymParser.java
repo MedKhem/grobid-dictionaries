@@ -1,11 +1,14 @@
 package org.grobid.core.engines;
 
+import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.features.FeatureVectorForm;
+import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesUtils;
 import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.layout.LayoutToken;
+import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
@@ -18,6 +21,9 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.service.DictionaryPaths.PATH_FULL_DICTIONARY;
+import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 
 /**
  * Created by Med on 26.08.17.
@@ -42,121 +48,57 @@ public class EtymParser extends AbstractParser {
         instance = new FormParser();
     }
 
-    public StringBuilder processToTEI(List<LayoutToken> formEntry) {
-        //This method is used by the parent parser to get the TEI to include the general TEI output
-
-
-        LabeledLexicalInformation labeledForm = process(formEntry);
-
+    public StringBuilder processToTei(List<LayoutToken> etymEntry) {
+        LabeledLexicalInformation labeledSense = process(etymEntry, PATH_FULL_DICTIONARY);
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<form type=\"Lemma\">").append("\n");
-        StringBuilder gramGrp = new StringBuilder();
-        for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
-            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
-            String labelForm = entryForm.getB();
+        sb.append("<etym>").append("\n");
+        //I apply the form also to the sense to recognise the grammatical group, if any!
 
-            String content = TextUtilities.HTMLEncode(tokenForm);
+        for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
+            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
+            String labelSense = entrySense.getB();
+
+            String content = TextUtilities.HTMLEncode(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
-            if (!labelForm.equals("<gramGrp>")) {
-                sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-            } else if (labelForm.equals("<gramGrp>")) {
-                gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-            }
+
+            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+
         }
-        sb.append(gramGrp.toString()).append("\n");
-        sb.append("</form>").append("\n");
-
-
+        sb.append("</etym>").append("\n");
         return sb;
 
     }
 
-    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
-        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
+    public LabeledLexicalInformation process(List<LayoutToken> etymEntry, String parentTag) {
+        LabeledLexicalInformation labeledLexicalEntry = new LabeledLexicalInformation();
 
-        StringBuilder featureMatrix = new StringBuilder();
-        String previousFont = null;
-        String fontStatus = null;
-        String lineStatus = null;
+        LayoutTokenization layoutTokenization = new LayoutTokenization(etymEntry);
 
-        int counter = 0;
-        int nbToken = layoutTokens.size();
-        for (LayoutToken token : layoutTokens) {
-            String text = token.getText();
-            text = text.replace(" ", "");
+        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization(), DICTIONARY_ENTRY_LABEL).toString();
 
-            if (TextUtilities.filterLine(text) || isBlank(text)) {
-                counter++;
-                continue;
-            }
-            if (text.equals("\n") || text.equals("\r") || (text.equals("\n\r"))) {
-                counter++;
-                continue;
-            }
+        if (StringUtils.isNotBlank(featSeg)) {
+            // Run the lexical entry model to label the features
+            String modelOutput = label(featSeg);
+            TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.ETYM, modelOutput, etymEntry);
 
-            // First token
-            if (counter - 1 < 0) {
-                lineStatus = LineStatus.LINE_START.toString();
-            } else if (counter + 1 == nbToken) {
-                // Last token
-                lineStatus = LineStatus.LINE_END.toString();
-            } else {
-                String previousTokenText;
-                Boolean previousTokenIsNewLineAfter;
-                String nextTokenText;
-                Boolean nextTokenIsNewLineAfter;
-                Boolean afterNextTokenIsNewLineAfter = false;
+            List<TaggingTokenCluster> clusters = clusteror.cluster();
 
-                //The existence of the previousToken and nextToken is already check.
-                previousTokenText = layoutTokens.get(counter - 1).getText();
-                previousTokenIsNewLineAfter = layoutTokens.get(counter - 1).isNewLineAfter();
-                nextTokenText = layoutTokens.get(counter + 1).getText();
-                nextTokenIsNewLineAfter = layoutTokens.get(counter + 1).isNewLineAfter();
-
-                // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (layoutTokens.get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = layoutTokens.get(counter + 2).isNewLineAfter();
+            for (TaggingTokenCluster cluster : clusters) {
+                if (cluster == null) {
+                    continue;
                 }
+                TaggingLabel clusterLabel = cluster.getTaggingLabel();
+                Engine.getCntManager().i((TaggingLabel) clusterLabel);
 
-                lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
+                List<LayoutToken> concatenatedTokens = cluster.concatTokens();
+                String tagLabel = clusterLabel.getLabel();
 
+                labeledLexicalEntry.addLabel(new Pair(concatenatedTokens, tagLabel));
             }
-            counter++;
-
-            String[] returnedFont = FeaturesUtils.checkFontStatus(token.getFont(), previousFont);
-            previousFont = returnedFont[0];
-            fontStatus = returnedFont[1];
-
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
-                    lineStatus, fontStatus);
-
-            featureMatrix.append(featureVectorForm.printVector() + "\n");
         }
 
-        String features = featureMatrix.toString();
-        String output = label(features);
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.ETYM,
-                output, layoutTokens);
-
-        List<TaggingTokenCluster> clusters = clusteror.cluster();
-
-        LabeledLexicalInformation labelledLayoutTokens = new LabeledLexicalInformation();
-        for (TaggingTokenCluster cluster : clusters) {
-            if (cluster == null) {
-                continue;
-            }
-            TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i((TaggingLabel) clusterLabel);
-            String tagLabel = clusterLabel.getLabel();
-            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
-
-            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens,tagLabel));
-
-        }
-
-        return labelledLayoutTokens;
-
+        return labeledLexicalEntry;
     }
 }

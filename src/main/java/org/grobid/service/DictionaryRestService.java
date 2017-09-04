@@ -80,4 +80,5 @@ public class DictionaryRestService implements DictionaryPaths {
     public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processFullDictionary(inputStream, PATH_FULL_DICTIONARY);
     }
+
 }
