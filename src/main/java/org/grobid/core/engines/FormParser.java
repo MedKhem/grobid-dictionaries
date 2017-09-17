@@ -54,7 +54,7 @@ public class FormParser extends AbstractParser {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<form type=\"Lemma\">").append("\n");
+        sb.append("<form type=\"lemma\">").append("\n");
         StringBuilder gramGrp = new StringBuilder();
         for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
             String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
@@ -65,11 +65,17 @@ public class FormParser extends AbstractParser {
             if (!labelForm.equals("<gramGrp>")) {
                 sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
             } else if (labelForm.equals("<gramGrp>")) {
-                gramGrp.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                gramGrp.append("<gramGrp>");
+                gramGrp.append(createMyXMLString("pos", content));
+                gramGrp.append("</gramGrp>").append("\n");
             }
         }
-        sb.append(gramGrp.toString()).append("\n");
+
         sb.append("</form>").append("\n");
+        if(gramGrp.length() > 0){
+            sb.append(gramGrp.toString()).append("\n");
+        }
+
 
 
         return sb;

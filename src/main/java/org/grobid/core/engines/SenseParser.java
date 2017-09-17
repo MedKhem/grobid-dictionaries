@@ -65,7 +65,15 @@ public class SenseParser extends AbstractParser {
             String content = TextUtilities.HTMLEncode(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
-            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+
+            if (labelSense.equals("<gramGrp>")) {
+                sb.append("<gramGrp>");
+                sb.append(createMyXMLString("pos", content));
+                sb.append("</gramGrp>").append("\n");
+            }
+            else {
+                sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+            }
 
         }
         sb.append("</sense>").append("\n");
