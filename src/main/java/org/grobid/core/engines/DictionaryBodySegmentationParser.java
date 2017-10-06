@@ -1267,7 +1267,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
-        EtymParser etymParser = new EtymParser();
+        EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
         if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
             clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
         }else {
@@ -1281,7 +1281,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
 
-                    clusterContent = clusterContent + etymParser.processToTei(segmentedEntryComponent.getA()).toString();
+                    clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
                 } else {
                     String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
                     clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));

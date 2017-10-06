@@ -1,4 +1,5 @@
 package org.grobid.trainer.sax;
+
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -13,9 +14,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 
 /**
- * Created by Med on 04.09.17.
+ * Created by Med on 06.10.17.
  */
-public class TEIEtymSaxParser extends DefaultHandler {
+public class TEIEtymQuoteSaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null; // current accumulated text
 
@@ -24,7 +25,7 @@ public class TEIEtymSaxParser extends DefaultHandler {
     private List<String> labeled = null; // store line by line the labeled data
     private String parentTag = LEXICAL_ENTRY_ETYM_LABEL;
 
-    public TEIEtymSaxParser() {
+    public TEIEtymQuoteSaxParser() {
         labeled = new ArrayList<>();
         currentTags = new Stack<>();
         accumulator = new StringBuffer();
@@ -92,8 +93,7 @@ public class TEIEtymSaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("mentioned")) || (qName.equals("lang")) ||
-                (qName.equals("seg")) || (qName.equals("bibl")) || (qName.equals("def")) || (qName.equals("other"))) {
+        if ((qName.equals("seg"))  || (qName.equals("quote")) || (qName.equals("other"))) {
             if (currentTag == null) {
                 return;
             }
