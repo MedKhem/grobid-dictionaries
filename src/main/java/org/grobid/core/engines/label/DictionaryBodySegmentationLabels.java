@@ -13,12 +13,12 @@ public class DictionaryBodySegmentationLabels extends TaggingLabels {
 
     //Generic label PUNCTUATION
     public static final String PUNCTUATION_LABEL = "<pc>";
-    
+    public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
     public static final String DICTIONARY_ENTRY_LABEL = "<entry>";
 
     public static final TaggingLabel DICTIONARY_ENTRY = new TaggingLabelImpl(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, DICTIONARY_ENTRY_LABEL);
     public static final TaggingLabel DICTIONARY_BODY_PC = new TaggingLabelImpl(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, PUNCTUATION_LABEL);
-    public static final TaggingLabel DICTIONARY_BODY_OTHER = new TaggingLabelImpl(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, OTHER_LABEL);
+    public static final TaggingLabel DICTIONARY_BODY_OTHER = new TaggingLabelImpl(DictionaryModels.DICTIONARY_BODY_SEGMENTATION, DICTIONARY_DICTSCRAP_LABEL);
 
 
     static {

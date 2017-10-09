@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
-import static org.grobid.core.engines.label.TaggingLabels.OTHER_LABEL;
 
 /**
  * Created by med on 24.09.16.
@@ -70,7 +68,7 @@ public class TEIDictionaryFormatter {
             //For the result data (shown as result of applying the second model) any the text that is not contained between tags is removed (not like the following)
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(createMyXMLString("entry", clusterContent));
-            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                 buffer.append(clusterContent);
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                 buffer.append(clusterContent);

@@ -37,7 +37,7 @@ import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DIC
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
-import static org.grobid.core.engines.label.TaggingLabels.OTHER_LABEL;
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL;
 import static org.grobid.service.DictionaryPaths.*;
 
 /**
@@ -153,7 +153,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
-            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                 list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                 list1.addLabel(new Pair(cluster.concatTokens(), tagLabel));
@@ -260,7 +260,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
         footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
-        otherOfAllPages = doc.getDocumentDictionaryPart(OTHER_LABEL);
+        otherOfAllPages = doc.getDocumentDictionaryPart(DICTIONARY_DICTSCRAP_LABEL);
 
 
         pagesNumber = doc.getPages().size();
@@ -1037,10 +1037,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.OTHER_LABEL)) {
+        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("other", clusterContent));
+            buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
@@ -1064,7 +1064,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("other", clusterContent));
+            buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");

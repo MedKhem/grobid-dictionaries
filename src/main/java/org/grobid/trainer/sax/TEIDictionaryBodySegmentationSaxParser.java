@@ -94,7 +94,7 @@ public class TEIDictionaryBodySegmentationSaxParser extends DefaultHandler {
 
 
     private void writeData(String qName, boolean pop) {
-        if (qName.equals("entry") ||(qName.equals("body"))||(qName.equals("other"))) {
+        if (qName.equals("entry") ||(qName.equals("body"))||(qName.equals("dictScrap"))) {
             if (currentTag == null) {
                 return;
             }

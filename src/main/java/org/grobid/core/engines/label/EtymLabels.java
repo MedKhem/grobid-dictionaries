@@ -19,6 +19,7 @@ public class EtymLabels extends TaggingLabels {
     public static final String DEF_ETYM_LABEL = "<def>";
     //public static final String QUOTE_ETYM_LABEL = "<quote>";
     public static final String BIBL_ETYM_LABEL = "<bibl>";
+    public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
 
     public static final TaggingLabel ETYM_MENTIONED = new TaggingLabelImpl(DictionaryModels.ETYM, MENTIONED_ETYM_LABEL);
     public static final TaggingLabel ETYM_LANG = new TaggingLabelImpl(DictionaryModels.ETYM, LANG_ETYM_LABEL);
@@ -27,7 +28,7 @@ public class EtymLabels extends TaggingLabels {
    // public static final TaggingLabel ETYM_CIT = new TaggingLabelImpl(DictionaryModels.ETYM, CIT_ETYM_LABEL);
     //public static final TaggingLabel ETYM_QUOTE = new TaggingLabelImpl(DictionaryModels.ETYM, QUOTE_ETYM_LABEL);
     public static final TaggingLabel ETYM_BIBL = new TaggingLabelImpl(DictionaryModels.ETYM, BIBL_ETYM_LABEL);
-    public static final TaggingLabel FORM_OTHER = new TaggingLabelImpl(DictionaryModels.ETYM, OTHER_LABEL);
+    public static final TaggingLabel FORM_OTHER = new TaggingLabelImpl(DictionaryModels.ETYM, DICTIONARY_DICTSCRAP_LABEL);
     public static final TaggingLabel FORM_PUNCTUATION = new TaggingLabelImpl(DictionaryModels.ETYM, PUNCTUATION_LABEL);
 
     static {

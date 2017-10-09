@@ -14,10 +14,11 @@ public class EtymQuoteLabels  extends TaggingLabels {
     }
     public static final String SEG_ETYM_LABEL = "<seg>";
     public static final String QUOTE_ETYM_LABEL = "<quote>";
+    public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
 
     public static final TaggingLabel ETYM_SEG = new TaggingLabelImpl(DictionaryModels.ETYM, SEG_ETYM_LABEL);
     public static final TaggingLabel ETYM_QUOTE = new TaggingLabelImpl(DictionaryModels.ETYM, QUOTE_ETYM_LABEL);
-    public static final TaggingLabel FORM_OTHER = new TaggingLabelImpl(DictionaryModels.ETYM, OTHER_LABEL);
+    public static final TaggingLabel FORM_OTHER = new TaggingLabelImpl(DictionaryModels.ETYM, DICTIONARY_DICTSCRAP_LABEL);
     public static final TaggingLabel FORM_PUNCTUATION = new TaggingLabelImpl(DictionaryModels.ETYM, PUNCTUATION_LABEL);
 
     static {

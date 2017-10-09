@@ -93,7 +93,7 @@ public class TEIEtymQuoteSaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("seg"))  || (qName.equals("quote")) || (qName.equals("other"))) {
+        if ((qName.equals("seg"))  || (qName.equals("quote")) || (qName.equals("dictScrap"))) {
             if (currentTag == null) {
                 return;
             }

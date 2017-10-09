@@ -12,14 +12,16 @@ public class SenseLabels extends TaggingLabels {
     private SenseLabels() {
         super();
     }
+    public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
 
-    public static final TaggingLabel SENSE_SENSE = new TaggingLabelImpl(DictionaryModels.SENSE, LEXICAL_ENTRY_SENSE_LABEL);
+    public static final TaggingLabel SENSE_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.SENSE, DICTIONARY_DICTSCRAP_LABEL);
     public static final TaggingLabel SENSE_GRAMMATICAL_GROUP = new TaggingLabelImpl(DictionaryModels.SENSE, LEXICAL_ENTRY_SENSE_LABEL);
 
-
+    public static final TaggingLabel SENSE_SENSE = new TaggingLabelImpl(DictionaryModels.SENSE, LEXICAL_ENTRY_SENSE_LABEL);
     static {
         register(SENSE_SENSE);
         register(SENSE_GRAMMATICAL_GROUP);
+        register(SENSE_DICTSCRAP);
     }
     
 }
