@@ -2,7 +2,7 @@ package org.grobid.core.engines;
 
 import com.google.common.collect.Iterables;
 import org.grobid.core.data.LabeledLexicalInformation;
-import org.grobid.core.engines.label.LexicalEntryLabels;
+import org.grobid.core.engines.label.*;
 import org.grobid.core.layout.Page;
 import org.grobid.core.utilities.*;
 import org.apache.commons.io.FileUtils;
@@ -13,9 +13,6 @@ import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
-import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.layout.LayoutToken;
@@ -34,6 +31,8 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.EtymQuoteLabels.QUOTE_ETYM_LABEL;
+import static org.grobid.core.engines.label.EtymQuoteLabels.SEG_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
@@ -1065,22 +1064,34 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("attForm", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("etymRel", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+            buffer.append(createMyXMLString("quote", clusterContent));
+        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_SEG)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
+        } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("litCitation", clusterContent));
+            buffer.append(createMyXMLString("seg", clusterContent));
+        }else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("bibl", clusterContent));
+        }else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("def", clusterContent));
+        }else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("mentioned", clusterContent));
+        }else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
+//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            buffer.append(createMyXMLString("lang", clusterContent));
         }else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
@@ -1263,28 +1274,40 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         produceXmlNode(tei, clusterContent, tagLabel);
     }
     private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun){
-        String clusterContent="";
+        StringBuilder clusterContent= new StringBuilder();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
         EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
+        EtymParser etymParser = new EtymParser();
         if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+            clusterContent.append(LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE)));
         }else {
             LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
             for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
                 if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
-                    clusterContent = clusterContent + formParser.processToTEI(segmentedEntryComponent.getA()).toString();
+                    clusterContent.append(clusterContent + formParser.processToTEI(segmentedEntryComponent.getA()).toString());
 
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_SENSE_LABEL)) {
 
-                    clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
+                    clusterContent.append(clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString());
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
+                    // Get the result of the first level Etym parsing
+                    LabeledLexicalInformation parsedEtymSegOrQuote  = etymQuoteParser.process(segmentedEntryComponent.getA(),modelToRun);
+                    // For each <seg> or <quote> segment parse the etym information
+                    String etymTEIString;
+                    for (Pair<List<LayoutToken>, String> segmentedEtym : parsedEtymSegOrQuote.getLabels()) {
+                        etymTEIString="";
+                        etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getA()).toString();
 
-                    clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
+                        produceXmlNode(clusterContent, etymTEIString, segmentedEtym.getB());
+                    }
+                    //clusterContent.append(clusterContent + etymTEIString);
+
+                    //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
                 } else {
                     String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
-                    clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));
+                    clusterContent.append(clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA()))));
 
 
                 }
@@ -1292,7 +1315,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             }
 
         }
-        return clusterContent;
+        return clusterContent.toString();
     }
 
 }
