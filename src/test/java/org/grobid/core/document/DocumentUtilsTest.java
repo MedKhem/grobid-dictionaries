@@ -1,25 +1,16 @@
 package org.grobid.core.document;
 
-import com.google.common.collect.Iterables;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.Pair;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.SortedSet;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * Created by med on 20.10.16.
@@ -37,12 +28,6 @@ public class DocumentUtilsTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         LibraryLoader.load();
-        MockContext.setInitialContext();
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        MockContext.destroyInitialContext();
     }
 
 

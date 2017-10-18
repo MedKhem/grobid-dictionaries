@@ -9,9 +9,7 @@ import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.Pair;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,12 +33,6 @@ public class FeatureVectorLexicalEntryTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         LibraryLoader.load();
-        MockContext.setInitialContext();
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        MockContext.destroyInitialContext();
     }
 
     @Before

@@ -3,12 +3,10 @@ package org.grobid.service;
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.spi.resource.Singleton;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,18 +29,8 @@ public class DictionaryRestService implements DictionaryPaths {
     public DictionaryRestService() {
         LOGGER.info("Initiating Servlet DictionaryRestService");
         try {
-            InitialContext intialContext = new javax.naming.InitialContext();
-            String path2grobidHome = (String) intialContext.lookup("java:comp/env/org.grobid.home");
-            String path2grobidProperty = (String) intialContext.lookup("java:comp/env/org.grobid.property");
-
-            MockContext.setInitialContext(path2grobidHome, path2grobidProperty);
-
-            LOGGER.debug(path2grobidHome);
-            LOGGER.debug(path2grobidProperty);
-
             LibraryLoader.load();
             GrobidProperties.getInstance();
-
         } catch (final Exception exp) {
             LOGGER.error("GROBID Dictionaries initialisation failed: " + exp);
         }

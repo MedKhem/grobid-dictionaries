@@ -1,38 +1,20 @@
 package org.grobid.core.engines;
 
-import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
-import org.junit.AfterClass;
+import org.grobid.core.EngineMockTest;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 /**
  * Created by med on 07.12.16.
  */
-public class DictionaryBodySegmentationTest {
+public class DictionaryBodySegmentationTest extends EngineMockTest{
     DictionaryBodySegmentationParser target;
 
     @Before
     public void setUp() throws Exception {
         target = new DictionaryBodySegmentationParser();
-    }
-
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        LibraryLoader.load();
-        MockContext.setInitialContext();
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        MockContext.destroyInitialContext();
     }
 
 //    @Test

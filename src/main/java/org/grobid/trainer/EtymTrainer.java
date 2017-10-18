@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEIEtymSaxParser;
 
@@ -30,11 +29,9 @@ public class EtymTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
         GrobidProperties.getInstance();
         AbstractTrainer.runTraining(new EtymTrainer());
         AbstractTrainer.runEvaluation(new EtymTrainer());
-        MockContext.destroyInitialContext();
     }
 
     @Override

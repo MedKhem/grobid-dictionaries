@@ -2,10 +2,8 @@ package org.grobid.trainer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.grobid.core.GrobidModels;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
 
@@ -31,11 +29,9 @@ public class LexicalEntryTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
         GrobidProperties.getInstance();
         AbstractTrainer.runTraining(new LexicalEntryTrainer());
         AbstractTrainer.runEvaluation(new LexicalEntryTrainer());
-        MockContext.destroyInitialContext();
     }
 
     @Override

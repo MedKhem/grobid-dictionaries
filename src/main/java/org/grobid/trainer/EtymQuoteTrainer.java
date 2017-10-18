@@ -4,10 +4,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEIEtymQuoteSaxParser;
-import org.grobid.trainer.sax.TEIEtymSaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -31,11 +29,9 @@ public class EtymQuoteTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
         GrobidProperties.getInstance();
         AbstractTrainer.runTraining(new EtymQuoteTrainer());
         AbstractTrainer.runEvaluation(new EtymQuoteTrainer());
-        MockContext.destroyInitialContext();
     }
 
     @Override
