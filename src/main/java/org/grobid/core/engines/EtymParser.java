@@ -48,11 +48,11 @@ public class EtymParser extends AbstractParser {
         instance = new FormParser();
     }
 
-    public StringBuilder processToTei(List<LayoutToken> etymEntry) {
+    public StringBuilder processToTei(List<LayoutToken> etymEntry, String label) {
         LabeledLexicalInformation labeledSense = process(etymEntry, PATH_FULL_DICTIONARY);
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<etym>").append("\n");
+        sb.append(label).append("\n");
         //I apply the form also to the sense to recognise the grammatical group, if any!
 
         for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
@@ -65,7 +65,7 @@ public class EtymParser extends AbstractParser {
             sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
 
         }
-        sb.append("</etym>").append("\n");
+        sb.append(label).append("\n");
         return sb;
 
     }

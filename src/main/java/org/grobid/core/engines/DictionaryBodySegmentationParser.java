@@ -1102,6 +1102,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         xmlStringElement.append("<");
         xmlStringElement.append(elementName);
         xmlStringElement.append(">");
+        xmlStringElement.append("\n");
         xmlStringElement.append(elementContent);
         xmlStringElement.append("</");
         xmlStringElement.append(elementName);
@@ -1295,13 +1296,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     // Get the result of the first level Etym parsing
                     LabeledLexicalInformation parsedEtymSegOrQuote  = etymQuoteParser.process(segmentedEntryComponent.getA(),modelToRun);
                     // For each <seg> or <quote> segment parse the etym information
-                    String etymTEIString;
+                    String etymTEIString = "";
                     for (Pair<List<LayoutToken>, String> segmentedEtym : parsedEtymSegOrQuote.getLabels()) {
-                        etymTEIString="";
-                        etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getA()).toString();
 
-                        produceXmlNode(clusterContent, etymTEIString, segmentedEtym.getB());
+                        etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getA(),segmentedEtym.getB()).toString();
+
+
                     }
+                    produceXmlNode(clusterContent, etymTEIString, LEXICAL_ENTRY_ETYM_LABEL);
                     //clusterContent.append(clusterContent + etymTEIString);
 
                     //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
