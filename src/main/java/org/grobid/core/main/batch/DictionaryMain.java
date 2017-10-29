@@ -1,8 +1,6 @@
 package org.grobid.core.main.batch;
 
-import org.grobid.core.engines.DictionaryBodySegmentationParser;
-import org.grobid.core.engines.DictionarySegmentationParser;
-import org.grobid.core.engines.LexicalEntryParser;
+import org.grobid.core.engines.*;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
@@ -21,11 +19,29 @@ public class DictionaryMain {
     private static final String CREATE_TRAINING_DICTIONARY_SEGMENTATION = "createTrainingDictionarySegmentation";
     private static final String CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION = "createTrainingDictionaryBodySegmentation";
     private static final String CREATE_TRAINING_LEXICAL_ENTRY = "createTrainingLexicalEntry";
+    private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY = "createAnnotatedTrainingLexicalEntry";
+    private static final String CREATE_TRAINING_FORM = "createTrainingForm";
+    private static final String CREATE_ANNOTATED_TRAINING_FORM = "createAnnotatedTrainingForm";
+    private static final String CREATE_TRAINING_SENSE = "createTrainingSense";
+    private static final String CREATE_ANNOTATED_TRAINING_SENSE = "createAnnotatedTrainingSense";
+    private static final String CREATE_TRAINING_ETYMQUOTE = "createTrainingEtymQuote";
+    private static final String CREATE_ANNOTATED_TRAINING_ETYMQUOTE = "createAnnotatedTrainingEtymQuote";
+    private static final String CREATE_TRAINING_ETYM = "createTrainingEtym";
+    private static final String CREATE_ANNOTATED_TRAINING_ETYM = "createAnnotatedTrainingEtym";
 
     private static List<String> availableCommands = Arrays.asList(
             CREATE_TRAINING_DICTIONARY_SEGMENTATION,
             CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION,
-            CREATE_TRAINING_LEXICAL_ENTRY);
+            CREATE_TRAINING_LEXICAL_ENTRY,
+            CREATE_TRAINING_FORM,
+            CREATE_TRAINING_SENSE,
+            CREATE_TRAINING_ETYMQUOTE,
+            CREATE_TRAINING_ETYM,
+            CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY,
+            CREATE_ANNOTATED_TRAINING_FORM,
+            CREATE_ANNOTATED_TRAINING_SENSE,
+            CREATE_ANNOTATED_TRAINING_ETYMQUOTE,
+            CREATE_ANNOTATED_TRAINING_ETYM);
 
     /**
      * Arguments of the batch.
@@ -174,6 +190,10 @@ public class DictionaryMain {
             initProcess();
             int nb = 0;
             LexicalEntryParser lexicalEntryParser = LexicalEntryParser.getInstance();
+            FormParser formParser = FormParser.getInstance();
+            SenseParser senseParser = SenseParser.getInstance();
+            EtymParser etymParser = EtymParser.getInstance();
+            EtymQuoteParser etymQuoteParser = EtymQuoteParser.getInstance();
             DictionarySegmentationParser dictionarySegmentationParser = DictionarySegmentationParser.getInstance();
             DictionaryBodySegmentationParser dictionaryBodySegmentationParser = DictionaryBodySegmentationParser.getInstance();
 
@@ -189,6 +209,42 @@ public class DictionaryMain {
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRY)) {
                 nb = lexicalEntryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY)) {
+                nb = lexicalEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_FORM)) {
+                nb = formParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_FORM)) {
+                nb = formParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SENSE)) {
+                nb = senseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE)) {
+                nb = senseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_ETYMQUOTE)) {
+                nb = etymQuoteParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_ETYMQUOTE)) {
+                nb = etymQuoteParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_ETYM)) {
+                nb = etymParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_ETYM)) {
+                nb = etymParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 

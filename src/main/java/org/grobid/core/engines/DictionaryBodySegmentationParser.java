@@ -31,8 +31,8 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.EtymQuoteLabels.QUOTE_ETYM_LABEL;
-import static org.grobid.core.engines.label.EtymQuoteLabels.SEG_ETYM_LABEL;
+import static org.grobid.core.engines.label.EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL;
+import static org.grobid.core.engines.label.EtymQuoteLabels.SEG_ETYMQUOTE_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
@@ -1064,11 +1064,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE)) {
+        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("quote", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_SEG)) {
+        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
 //            clusterContent = TextUtilities.HTMLEncode(clusterContent);
 //            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));

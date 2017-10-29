@@ -6,8 +6,7 @@ import org.apache.lucene.util.IOUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
-import org.grobid.core.document.TEIDictionaryFormatter;
-import org.grobid.core.engines.config.GrobidAnalysisConfig;
+
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.label.LexicalEntryLabels;
@@ -25,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+
 import java.util.List;
 
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
@@ -268,16 +268,17 @@ public class LexicalEntryParser extends AbstractParser {
             }
 
             int n = 0;
+
             // we process all pdf files in the directory
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingLexicalEntries(fileEntry, outputDirectory);
+                    createTrainingLexicalEntries(fileEntry, outputDirectory,false);
                     n++;
                 }
 
             } else {
-                createTrainingLexicalEntries(path, outputDirectory);
+                createTrainingLexicalEntries(path, outputDirectory,false);
                 n++;
 
             }
@@ -290,7 +291,43 @@ public class LexicalEntryParser extends AbstractParser {
         }
     }
 
-    public void createTrainingLexicalEntries(File path, String outputDirectory) throws Exception {
+    @SuppressWarnings({"UnusedParameters"})
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+        try {
+            File path = new File(inputDirectory);
+            if (!path.exists()) {
+                throw new GrobidException("Cannot create training data because input directory can not be accessed: " + inputDirectory);
+            }
+
+            File pathOut = new File(outputDirectory);
+            if (!pathOut.exists()) {
+                throw new GrobidException("Cannot create training data because ouput directory can not be accessed: " + outputDirectory);
+            }
+
+            int n = 0;
+            // we process all pdf files in the directory
+            if (path.isDirectory()) {
+                for (File fileEntry : path.listFiles()) {
+                    // Create the pre-annotated file and the raw text
+                    createTrainingLexicalEntries(fileEntry, outputDirectory,true);
+                    n++;
+                }
+
+            } else {
+                createTrainingLexicalEntries(path, outputDirectory,true);
+                n++;
+
+            }
+
+
+            System.out.println(n + " files to be processed.");
+            return n;
+        } catch (final Exception exp) {
+            throw new GrobidException("An exception occurred while running Grobid batch.", exp);
+        }
+    }
+
+    public void createTrainingLexicalEntries(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
         // Calling previous cascading model 
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
@@ -298,6 +335,15 @@ public class LexicalEntryParser extends AbstractParser {
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+        //Create rng and css files for guiding the annotation
+        File existingRngFile = new File("resources/templates/grobidDictScheme.rng");
+        File newRngFile = new File(outputDirectory + "/" +"grobidDictScheme.rng");
+        copyFileUsingStream(existingRngFile,newRngFile);
+
+        File existingCssFile = new File("resources/templates/lexicalEntry.css");
+        File newCssFile = new File(outputDirectory + "/" +"lexicalEntry.css");
+//        Files.copy(Gui.getClass().getResourceAsStream("resources/templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+        copyFileUsingStream(existingCssFile,newCssFile);
 
         StringBuffer rawtxt = new StringBuffer();
 
@@ -310,16 +356,23 @@ public class LexicalEntryParser extends AbstractParser {
                 }
                 lexicalEntries.append("<entry>");
                 LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getA());
-                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                String labeledFeatures = null;
-                // if featSeg is null, it usually means that no body segment is found in the
+                if(isAnnotated){
+                    String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                    String labeledFeatures = null;
+                    // if featSeg is null, it usually means that no body segment is found in the
 
-                if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                    featureWriter.write(featSeg + "\n");
+                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                        featureWriter.write(featSeg + "\n");
 
-                    labeledFeatures = label(featSeg);
-                    lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                        labeledFeatures = label(featSeg);
+                        lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                    }
                 }
+                else {
+                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getA())));
+                }
+
+
                 lexicalEntries.append("</entry>");
             }
 
@@ -335,8 +388,9 @@ public class LexicalEntryParser extends AbstractParser {
         // write the TEI file
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"grobidDictScheme.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"lexicalEntry.css\"?>\n"+
+                "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
         teiWriter.write("\n\t\t<headnote>");
         teiWriter.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
@@ -352,4 +406,25 @@ public class LexicalEntryParser extends AbstractParser {
 
         IOUtils.closeWhileHandlingException(featureWriter, teiWriter);
     }
+
+    private static void copyFileUsingStream(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            is.close();
+            os.close();
+        }
+    }
+
+
+
+
 }
