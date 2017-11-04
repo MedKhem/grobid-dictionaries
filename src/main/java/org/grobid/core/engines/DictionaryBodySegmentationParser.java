@@ -946,12 +946,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionaryBody(fileEntry, outputDirectory);
+                    createTrainingDictionaryBody(fileEntry, outputDirectory, false);
                     n++;
                 }
 
             } else {
-                createTrainingDictionaryBody(path, outputDirectory);
+                createTrainingDictionaryBody(path, outputDirectory, false);
                 n++;
 
             }
@@ -965,7 +965,45 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
     }
 
-    public void createTrainingDictionaryBody(File path, String outputDirectory) throws Exception {
+    @SuppressWarnings({"UnusedParameters"})
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+        // This method is to create feature matrix and create pre-annotated data using the existing model
+        try {
+            File path = new File(inputDirectory);
+            if (!path.exists()) {
+                throw new GrobidException("Cannot create training data because input directory can not be accessed: " + inputDirectory);
+            }
+
+            File pathOut = new File(outputDirectory);
+            if (!pathOut.exists()) {
+                throw new GrobidException("Cannot create training data because ouput directory can not be accessed: " + outputDirectory);
+            }
+
+            int n = 0;
+            // we process all pdf files in the directory
+            if (path.isDirectory()) {
+                for (File fileEntry : path.listFiles()) {
+                    // Create the pre-annotated file and the raw text
+                    createTrainingDictionaryBody(fileEntry, outputDirectory, true);
+                    n++;
+                }
+
+            } else {
+                createTrainingDictionaryBody(path, outputDirectory, true);
+                n++;
+
+            }
+
+
+            System.out.println(n + " files to be processed.");
+
+            return n;
+        } catch (final Exception exp) {
+            throw new GrobidException("An exception occurred while running Grobid batch.", exp);
+        }
+    }
+
+    public void createTrainingDictionaryBody(File path, String outputDirectory, boolean isAnnotated) throws Exception {
 
         // Segment the doc
         DictionaryDocument doc = processing(path);
@@ -976,46 +1014,62 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LayoutTokenization tokenizations = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
         String bodyTextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenizations.getTokenization()).toString();
+        //Write the features file
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
+        Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+        writer.write(bodyTextFeatured);
+        IOUtils.closeWhileHandlingException(writer);
 
-        if (StringUtils.isNotBlank(bodyTextFeatured)) {
-            //Write the features file
-            String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
-            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
-            writer.write(bodyTextFeatured);
-            IOUtils.closeWhileHandlingException(writer);
+        // also write the raw text as seen before segmentation
+        StringBuffer rawtxt = new StringBuffer();
+        for (LayoutToken txtline : tokenizations.getTokenization()) {
+            rawtxt.append(txtline.getText());
+        }
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
+        FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
-            // also write the raw text as seen before segmentation
-            StringBuffer rawtxt = new StringBuffer();
-            for (LayoutToken txtline : tokenizations.getTokenization()) {
-                rawtxt.append(txtline.getText());
-            }
-            String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
-            FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+            //Create rng and css files for guiding the annotation
+            File existingRngFile = new File("resources/templates/dictionaryBodySegmentation.rng");
+            File newRngFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.rng");
+            copyFileUsingStream(existingRngFile,newRngFile);
+
+            File existingCssFile = new File("resources/templates/dictionaryBodySegmentation.css");
+            File newCssFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.css");
+            copyFileUsingStream(existingCssFile,newCssFile);
+
+        StringBuffer bufferFulltext =  new StringBuffer();
+
+        if(isAnnotated){
+
+                String rese = label(bodyTextFeatured);
+                bufferFulltext.append(trainingExtraction(doc, rese, tokenizations));
+
+        }
+        else{
+            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations.getTokenization())));
+        }
+
+
+
+
 
             //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
-            if (bodyTextFeatured.length() > 0) {
-                String rese = label(bodyTextFeatured);
-                StringBuilder bufferFulltext = trainingExtraction(doc, rese, tokenizations);
 
-                // write the TEI file to reflect the extact layout of the text as extracted from the pdf
-                String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
-                writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                        "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
-                writer.write("\n\t\t<headnote>");
-                writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
-                writer.write("</headnote>");
-                writer.write("\n\t\t<body>");
-                writer.write(bufferFulltext.toString());
-                writer.write("</body>");
-                writer.write("\n\t\t<footnote>");
-                writer.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
-                writer.write("</footnote>");
-                writer.write("\n\t</text>\n</tei>\n");
-                writer.close();
-            }
-        }
+
+        // write the TEI file to reflect the exact layout of the text as extracted from the pdf
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
+        writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionaryBodySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionaryBodySegmentation.css\"?>\n"+
+                "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                "\"/>\n\t</teiHeader>\n\t<text>");
+
+        writer.write("\n\t\t<body>");
+        writer.write(bufferFulltext.toString());
+        writer.write("</body>");
+        writer.write("\n\t</text>\n</tei>\n");
+        writer.close();
+
     }
 
     /**
@@ -1319,5 +1373,20 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
         return clusterContent.toString();
     }
-
+    private static void copyFileUsingStream(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            is.close();
+            os.close();
+        }
+    }
 }

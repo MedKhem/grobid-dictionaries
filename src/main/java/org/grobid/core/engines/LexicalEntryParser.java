@@ -336,8 +336,8 @@ public class LexicalEntryParser extends AbstractParser {
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/grobidDictScheme.rng");
-        File newRngFile = new File(outputDirectory + "/" +"grobidDictScheme.rng");
+        File existingRngFile = new File("resources/templates/lexicalEntry.rng");
+        File newRngFile = new File(outputDirectory + "/" +"lexicalEntry.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
         File existingCssFile = new File("resources/templates/lexicalEntry.css");
@@ -388,19 +388,15 @@ public class LexicalEntryParser extends AbstractParser {
         // write the TEI file
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"grobidDictScheme.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"lexicalEntry.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
                 "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"lexicalEntry.css\"?>\n"+
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
-        teiWriter.write("\n\t\t<headnote>");
-        teiWriter.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL).toString()));
-        teiWriter.write("</headnote>");
+                "\"/>\n\t</teiHeader>\n\t<text>");
+
         teiWriter.write("\n\t\t<body>");
         teiWriter.write(lexicalEntries.toString());
         teiWriter.write("</body>");
-        teiWriter.write("\n\t\t<footnote>");
-        teiWriter.write(DocumentUtils.replaceLinebreaksWithTags(doc.getDictionaryDocumentPartText(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL).toString()));
-        teiWriter.write("</footnote>");
+
         teiWriter.write("\n\t</text>\n</tei>\n");
 
 

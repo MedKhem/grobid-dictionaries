@@ -17,7 +17,9 @@ import java.util.List;
 public class DictionaryMain {
 
     private static final String CREATE_TRAINING_DICTIONARY_SEGMENTATION = "createTrainingDictionarySegmentation";
+    private static final String CREATE_ANNOTATED_TRAINING_DICTIONARY_SEGMENTATION = "createAnnotatedTrainingDictionarySegmentation";
     private static final String CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION = "createTrainingDictionaryBodySegmentation";
+    private static final String CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION = "createAnnotatedTrainingDictionaryBodySegmentation";
     private static final String CREATE_TRAINING_LEXICAL_ENTRY = "createTrainingLexicalEntry";
     private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY = "createAnnotatedTrainingLexicalEntry";
     private static final String CREATE_TRAINING_FORM = "createTrainingForm";
@@ -31,7 +33,9 @@ public class DictionaryMain {
 
     private static List<String> availableCommands = Arrays.asList(
             CREATE_TRAINING_DICTIONARY_SEGMENTATION,
+            CREATE_ANNOTATED_TRAINING_DICTIONARY_SEGMENTATION,
             CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION,
+            CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION,
             CREATE_TRAINING_LEXICAL_ENTRY,
             CREATE_TRAINING_FORM,
             CREATE_TRAINING_SENSE,
@@ -203,8 +207,16 @@ public class DictionaryMain {
                 nb = dictionarySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_DICTIONARY_SEGMENTATION)) {
+                nb = dictionarySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION)) {
                 nb = dictionaryBodySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION)) {
+                nb = dictionaryBodySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRY)) {

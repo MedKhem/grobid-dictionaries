@@ -334,8 +334,8 @@ public class SenseParser extends AbstractParser {
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/grobidDictScheme.rng");
-        File newRngFile = new File(outputDirectory + "/" +"grobidDictScheme.rng");
+        File existingRngFile = new File("resources/templates/sense.rng");
+        File newRngFile = new File(outputDirectory + "/" +"sense.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
         File existingCssFile = new File("resources/templates/sense.css");
@@ -398,10 +398,10 @@ public class SenseParser extends AbstractParser {
         // write the TEI file
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.sense.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"grobidDictScheme.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"sense.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
                 "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"sense.css\"?>\n"+
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+                "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
         teiWriter.write(senses.toString());
         teiWriter.write("</body>");

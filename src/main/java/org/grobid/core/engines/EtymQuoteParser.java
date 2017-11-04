@@ -275,8 +275,8 @@ public class EtymQuoteParser  extends AbstractParser {
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/grobidDictScheme.rng");
-        File newRngFile = new File(outputDirectory + "/" +"grobidDictScheme.rng");
+        File existingRngFile = new File("resources/templates/etymQuote.rng");
+        File newRngFile = new File(outputDirectory + "/" +"etymQuote.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
         File existingCssFile = new File("resources/templates/etymQuote.css");
@@ -337,12 +337,12 @@ public class EtymQuoteParser  extends AbstractParser {
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etymQuote.tei.xml";
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.c.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"grobidDictScheme.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"etymQuote.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
                 "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"etymQuote.css\"?>\n"+
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">");
+                "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
         teiWriter.write(etymQuotes.toString());
         teiWriter.write("</body>");
