@@ -334,13 +334,13 @@ public class SenseParser extends AbstractParser {
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/sense.rng");
+        File existingRngFile = new File("templates/sense.rng");
         File newRngFile = new File(outputDirectory + "/" +"sense.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
-        File existingCssFile = new File("resources/templates/sense.css");
+        File existingCssFile = new File("templates/sense.css");
         File newCssFile = new File(outputDirectory + "/" +"sense.css");
-//        Files.copy(Gui.getClass().getResourceAsStream("resources/templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+//        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile,newCssFile);
 
 

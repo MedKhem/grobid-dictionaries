@@ -289,13 +289,13 @@ public class EtymParser extends AbstractParser {
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/etym.rng");
+        File existingRngFile = new File("templates/etym.rng");
         File newRngFile = new File(outputDirectory + "/" +"etym.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
-        File existingCssFile = new File("resources/templates/etym.css");
+        File existingCssFile = new File("templates/etym.css");
         File newCssFile = new File(outputDirectory + "/" +"etym.css");
-//        Files.copy(Gui.getClass().getResourceAsStream("resources/templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+//        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile,newCssFile);
 
 

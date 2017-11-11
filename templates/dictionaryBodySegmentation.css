@@ -1,0 +1,39 @@
+/* TODO: namespace stuff once the annotation files are in the TEI namespace */
+
+tei { display: block; }
+
+teiHeader { display: none; }
+
+body {
+	display: block;
+	padding: 0.1em;
+	background-color: white;
+	border: 2px dotted black;
+
+}
+
+entry {
+	margin:1em;
+	display: inline;
+	background-color: SkyBlue ;
+}
+
+
+
+/* things to mark-up on any level */
+
+pc {
+	display: inline;
+	background-color: gray;
+}
+
+
+dictScrap { /* what's that for? */
+	display: inline;
+	background-color: greenyellow;
+}
+
+
+/* special whitespace handling for minimally better readability */
+lb:before { content: "\a "; }
+headnote lb { display: none; }

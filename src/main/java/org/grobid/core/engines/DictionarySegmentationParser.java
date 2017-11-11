@@ -902,13 +902,13 @@ public class DictionarySegmentationParser extends AbstractParser {
         IOUtils.closeWhileHandlingException(writer);
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/dictionarySegmentation.rng");
+        File existingRngFile = new File("templates/dictionarySegmentation.rng");
         File newRngFile = new File(outputDirectory + "/" +"dictionarySegmentation.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
-        File existingCssFile = new File("resources/templates/dictionarySegmentation.css");
+        File existingCssFile = new File("templates/dictionarySegmentation.css");
         File newCssFile = new File(outputDirectory + "/" +"dictionarySegmentation.css");
-//        Files.copy(Gui.getClass().getResourceAsStream("resources/templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+//        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile,newCssFile);
 
         // also write the raw text as seen before segmentation

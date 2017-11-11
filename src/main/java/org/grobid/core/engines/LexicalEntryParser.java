@@ -336,13 +336,13 @@ public class LexicalEntryParser extends AbstractParser {
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("resources/templates/lexicalEntry.rng");
+        File existingRngFile = new File("templates/lexicalEntry.rng");
         File newRngFile = new File(outputDirectory + "/" +"lexicalEntry.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
-        File existingCssFile = new File("resources/templates/lexicalEntry.css");
+        File existingCssFile = new File("templates/lexicalEntry.css");
         File newCssFile = new File(outputDirectory + "/" +"lexicalEntry.css");
-//        Files.copy(Gui.getClass().getResourceAsStream("resources/templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+//        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile,newCssFile);
 
         StringBuffer rawtxt = new StringBuffer();

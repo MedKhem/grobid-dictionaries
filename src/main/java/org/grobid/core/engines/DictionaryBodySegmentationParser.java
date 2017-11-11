@@ -1029,11 +1029,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
             //Create rng and css files for guiding the annotation
-            File existingRngFile = new File("resources/templates/dictionaryBodySegmentation.rng");
+            File existingRngFile = new File("templates/dictionaryBodySegmentation.rng");
             File newRngFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.rng");
             copyFileUsingStream(existingRngFile,newRngFile);
 
-            File existingCssFile = new File("resources/templates/dictionaryBodySegmentation.css");
+            File existingCssFile = new File("templates/dictionaryBodySegmentation.css");
             File newCssFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.css");
             copyFileUsingStream(existingCssFile,newCssFile);
 
