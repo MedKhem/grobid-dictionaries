@@ -5,10 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEIFormSaxParser;
-import org.grobid.trainer.sax.TEISenseSaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -25,11 +23,9 @@ public class FormTrainer extends AbstractTrainer {
     }
 
     public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
         GrobidProperties.getInstance();
         AbstractTrainer.runTraining(new FormTrainer());
         AbstractTrainer.runEvaluation(new FormTrainer());
-        MockContext.destroyInitialContext();
     }
 
     @Override

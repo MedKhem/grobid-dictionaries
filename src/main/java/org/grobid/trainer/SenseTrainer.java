@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.mock.MockContext;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEISenseSaxParser;
 
@@ -24,11 +23,10 @@ public class SenseTrainer extends AbstractTrainer {
     }
 
     public static void main(String[] args) throws Exception {
-        MockContext.setInitialContext();
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new SenseTrainer());
-        AbstractTrainer.runEvaluation(new SenseTrainer());
-        MockContext.destroyInitialContext();
+        final SenseTrainer trainer = new SenseTrainer();
+        AbstractTrainer.runTraining(trainer);
+        AbstractTrainer.runEvaluation(trainer);
     }
 
     @Override

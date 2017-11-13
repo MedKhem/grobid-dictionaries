@@ -1,15 +1,12 @@
 package org.grobid.core.document;
 
-import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.mock.MockContext;
-import org.junit.AfterClass;
+import org.grobid.core.EngineMockTest;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * Created by med on 05.10.16.
  */
-public class TEIFormatterTest {
+public class TEIFormatterTest extends EngineMockTest {
 
     TEIDictionaryFormatter target;
     DictionaryDocument doc;
@@ -17,17 +14,6 @@ public class TEIFormatterTest {
     @Before
     public void setUp() throws Exception {
         target = new TEIDictionaryFormatter(doc);
-    }
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        LibraryLoader.load();
-        MockContext.setInitialContext();
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        MockContext.destroyInitialContext();
     }
 
 
