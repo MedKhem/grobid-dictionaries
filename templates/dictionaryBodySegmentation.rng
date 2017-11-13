@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+	<!-- TODO: TEI namespace -->
+	<define name="any_attribute">
+		<attribute>
+			<anyName/>
+		</attribute>
+	</define>
+	<define name="any_element">
+		<element>
+			<anyName/>
+			<zeroOrMore>
+				<ref name="any_attribute"/>
+			</zeroOrMore>
+			<ref name="any_content"/>
+		</element>
+	</define>
+	<define name="any_content">
+		<interleave>
+			<zeroOrMore>
+				<ref name="any_element"/>
+			</zeroOrMore>
+			<text/>
+		</interleave>
+	</define>
+	<define name="lb">
+		<element name="lb">
+			<empty/>
+		</element>
+	</define>
+	<define name="pc">
+		<element name="pc">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	
+	
+	
+	
+	<define name="body">
+		<element name="body">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="entry"></ref>
+					<ref name="dictScrap"></ref>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	
+	<define name="dictScrap">
+		<element name="dictScrap">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	
+	
+	
+	
+	
+	
+	<define name="entry">
+		<element name="entry">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<start>
+		<element name="tei">
+			<optional>
+				<attribute name="xml:space">
+					<value>preserve</value>
+				</attribute>
+			</optional>
+			<element name="teiHeader">
+				<zeroOrMore>
+					<ref name="any_element"/>
+				</zeroOrMore>
+			</element>
+			<element name="text">
+				
+				<oneOrMore>
+		
+						<ref name="body"/>
+					
+				</oneOrMore>
+			</element>
+		</element>
+	</start>
+</grammar>

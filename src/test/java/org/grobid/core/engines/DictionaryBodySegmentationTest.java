@@ -26,11 +26,4 @@ public class DictionaryBodySegmentationTest extends EngineMockTest{
 //
 //    }
 
-    @Test
-    public void testTrainingDataGeneration() throws Exception {
-        File input = new File(this.getClass().getResource("BasicEnglish.page2.sample.pdf").toURI());
-        target.createTrainingDictionaryBody(input, "/tmp");
-
-
-    }
 }

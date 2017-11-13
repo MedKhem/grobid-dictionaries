@@ -822,13 +822,13 @@ public class DictionarySegmentationParser extends AbstractParser {
                 for (File fileEntry : path.listFiles()) {
 
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionary(fileEntry, outputDirectory);
+                    createTrainingDictionary(fileEntry, outputDirectory, false);
                     n++;
                 }
 
             } else {
 
-                createTrainingDictionary(path, outputDirectory);
+                createTrainingDictionary(path, outputDirectory, false);
                 n++;
 
             }
@@ -842,7 +842,50 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
     }
 
-    public void createTrainingDictionary(File path, String outputDirectory) throws Exception {
+    @SuppressWarnings({"UnusedParameters"})
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+        // This method is to create feature matrix and create pre-annotated data using the existing model
+
+        try {
+            File path = new File(inputDirectory);
+            if (!path.exists()) {
+                throw new GrobidException("Cannot create training data because input directory can not be accessed: " + inputDirectory);
+            }
+
+            File pathOut = new File(outputDirectory);
+            if (!pathOut.exists()) {
+                throw new GrobidException("Cannot create training data because ouput directory can not be accessed: " + outputDirectory);
+            }
+
+            // we process all pdf files in the directory
+
+            int n = 0;
+
+            if (path.isDirectory()) {
+                for (File fileEntry : path.listFiles()) {
+
+                    // Create the pre-annotated file and the raw text
+                    createTrainingDictionary(fileEntry, outputDirectory, true);
+                    n++;
+                }
+
+            } else {
+
+                createTrainingDictionary(path, outputDirectory, true);
+                n++;
+
+            }
+
+            System.out.println(n + " files to be processed.");
+
+            return n;
+        } catch (Exception e) {
+            throw new GrobidException("An exception occured while running Grobid training" +
+                    " data generation for segmentation model.", e);
+        }
+    }
+
+    public void createTrainingDictionary(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
         DictionaryDocument doc = initiateProcessing(path, config);
@@ -858,6 +901,16 @@ public class DictionarySegmentationParser extends AbstractParser {
         writer.write(featuredText);
         IOUtils.closeWhileHandlingException(writer);
 
+        //Create rng and css files for guiding the annotation
+        File existingRngFile = new File("templates/dictionarySegmentation.rng");
+        File newRngFile = new File(outputDirectory + "/" +"dictionarySegmentation.rng");
+        copyFileUsingStream(existingRngFile,newRngFile);
+
+        File existingCssFile = new File("templates/dictionarySegmentation.css");
+        File newCssFile = new File(outputDirectory + "/" +"dictionarySegmentation.css");
+//        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+        copyFileUsingStream(existingCssFile,newCssFile);
+
         // also write the raw text as seen before segmentation
 
         StringBuffer rawtxt = new StringBuffer();
@@ -867,22 +920,36 @@ public class DictionarySegmentationParser extends AbstractParser {
         String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
+        StringBuffer bufferFulltext =  new StringBuffer();
+
+
+        if(isAnnotated){
+            if ((featuredText != null) && (featuredText.length() > 0)) {
+                String rese = label(featuredText);
+                bufferFulltext.append(trainingExtraction(rese, doc));
+            }
+
+        }
+        else{
+            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations)));
+        }
         //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
 
-        if ((featuredText != null) && (featuredText.length() > 0)) {
-            String rese = label(featuredText);
-            StringBuffer bufferFulltext = trainingExtraction(rese, doc);
+
+
 
             // write the TEI file to reflect the exact layout of the text as extracted from the pdf
             String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
             writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tei>\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                    "\"/>\n\t</teiHeader>\n\t<text xml:lang=\"en\">\n");
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionarySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                    "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionarySegmentation.css\"?>\n"+
+                    "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                    "\"/>\n\t</teiHeader>\n\t<text>");
 
             writer.write(bufferFulltext.toString());
             writer.write("\n\t</text>\n</tei>\n");
             writer.close();
-        }
+
     }
 
     /**
@@ -1442,6 +1509,22 @@ public class DictionarySegmentationParser extends AbstractParser {
         tei.append("\n\t</text>\n</TEI>\n");
 
         return tei;
+    }
+    private static void copyFileUsingStream(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            is.close();
+            os.close();
+        }
     }
 
 }
