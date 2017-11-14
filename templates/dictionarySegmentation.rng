@@ -106,14 +106,14 @@
 			<element name="text">
 			
 				<oneOrMore>
-					
+					<choice>
 						<ref name="body"/>
 						<ref name="headnote"/>
 						<ref name="footnote"/>
 						<ref name="dictScrap"/>
 						<ref name="pc"></ref>
 						<ref name="lb"></ref>
-					
+					</choice>
 				</oneOrMore>
 			</element>
 		</element>
