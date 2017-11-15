@@ -60,22 +60,23 @@ GROBID-Dictionaries takes as input lexical resources digitized in PDF format. Ea
 
 ## Install, build, run
 
-Building GROBID-Dictionaries requires maven and JDK 1.8.  
+Building GROBID-Dictionaries requires gradle, maven and JDK 1.8.  
 
-First install the latest development version of GROBID as explained by the [documentation](http://grobid.readthedocs.org).
+Clone/download the latest and most stable version of GROBID-parent under [this fork](https://github.com/MedKhem/grobid).
 
-Copy the module dictionaries as sibling sub-project to grobid-core, grobid-trainer, etc.:
+Copy the  dictionaries as sibling sub-project to grobid-core, grobid-trainer, etc.:
 > cp -r grobid-dictionaries grobid/
 
-Try compiling everything with:
+Build GROBID-parent:
 > cd PATH-TO-GROBID/grobid/
 
-> mvn -Dmaven.test.skip=true clean install
+> ./gradlew clean install
 
-Run some test: 
+Build Grobid-Dictionaries:
 > cd PATH-TO-GROBID/grobid/grobid-dictionaries
+> mvn clean install
 
-> mvn compile test
+
 
 **The models have to be trained before running the tests!**
 
