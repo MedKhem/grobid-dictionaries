@@ -74,6 +74,7 @@ Build GROBID-parent:
 
 Build Grobid-Dictionaries:
 > cd PATH-TO-GROBID/grobid/grobid-dictionaries
+
 > mvn clean install
 
 
