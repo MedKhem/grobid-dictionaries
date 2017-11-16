@@ -218,7 +218,7 @@ public class SenseParser extends AbstractParser {
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("dictScarp", clusterContent));
+            buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
             clusterContent = TextUtilities.HTMLEncode(clusterContent);
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
