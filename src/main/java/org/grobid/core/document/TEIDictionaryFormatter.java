@@ -57,7 +57,7 @@ public class TEIDictionaryFormatter {
 
             List<LayoutToken> list1 = cluster.concatTokens();
             String clusterContent = LayoutTokensUtil.toText(list1);
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
+
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
             String tagLabel = clusterLabel.getLabel();

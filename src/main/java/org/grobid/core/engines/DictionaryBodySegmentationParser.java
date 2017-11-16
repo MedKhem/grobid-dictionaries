@@ -45,9 +45,9 @@ import static org.grobid.service.DictionaryPaths.*;
 public class DictionaryBodySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     private static volatile DictionaryBodySegmentationParser instance;
-    private SortedSet<DocumentPiece> headNotesOfAllPages ;
-    private SortedSet<DocumentPiece> footNotesOfAllPages ;
-    private SortedSet<DocumentPiece> otherOfAllPages ;
+    private SortedSet<DocumentPiece> headNotesOfAllPages;
+    private SortedSet<DocumentPiece> footNotesOfAllPages;
+    private SortedSet<DocumentPiece> otherOfAllPages;
 
 
     int pagesNumber;
@@ -334,7 +334,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
+                            treatEndOfPageAndBeginingOfSecondPage(tei, doc);
 
 
                         } else {
@@ -369,7 +369,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             textToShowInTokens.addAll(firstPartOfLastLexicalEntry);
 
 
-                            treatEndOfSplitPage(textToShowInTokens,doc);
+                            treatEndOfSplitPage(textToShowInTokens, doc);
 
 
                             textToShowInTokens.addAll(restOfLexicalEntryTokens);
@@ -390,7 +390,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            treatEndOfLastPage(tei,doc);
+                            treatEndOfLastPage(tei, doc);
 
 
                         }
@@ -406,8 +406,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         produceXmlNode(tei, clusterContent, tagLabel);
                     }
 
-                    simpleDisplayEndOfPage(tei,doc);
-
+                    simpleDisplayEndOfPage(tei, doc);
 
 
                 }
@@ -429,7 +428,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                     }
 
-                    simpleDisplayEndOfPage(tei,doc);
+                    simpleDisplayEndOfPage(tei, doc);
 
 
                 }
@@ -450,9 +449,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     produceXmlNode(tei, clusterContent, tagLabel);
                 }
 
-                simpleDisplayEndOfPage(tei,doc);
-
-
+                simpleDisplayEndOfPage(tei, doc);
 
 
             }
@@ -504,7 +501,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
+                            treatEndOfPageAndBeginingOfSecondPage(tei, doc);
 
 
                         } else {
@@ -559,7 +556,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     textToShowInTokens.addAll(firstPartOfSplitComponent);
 
 
-                                    treatEndOfSplitPage(textToShowInTokens,doc);
+                                    treatEndOfSplitPage(textToShowInTokens, doc);
 
 
                                     textToShowInTokens.addAll(restOfSplitComponentTokens);
@@ -592,7 +589,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            treatEndOfLastPage(tei,doc);
+                            treatEndOfLastPage(tei, doc);
 
 
                         }
@@ -613,8 +610,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         produceXmlNode(tei, clusterContent, tagLabel);
                     }
 
-                    simpleDisplayEndOfPage(tei,doc);
-
+                    simpleDisplayEndOfPage(tei, doc);
 
 
                 }
@@ -645,9 +641,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     produceXmlNode(tei, clusterContent, tagLabel);
                 }
 
-                simpleDisplayEndOfPage(tei,doc);
-
-
+                simpleDisplayEndOfPage(tei, doc);
 
 
             }
@@ -690,11 +684,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         if (lastComponent.get(lastComponent.size() - 1).getOffset() < newPageOffset) {
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
                                 List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
-                                String clusterContent="";
+                                String clusterContent = "";
                                 String tagLabel = bodyComponent.getB();
                                 if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                                     clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                }else {
+                                } else {
                                     LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
                                     for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
                                         if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
@@ -705,7 +699,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                             clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString();
                                         } else {
                                             String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
-                                            clusterContent = clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));
+                                            clusterContent = clusterContent + createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA())));
 
 
                                         }
@@ -717,7 +711,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            treatEndOfPageAndBeginingOfSecondPage(tei,doc);
+                            treatEndOfPageAndBeginingOfSecondPage(tei, doc);
 
 
                         } else {
@@ -727,7 +721,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             //Parse all components of the lexical entries, which come just before the last LE
                             for (int h = 0; h < lexicalEntriesSubList.size() - 1; h++) {
                                 Pair<List<LayoutToken>, String> bodyComponent = lexicalEntriesSubList.get(h);
-                                processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                                processFullABodyComponentToTEI(bodyComponent, tei, modelToRun);
 
                             }
                             //Take care of the components of the last LE to wrap the split element
@@ -775,7 +769,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                                         textToShowInTokens.addAll(firstPartOfSplitComponent);
 
 
-                                                        treatEndOfSplitPage(textToShowInTokens,doc);
+                                                        treatEndOfSplitPage(textToShowInTokens, doc);
 
 
                                                         textToShowInTokens.addAll(restOfSplitComponentTokens);
@@ -799,7 +793,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     } else {
                                         //Case where there is nothing to split
                                         String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
-                                        String   formattedSecondLevelComponent = checkFullABodyComponentToTEI(tag,componentOfLastLexicalEntry,modelToRun);
+                                        String formattedSecondLevelComponent = checkFullABodyComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
                                         textToShowInTokens.add(new LayoutToken(createMyXMLString(tag, formattedSecondLevelComponent)));
                                     }
 
@@ -841,7 +835,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                         textToShowInTokens.addAll(firstPartOfSplitComponent);
 
 
-                                        treatEndOfSplitPage(textToShowInTokens,doc);
+                                        treatEndOfSplitPage(textToShowInTokens, doc);
 
 
                                         textToShowInTokens.addAll(restOfSplitComponentTokens);
@@ -851,7 +845,6 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                         String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
                                         textToShowInTokens.add(new LayoutToken(createMyXMLString(tag, LayoutTokensUtil.toText(componentOfLastLexicalEntry))));
                                     }
-
 
 
                                 }
@@ -868,11 +861,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             lexicalEntriesSubList = bodyComponents.getLabels().subList(k, bodyComponents.getLabels().size());
 
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
-                                processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                                processFullABodyComponentToTEI(bodyComponent, tei, modelToRun);
                             }
 
 
-                            treatEndOfLastPage(tei,doc);
+                            treatEndOfLastPage(tei, doc);
 
 
                         }
@@ -882,11 +875,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     // In this case, the input file has just one page
 
                     for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
-                        processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                        processFullABodyComponentToTEI(bodyComponent, tei, modelToRun);
                     }
 
-                    simpleDisplayEndOfPage(tei,doc);
-
+                    simpleDisplayEndOfPage(tei, doc);
 
 
                 }
@@ -906,15 +898,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
 
                 for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
-                    processFullABodyComponentToTEI(bodyComponent,tei,modelToRun);
+                    processFullABodyComponentToTEI(bodyComponent, tei, modelToRun);
                 }
 
-                simpleDisplayEndOfPage(tei,doc);
-
+                simpleDisplayEndOfPage(tei, doc);
 
 
             }
-        } else  {
+        } else {
 
         }
 
@@ -1028,39 +1019,35 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
-            //Create rng and css files for guiding the annotation
-            File existingRngFile = new File("templates/dictionaryBodySegmentation.rng");
-            File newRngFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.rng");
-            copyFileUsingStream(existingRngFile,newRngFile);
+        //Create rng and css files for guiding the annotation
+        File existingRngFile = new File("templates/dictionaryBodySegmentation.rng");
+        File newRngFile = new File(outputDirectory + "/" + "dictionaryBodySegmentation.rng");
+        copyFileUsingStream(existingRngFile, newRngFile);
 
-            File existingCssFile = new File("templates/dictionaryBodySegmentation.css");
-            File newCssFile = new File(outputDirectory + "/" +"dictionaryBodySegmentation.css");
-            copyFileUsingStream(existingCssFile,newCssFile);
+        File existingCssFile = new File("templates/dictionaryBodySegmentation.css");
+        File newCssFile = new File(outputDirectory + "/" + "dictionaryBodySegmentation.css");
+        copyFileUsingStream(existingCssFile, newCssFile);
 
-        StringBuffer bufferFulltext =  new StringBuffer();
+        StringBuffer bufferFulltext = new StringBuffer();
 
-        if(isAnnotated){
+        if (isAnnotated) {
 
-                String rese = label(bodyTextFeatured);
-                bufferFulltext.append(trainingExtraction(doc, rese, tokenizations));
+            String rese = label(bodyTextFeatured);
+            bufferFulltext.append(trainingExtraction(doc, rese, tokenizations));
 
-        }
-        else{
+        } else {
             bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations.getTokenization())));
         }
 
 
-
-
-
-            //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
+        //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
 
 
         // write the TEI file to reflect the exact layout of the text as extracted from the pdf
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
         writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
         writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionaryBodySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionaryBodySegmentation.css\"?>\n"+
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionaryBodySegmentation.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
 
@@ -1086,67 +1073,38 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     }
 
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("entry", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("pc", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("form", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("etym", clusterContent));
         } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("sense", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("re", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("quote", clusterContent));
         } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));
         } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
             buffer.append(createMyXMLString("bibl", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
             buffer.append(createMyXMLString("def", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
             buffer.append(createMyXMLString("mentioned", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
             buffer.append(createMyXMLString("lang", clusterContent));
-        }else {
+        } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
     }
@@ -1188,6 +1146,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                     clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
+
                 } else {
                     clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                 }
@@ -1208,13 +1167,13 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         }
 
-        simpleDisplayEndOfPage(tei,doc);
-
+        simpleDisplayEndOfPage(tei, doc);
 
 
         return tei;
     }
-    private void treatEndOfPageAndBeginingOfSecondPage(StringBuilder tei, DictionaryDocument doc){
+
+    private void treatEndOfPageAndBeginingOfSecondPage(StringBuilder tei, DictionaryDocument doc) {
         if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
             // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
             // This is caused by the forced check of the footnote'a index and its supposed page
@@ -1250,7 +1209,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         }
     }
-    private void simpleDisplayEndOfPage(StringBuilder tei, DictionaryDocument doc){
+
+    private void simpleDisplayEndOfPage(StringBuilder tei, DictionaryDocument doc) {
         for (DocumentPiece footer : footNotesOfAllPages) {
 
             tei.append("\t\t<fw type=\"footer\">");
@@ -1268,7 +1228,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
     }
-    private void treatEndOfLastPage(StringBuilder tei, DictionaryDocument doc){
+
+    private void treatEndOfLastPage(StringBuilder tei, DictionaryDocument doc) {
         if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
             // With this check, just one foot note that doesn't correspond to the right page could stop showing the rest of the footnotes in the Stack.
             // This is caused by the forced check of the footnote'a index and its supposed page
@@ -1291,7 +1252,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             tei.append("\n");
         }
     }
-    private void treatEndOfSplitPage(List<LayoutToken> textToShowInTokens, DictionaryDocument doc){
+
+    private void treatEndOfSplitPage(List<LayoutToken> textToShowInTokens, DictionaryDocument doc) {
         if (currentFootIndex < footNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))) != "") {
             textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"footer\">"));
             textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(footNotesOfAllPages, currentFootIndex))));
@@ -1319,8 +1281,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             textToShowInTokens.add(new LayoutToken("</fw>"));
         }
     }
-    private void processFullABodyComponentToTEI(Pair<List<LayoutToken>, String> bodyComponent, StringBuilder tei, String modelToRun){
-        String clusterContent="";
+
+    private void processFullABodyComponentToTEI(Pair<List<LayoutToken>, String> bodyComponent, StringBuilder tei, String modelToRun) {
+        String clusterContent = "";
         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
 
         String tagLabel = bodyComponent.getB();
@@ -1328,8 +1291,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         produceXmlNode(tei, clusterContent, tagLabel);
     }
-    private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun){
-        StringBuilder clusterContent= new StringBuilder();
+
+    private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun) {
+        StringBuilder clusterContent = new StringBuilder();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
@@ -1337,7 +1301,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         EtymParser etymParser = new EtymParser();
         if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
             clusterContent.append(LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE)));
-        }else {
+        } else {
             LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
             for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
                 if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
@@ -1348,12 +1312,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     clusterContent.append(clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString());
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
                     // Get the result of the first level Etym parsing
-                    LabeledLexicalInformation parsedEtymSegOrQuote  = etymQuoteParser.process(segmentedEntryComponent.getA(),modelToRun);
+                    LabeledLexicalInformation parsedEtymSegOrQuote = etymQuoteParser.process(segmentedEntryComponent.getA(), modelToRun);
                     // For each <seg> or <quote> segment parse the etym information
                     String etymTEIString = "";
                     for (Pair<List<LayoutToken>, String> segmentedEtym : parsedEtymSegOrQuote.getLabels()) {
 
-                        etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getA(),segmentedEtym.getB()).toString();
+                        etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getA(), segmentedEtym.getB()).toString();
 
 
                     }
@@ -1363,7 +1327,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
                 } else {
                     String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
-                    clusterContent.append(clusterContent +  createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA()))));
+                    clusterContent.append(clusterContent + createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA()))));
 
 
                 }
@@ -1373,6 +1337,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
         return clusterContent.toString();
     }
+
     private static void copyFileUsingStream(File source, File dest) throws IOException {
         InputStream is = null;
         OutputStream os = null;

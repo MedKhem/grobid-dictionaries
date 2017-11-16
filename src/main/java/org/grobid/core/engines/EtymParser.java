@@ -142,67 +142,26 @@ public class EtymParser extends AbstractParser {
 
 
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("form", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("re", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+
+        if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("quote", clusterContent));
         } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));
         } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("seg", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
             buffer.append(createMyXMLString("bibl", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
             buffer.append(createMyXMLString("def", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
             buffer.append(createMyXMLString("mentioned", clusterContent));
-        }else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
-//            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-//            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
             buffer.append(createMyXMLString("lang", clusterContent));
-        }else {
+        } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
     }
@@ -290,64 +249,63 @@ public class EtymParser extends AbstractParser {
 
         //Create rng and css files for guiding the annotation
         File existingRngFile = new File("templates/etym.rng");
-        File newRngFile = new File(outputDirectory + "/" +"etym.rng");
-        copyFileUsingStream(existingRngFile,newRngFile);
+        File newRngFile = new File(outputDirectory + "/" + "etym.rng");
+        copyFileUsingStream(existingRngFile, newRngFile);
 
         File existingCssFile = new File("templates/etym.css");
-        File newCssFile = new File(outputDirectory + "/" +"etym.css");
+        File newCssFile = new File(outputDirectory + "/" + "etym.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
-        copyFileUsingStream(existingCssFile,newCssFile);
+        copyFileUsingStream(existingCssFile, newCssFile);
 
 
         StringBuffer rawtxt = new StringBuffer();
 
         StringBuffer etyms = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
-        EtymQuoteParser etymQuoteParser  = new EtymQuoteParser();
+        EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
             if (lexicalEntryLayoutTokens.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getA(), DICTIONARY_ENTRY_LABEL);
 
-                for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()){
-                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)){
+                for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
+                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
                         etyms.append("<etym>");
                         LabeledLexicalInformation segOrQuoteComponents = etymQuoteParser.process(lexicalEntryComponent.getA(), EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL);
                         for (Pair<List<LayoutToken>, String> segOrQuoteComponent : segOrQuoteComponents.getLabels()) {
-                            if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL)){
+                            if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL)) {
                                 //Write raw text
                                 for (LayoutToken txtline : segOrQuoteComponent.getA()) {
                                     rawtxt.append(txtline.getText());
                                 }
                                 etyms.append("<quote>");
                                 LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getA());
-                                if(isAnnotated){
-                                    String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
+                                if (isAnnotated) {
                                     String labeledFeatures = null;
                                     // if featSeg is null, it usually means that no body segment is found in the
 
                                     if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                                        featureWriter.write(featSeg + "\n");
+
 
                                         labeledFeatures = label(featSeg);
                                         etyms.append(toTEIEtym(labeledFeatures, layoutTokenization.getTokenization(), true));
                                     }
-                                }
-                                else{
+                                } else {
                                     etyms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(segOrQuoteComponent.getA())));
 
                                 }
 
                                 etyms.append("</quote>");
-                            }
-                            else if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.SEG_ETYMQUOTE_LABEL)){
+                            } else if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.SEG_ETYMQUOTE_LABEL)) {
                                 //Write raw text
                                 for (LayoutToken txtline : segOrQuoteComponent.getA()) {
                                     rawtxt.append(txtline.getText());
                                 }
                                 etyms.append("<seg>");
                                 LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getA());
-                                if(isAnnotated){
+                                if (isAnnotated) {
                                     String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                                     String labeledFeatures = null;
                                     // if featSeg is null, it usually means that no body segment is found in the
@@ -358,8 +316,7 @@ public class EtymParser extends AbstractParser {
                                         labeledFeatures = label(featSeg);
                                         etyms.append(toTEIEtym(labeledFeatures, layoutTokenization.getTokenization(), true));
                                     }
-                                }
-                                else{
+                                } else {
                                     etyms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(segOrQuoteComponent.getA())));
 
                                 }
@@ -374,10 +331,7 @@ public class EtymParser extends AbstractParser {
                 }
 
 
-
-
             }
-
 
 
         }
@@ -391,7 +345,7 @@ public class EtymParser extends AbstractParser {
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etym.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
         teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"etym.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"etym.css\"?>\n"+
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"etym.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");

@@ -213,41 +213,27 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
+
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+
             buffer.append(createMyXMLString("entry", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("pc", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("form", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("etym", clusterContent));
         } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("sense", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("re", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("pc", clusterContent));
         } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
@@ -356,13 +342,14 @@ public class LexicalEntryParser extends AbstractParser {
                 }
                 lexicalEntries.append("<entry>");
                 LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getA());
+                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                featureWriter.write(featSeg + "\n");
                 if(isAnnotated){
-                    String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                    String labeledFeatures = null;
+                   String labeledFeatures = null;
                     // if featSeg is null, it usually means that no body segment is found in the
 
                     if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                        featureWriter.write(featSeg + "\n");
+
 
                         labeledFeatures = label(featSeg);
                         lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));

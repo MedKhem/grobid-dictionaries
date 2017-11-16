@@ -5,10 +5,7 @@ import org.apache.lucene.util.IOUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
-import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
-import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.engines.label.LexicalEntryLabels;
-import org.grobid.core.engines.label.TaggingLabel;
+import org.grobid.core.engines.label.*;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorForm;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
@@ -30,8 +27,9 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.FormLabels.*;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+
 
 /**
  * Created by lfoppiano on 05/05/2017.
@@ -82,10 +80,9 @@ public class FormParser extends AbstractParser {
         }
 
         sb.append("</form>").append("\n");
-        if(gramGrp.length() > 0){
+        if (gramGrp.length() > 0) {
             sb.append(gramGrp.toString()).append("\n");
         }
-
 
 
         return sb;
@@ -172,7 +169,7 @@ public class FormParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
             List<LayoutToken> concatenatedTokens = cluster.concatTokens();
 
-            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens,tagLabel));
+            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens, tagLabel));
 
         }
 
@@ -215,46 +212,27 @@ public class FormParser extends AbstractParser {
     }
 
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
+
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+
+
+        if (tagLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
+            buffer.append(createMyXMLString("orth", clusterContent));
+        } else if (tagLabel.equals(PRONUNCIATION_FORM_LABEL)) {
+            buffer.append(createMyXMLString("pron", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
             buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_FORM_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("form", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("re", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        } else if (tagLabel.equals(GRAMMATICAL_GROUP_FORM_LABEL)) {
+            buffer.append(createMyXMLString("gramGrp", clusterContent));
+        } else if (tagLabel.equals(LANG_LABEL)) {
+            buffer.append(createMyXMLString("lang", clusterContent));
+        } else if (tagLabel.equals(DICTIONARY_DICTSCRAP_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
-            clusterContent = TextUtilities.HTMLEncode(clusterContent);
-            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-            buffer.append(createMyXMLString("pc", clusterContent));
         } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
     }
+
 
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
@@ -339,13 +317,13 @@ public class FormParser extends AbstractParser {
 
         //Create rng and css files for guiding the annotation
         File existingRngFile = new File("templates/form.rng");
-        File newRngFile = new File(outputDirectory + "/" +"form.rng");
-        copyFileUsingStream(existingRngFile,newRngFile);
+        File newRngFile = new File(outputDirectory + "/" + "form.rng");
+        copyFileUsingStream(existingRngFile, newRngFile);
 
         File existingCssFile = new File("templates/form.css");
-        File newCssFile = new File(outputDirectory + "/" +"form.css");
+        File newCssFile = new File(outputDirectory + "/" + "form.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
-        copyFileUsingStream(existingCssFile,newCssFile);
+        copyFileUsingStream(existingCssFile, newCssFile);
 
 
         StringBuffer rawtxt = new StringBuffer();
@@ -358,26 +336,27 @@ public class FormParser extends AbstractParser {
                 LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getA(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)){
+                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
                         //Write raw text
                         for (LayoutToken txtline : lexicalEntryComponent.getA()) {
                             rawtxt.append(txtline.getText());
                         }
                         forms.append("<form>");
                         LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getA());
-                        if(isAnnotated){
-                            String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                        featureWriter.write(featSeg + "\n");
+                        if (isAnnotated) {
+
                             String labeledFeatures = null;
                             // if featSeg is null, it usually means that no body segment is found in the
 
                             if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                                featureWriter.write(featSeg + "\n");
+
 
                                 labeledFeatures = label(featSeg);
                                 forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
-                        }
-                        else{
+                        } else {
                             forms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryComponent.getA())));
 
                         }
@@ -387,9 +366,7 @@ public class FormParser extends AbstractParser {
                 }
 
 
-
             }
-
 
 
         }
@@ -403,7 +380,7 @@ public class FormParser extends AbstractParser {
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
         teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"form.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"form.css\"?>\n"+
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"form.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");

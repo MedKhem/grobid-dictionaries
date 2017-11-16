@@ -903,13 +903,13 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         //Create rng and css files for guiding the annotation
         File existingRngFile = new File("templates/dictionarySegmentation.rng");
-        File newRngFile = new File(outputDirectory + "/" +"dictionarySegmentation.rng");
-        copyFileUsingStream(existingRngFile,newRngFile);
+        File newRngFile = new File(outputDirectory + "/" + "dictionarySegmentation.rng");
+        copyFileUsingStream(existingRngFile, newRngFile);
 
         File existingCssFile = new File("templates/dictionarySegmentation.css");
-        File newCssFile = new File(outputDirectory + "/" +"dictionarySegmentation.css");
+        File newCssFile = new File(outputDirectory + "/" + "dictionarySegmentation.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
-        copyFileUsingStream(existingCssFile,newCssFile);
+        copyFileUsingStream(existingCssFile, newCssFile);
 
         // also write the raw text as seen before segmentation
 
@@ -920,35 +920,32 @@ public class DictionarySegmentationParser extends AbstractParser {
         String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
-        StringBuffer bufferFulltext =  new StringBuffer();
+        StringBuffer bufferFulltext = new StringBuffer();
 
 
-        if(isAnnotated){
+        if (isAnnotated) {
             if ((featuredText != null) && (featuredText.length() > 0)) {
                 String rese = label(featuredText);
                 bufferFulltext.append(trainingExtraction(rese, doc));
             }
 
-        }
-        else{
+        } else {
             bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations)));
         }
         //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
 
 
+        // write the TEI file to reflect the exact layout of the text as extracted from the pdf
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
+        writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
+        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionarySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionarySegmentation.css\"?>\n" +
+                "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+                "\"/>\n\t</teiHeader>\n\t<text>");
 
-
-            // write the TEI file to reflect the exact layout of the text as extracted from the pdf
-            String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation.tei.xml";
-            writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionarySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                    "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionarySegmentation.css\"?>\n"+
-                    "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                    "\"/>\n\t</teiHeader>\n\t<text>");
-
-            writer.write(bufferFulltext.toString());
-            writer.write("\n\t</text>\n</tei>\n");
-            writer.close();
+        writer.write(bufferFulltext.toString());
+        writer.write("\n\t</text>\n</tei>\n");
+        writer.close();
 
     }
 
@@ -1510,6 +1507,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         return tei;
     }
+
     private static void copyFileUsingStream(File source, File dest) throws IOException {
         InputStream is = null;
         OutputStream os = null;
