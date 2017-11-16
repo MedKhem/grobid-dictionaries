@@ -943,7 +943,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
 
-        writer.write(bufferFulltext.toString());
+        writer.write(bufferFulltext.toString().replaceAll("&","&amp;"));
         writer.write("\n\t</text>\n</tei>\n");
         writer.close();
 

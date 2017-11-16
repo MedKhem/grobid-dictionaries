@@ -1052,7 +1052,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 "\"/>\n\t</teiHeader>\n\t<text>");
 
         writer.write("\n\t\t<body>");
-        writer.write(bufferFulltext.toString());
+        writer.write(bufferFulltext.toString().replaceAll("&","&amp;"));
         writer.write("</body>");
         writer.write("\n\t</text>\n</tei>\n");
         writer.close();

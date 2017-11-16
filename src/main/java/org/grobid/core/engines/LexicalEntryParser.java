@@ -381,7 +381,8 @@ public class LexicalEntryParser extends AbstractParser {
                 "\"/>\n\t</teiHeader>\n\t<text>");
 
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(lexicalEntries.toString());
+
+        teiWriter.write(lexicalEntries.toString().replaceAll("&","&amp;"));
         teiWriter.write("</body>");
 
         teiWriter.write("\n\t</text>\n</tei>\n");

@@ -310,7 +310,7 @@ public class EtymQuoteParser extends AbstractParser {
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(etymQuotes.toString());
+        teiWriter.write(etymQuotes.toString().replaceAll("&","&amp;"));
         teiWriter.write("</body>");
         teiWriter.write("\n\t</text>\n</tei>\n");
 

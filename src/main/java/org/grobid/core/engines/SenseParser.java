@@ -376,7 +376,8 @@ public class SenseParser extends AbstractParser {
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(senses.toString());
+        //Small special character encoding control for the Author mode in Oxygen
+        teiWriter.write(senses.toString().replaceAll("&","&amp;"));
         teiWriter.write("</body>");
         teiWriter.write("\n\t</text>\n</tei>\n");
 
