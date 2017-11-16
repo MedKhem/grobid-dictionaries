@@ -214,6 +214,7 @@ public class FormParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        clusterContent = clusterContent.replace("&", "&amp;");
 
 
         if (tagLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {

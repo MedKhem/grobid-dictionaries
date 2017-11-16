@@ -144,6 +144,7 @@ public class EtymParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        clusterContent = clusterContent.replace("&", "&amp;");
 
         if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));

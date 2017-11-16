@@ -215,6 +215,7 @@ public class LexicalEntryParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        clusterContent = clusterContent.replace("&", "&amp;");
 
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
 

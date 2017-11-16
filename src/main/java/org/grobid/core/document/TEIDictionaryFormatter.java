@@ -59,6 +59,7 @@ public class TEIDictionaryFormatter {
             String clusterContent = LayoutTokensUtil.toText(list1);
 
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            clusterContent = clusterContent.replace("&", "&amp;");
             clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
             String tagLabel = clusterLabel.getLabel();
 
