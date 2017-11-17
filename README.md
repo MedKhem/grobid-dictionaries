@@ -81,7 +81,7 @@ Build Grobid-Dictionaries:
 
 **The models have to be trained before running the tests!**
 
-# Training
+## Training
 
 Training a GROBID model is actually about creating new model trained on the available training data. And generating training data from new PDF documents using GROBID-dictionaries, to be corrected afterwards, needs the existence of a trained model (even slightly trained). We provide [toy data](https://github.com/MedKhem/grobid-dictionaries/tree/master/toyData/) to create first models for each segmentation level. The architecture of directories and files should be respected as it is when new files are added to the training dataset.
 For creating, training or re-training the models, the followings commands should be executed.
@@ -175,7 +175,7 @@ The execution of any of the previous command will result in the generation of 5 
 
 GROBID-Dictionaries's the training data is encoded following the [TEI P5](http://www.tei-c.org/Guidelines/P5). See the [annotation guidelines page](https://github.com/MedKhem/grobid-dictionaries/wiki) for detailed explanations and examples concerning the best practices fro annotating the data.  
 
-# Service mode (GUI)
+## Service mode (GUI)
 
 After making sure that a model exists for each segmentation level you could start using the GUI to segment your PDF dictionaries
 
@@ -187,7 +187,7 @@ the web service would be accessible directly at the navigator (if you run it loc
 
 For the time being, `Process Full Dictionary` corresponds to the cascading execution of all existing models to segment the input file. The rest of the labels corresponds to the execution of the first  segmentation models.   
 
-# License
+## License
 
 GROBID and GROBID-Dictionaries are distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). 
 
