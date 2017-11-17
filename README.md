@@ -87,7 +87,7 @@ Training a GROBID model is actually about creating new model trained on the avai
 
 For creating, training or re-training the models, the followings commands should be executed.
 
-First rename the training data *skeletonwithToyData* directory to *resources*. 
+First rename the training data *toyData* directory to *resources*. 
 
 Make sure that the current directory is grobid-dictionaries: 
 
