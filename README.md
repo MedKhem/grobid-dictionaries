@@ -83,7 +83,8 @@ Build Grobid-Dictionaries:
 
 ## Training
 
-Training a GROBID model is actually about creating new model trained on the available training data. And generating training data from new PDF documents using GROBID-dictionaries, to be corrected afterwards, needs the existence of a trained model (even slightly trained). We provide [toy data](https://github.com/MedKhem/grobid-dictionaries/tree/master/toyData/) to create first models for each segmentation level. The architecture of directories and files should be respected as it is when new files are added to the training dataset.
+Training a GROBID model is actually about creating new model trained on the available training data. And generating training data from new PDF documents using GROBID-dictionaries, to be corrected afterwards, needs the existence of a trained model (even slightly trained). We provide [toy data](https://github.com/MedKhem/grobid-dictionaries/tree/master/toyData/) to create first models for each segmentation level. 
+
 For creating, training or re-training the models, the followings commands should be executed.
 
 First rename the training data *skeletonwithToyData* directory to *resources*. 
@@ -162,14 +163,14 @@ The above commands create training data to be annotated from scratch (files endi
 It is possible also to generate pre-annotations using the current model, to be corrected afterwards (this mode is recommended when the model to be trained is becoming more precise). To do so, the latest token of the above commands should include *Annotated*. 
 For example:  *createTrainingDictionarySegmentation* -> *createAnnotatedTrainingDictionarySegmentation*
 
-The execution of any of the previous command will result in the generation of 5 files:
+The execution of any of the previous commands result in the generation of 5 files:
 * inputFile **.rawtxt**: contains the raw text extracted from a the input file (not used for training)
 * inputFile **.tei.xml**: contains gold standard segmentation of the input file (crucial for the training)
 * inputFile **.modelname**: contains features corresponding to each line/token in the input file (crucial for the training). The beginning of each line in the feature matrix should be synchronised with each line/token in the **tei.xml**
 * modelname **.css**: a stylesheet for a better rendering of *.tei.xml* elements in [Oxygen](https://www.oxygenxml.com)'s author mode (useful for annotation)
 * modelname **.rng**: an xml syntax descriptor for a element suggestion applied to *.tei.xml* elements in [Oxygen](https://www.oxygenxml.com)'s author mode (useful for annotation)
 
-
+The generated files should be included in the training dataset while the architecture of directories and files in the toy data directory is respected.
 
 ## Training data
 
