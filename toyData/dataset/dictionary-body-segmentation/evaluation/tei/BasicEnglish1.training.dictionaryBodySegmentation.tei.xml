@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<tei>
+    <teiHeader>
+        <fileDesc xml:id=""/>
+    </teiHeader>
+    <text xml:lang="en">
+        <body>
+            <entry>absolutely<lb/>absolutely adverb</entry>
+
+        </body>
+    </text>
+</tei>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tei>
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+			<etym><seg>schwatzen;</seg></etym></body>
+		<footnote></footnote>
+	</text>
+</tei>

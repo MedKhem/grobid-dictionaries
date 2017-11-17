@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<tei>
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text xml:lang="en">
+<headnote>A <lb/></headnote><body>a <lb/>a</body>
+	</text>
+</tei>

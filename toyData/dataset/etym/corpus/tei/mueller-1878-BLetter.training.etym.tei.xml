@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tei>
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text xml:lang="en">
+		<headnote>p. [38] - #f0047 <lb/>B. <lb/>p. 39 -<lb/>#f0048 <lb/>p. 41 -<lb/>#f0049 <lb/></headnote>
+		<body>
+			<etym>schwatzen; <lang>alteng.</lang></etym></body>
+		<footnote></footnote>
+	</text>
+</tei>

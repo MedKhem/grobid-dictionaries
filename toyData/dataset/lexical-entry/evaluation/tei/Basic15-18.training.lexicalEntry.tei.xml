@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<tei>
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+			<entry><pc>area <lb/></pc><form>area</form></entry>
+		</body>
+
+	</text>
+</tei>
