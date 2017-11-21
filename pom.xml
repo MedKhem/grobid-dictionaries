@@ -22,7 +22,7 @@
         <repository>
             <id>3rd-party-local-repo</id>
             <name>This is a local repository included in the grobid project, to access 3rd party libs.</name>
-            <url>file:///${basedir}/lib/</url>
+            <url>/usr/share/maven/ref/</url>
             <layout>default</layout>
         </repository>
         <repository>
