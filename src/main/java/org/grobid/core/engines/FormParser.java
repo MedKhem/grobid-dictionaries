@@ -68,8 +68,7 @@ public class FormParser extends AbstractParser {
             String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
             String labelForm = entryForm.getB();
 
-            String content = TextUtilities.HTMLEncode(tokenForm);
-            content = content.replace("&lt;lb/&gt;", "<lb/>");
+            String content = DocumentUtils.escapeHTMLCharac(tokenForm);
             if (!labelForm.equals("<gramGrp>")) {
                 sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
             } else if (labelForm.equals("<gramGrp>")) {
@@ -214,7 +213,7 @@ public class FormParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = clusterContent.replace("&", "&amp;");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
 
         if (tagLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
@@ -358,7 +357,7 @@ public class FormParser extends AbstractParser {
                                 forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
                         } else {
-                            forms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryComponent.getA())));
+                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getA()))));
 
                         }
 

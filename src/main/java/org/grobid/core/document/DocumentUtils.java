@@ -269,4 +269,17 @@ public class DocumentUtils {
         }
         return text;
     }
+
+    public static String escapeHTMLCharac (String text){
+
+        text = text.replace("&","&amp;");
+        text = text.replace("<","&lt;");
+        text = text.replace(">","&gt;");
+
+//        text = text.replace("\'","&apos;");
+//        text = text.replace("\"","&quot;");
+
+
+        return text;
+    }
 }

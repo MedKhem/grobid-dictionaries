@@ -5,8 +5,10 @@ import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.main.LibraryLoader;
 import org.grobid.core.utilities.Pair;
+import org.grobid.core.utilities.TextUtilities;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -109,4 +111,6 @@ public class DocumentUtilsTest {
         return doc;
 
     }
+
+
 }

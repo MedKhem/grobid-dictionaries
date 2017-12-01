@@ -215,7 +215,7 @@ public class LexicalEntryParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = clusterContent.replace("&", "&amp;");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
 
@@ -357,7 +357,7 @@ public class LexicalEntryParser extends AbstractParser {
                     }
                 }
                 else {
-                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getA())));
+                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getA()))));
                 }
 
 

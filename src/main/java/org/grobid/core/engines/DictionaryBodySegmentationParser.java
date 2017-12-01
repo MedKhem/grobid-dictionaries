@@ -330,7 +330,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
                                 List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                                 String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                produceXmlNode(tei, clusterContent, bodyComponent.getB());
+                                produceXmlNode(tei, clusterContent, bodyComponent.getB(),false);
                             }
 
 
@@ -359,7 +359,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                 List<LayoutToken> allTokensOfaLE = lexicalEntriesSubList.get(h).getA();
                                 String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                                 String tag = lexicalEntriesSubList.get(h).getB();
-                                produceXmlNode(tei, clusterContent, tag);
+                                produceXmlNode(tei, clusterContent, tag, false);
                             }
 
                             List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.getA().subList(0, indexOfLastTokenInThePage);
@@ -374,7 +374,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                             textToShowInTokens.addAll(restOfLexicalEntryTokens);
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
-                            produceXmlNode(tei, clusterContent, tagLabel);
+                            produceXmlNode(tei, clusterContent, tagLabel, false);
 
 
                         }
@@ -386,7 +386,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                 List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                                 String tagLabel = bodyComponent.getB();
                                 String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                produceXmlNode(tei, clusterContent, tagLabel);
+                                produceXmlNode(tei, clusterContent, tagLabel,false);
                             }
 
 
@@ -403,7 +403,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                         String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                         String tagLabel = bodyComponent.getB();
-                        produceXmlNode(tei, clusterContent, tagLabel);
+                        produceXmlNode(tei, clusterContent, tagLabel, false);
                     }
 
                     simpleDisplayEndOfPage(tei, doc);
@@ -423,7 +423,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                         String tagLabel = bodyComponent.getB();
                         if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                            produceXmlNode(tei, clusterContent, tagLabel);
+                            produceXmlNode(tei, clusterContent, tagLabel,false);
                         }
 
                     }
@@ -446,7 +446,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
                     String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
                     String tagLabel = bodyComponent.getB();
-                    produceXmlNode(tei, clusterContent, tagLabel);
+                    produceXmlNode(tei, clusterContent, tagLabel,false);
                 }
 
                 simpleDisplayEndOfPage(tei, doc);
@@ -497,7 +497,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                                 }
 
-                                produceXmlNode(tei, clusterContent, bodyComponent.getB());
+                                produceXmlNode(tei, clusterContent, bodyComponent.getB(), true);
                             }
 
 
@@ -537,7 +537,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                 } else {
                                     clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                                 }
-                                produceXmlNode(tei, clusterContent, tag);
+                                produceXmlNode(tei, clusterContent, tag,true);
                             }
 
                             boolean splitProcessed = false;
@@ -570,7 +570,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
                             String tagLabel = lexicalEntriesSubList.get(lexicalEntriesSubList.size() - 1).getB();
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
-                            produceXmlNode(tei, clusterContent, tagLabel);
+                            produceXmlNode(tei, clusterContent, tagLabel, true);
 
                         }
                         if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
@@ -585,7 +585,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                 } else {
                                     clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                                 }
-                                produceXmlNode(tei, clusterContent, tagLabel);
+                                produceXmlNode(tei, clusterContent, tagLabel, true);
                             }
 
 
@@ -607,7 +607,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         } else {
                             clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                         }
-                        produceXmlNode(tei, clusterContent, tagLabel);
+                        produceXmlNode(tei, clusterContent, tagLabel, true);
                     }
 
                     simpleDisplayEndOfPage(tei, doc);
@@ -638,7 +638,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     } else {
                         clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
                     }
-                    produceXmlNode(tei, clusterContent, tagLabel);
+                    produceXmlNode(tei, clusterContent, tagLabel, true);
                 }
 
                 simpleDisplayEndOfPage(tei, doc);
@@ -707,7 +707,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     }
 
                                 }
-                                produceXmlNode(tei, clusterContent, tagLabel);
+                                produceXmlNode(tei, clusterContent, tagLabel, true);
                             }
 
 
@@ -853,7 +853,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
                             String tagLabel = lexicalEntriesSubList.get(lexicalEntriesSubList.size() - 1).getB();
                             String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(textToShowInTokens));
-                            produceXmlNode(tei, clusterContent, tagLabel);
+                            produceXmlNode(tei, clusterContent, tagLabel, true);
 
 
                         }
@@ -1036,7 +1036,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             bufferFulltext.append(trainingExtraction(doc, rese, tokenizations));
 
         } else {
-            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations.getTokenization())));
+            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(tokenizations.getTokenization()))));
         }
 
 
@@ -1072,9 +1072,13 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return buffer;
     }
 
-    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
+    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped) {
+
+    if(!clusterContentIsEscaped){
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = clusterContent.replace("&", "&amp;");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
+    }
+
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
             buffer.append(createMyXMLString("entry", clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
@@ -1163,7 +1167,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
 //                        if (bodyComponent.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            produceXmlNode(tei, clusterContent, tagLabel);
+            produceXmlNode(tei, clusterContent, tagLabel, true);
 //                        }
 
         }
@@ -1290,7 +1294,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         String tagLabel = bodyComponent.getB();
         clusterContent = checkFullABodyComponentToTEI(tagLabel, allTokensOfaLE, modelToRun);
 
-        produceXmlNode(tei, clusterContent, tagLabel);
+        produceXmlNode(tei, clusterContent, tagLabel, true);
     }
 
     private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun) {
@@ -1322,7 +1326,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
                     }
-                    produceXmlNode(clusterContent, etymTEIString, LEXICAL_ENTRY_ETYM_LABEL);
+                    produceXmlNode(clusterContent, etymTEIString, LEXICAL_ENTRY_ETYM_LABEL, true);
                     //clusterContent.append(clusterContent + etymTEIString);
 
                     //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();

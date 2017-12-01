@@ -930,7 +930,7 @@ public class DictionarySegmentationParser extends AbstractParser {
             }
 
         } else {
-            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(tokenizations)));
+            bufferFulltext.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(tokenizations))));
         }
         //Using the existing model of the parser to generate a pre-annotate tei file to be corrected
 
@@ -991,9 +991,9 @@ public class DictionarySegmentationParser extends AbstractParser {
                 while (stt.hasMoreTokens()) {
                     String s = stt.nextToken().trim();
                     if (i == 0) {
-                        s2 = TextUtilities.HTMLEncode(s); // lexical token
+                   //     s2 = TextUtilities.HTMLEncode(s); // lexical token
                     } else if (i == 1) {
-                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
+                   //     s3 = TextUtilities.HTMLEncode(s); // second lexical token
                     } else if (i == ll - 1) {
                         s1 = s; // current label
                     } else {
@@ -1041,7 +1041,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     }
                 }
 
-                line = TextUtilities.HTMLEncode(line);
+                line = DocumentUtils.escapeHTMLCharac(line);
 
                 if (newLine && !start) {
                     buffer.append("<lb/>");
@@ -1091,6 +1091,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 if (!st.hasMoreTokens()) {
                     if (lastTag != null) {
+                        buffer = new StringBuffer(LayoutTokensUtil.normalizeText(buffer.toString()));
                         testClosingTagForTrainingData(buffer, "", currentTag0, s1);
                     }
                 }
@@ -1148,9 +1149,9 @@ public class DictionarySegmentationParser extends AbstractParser {
                 while (stt.hasMoreTokens()) {
                     String s = stt.nextToken().trim();
                     if (i == 0) {
-                        s2 = TextUtilities.HTMLEncode(s); // lexical token
+//                        s2 = TextUtilities.HTMLEncode(s); // lexical token
                     } else if (i == 1) {
-                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
+//                        s3 = TextUtilities.HTMLEncode(s); // second lexical token
                     } else if (i == ll - 1) {
                         s1 = s; // current label
                     } else {
@@ -1198,7 +1199,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     }
                 }
 
-                line = TextUtilities.HTMLEncode(line);
+                line = DocumentUtils.escapeHTMLCharac(line);
 
                 String lastTag0 = null;
                 if (lastTag != null) {
@@ -1225,6 +1226,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                 boolean output;
 
+
                 output = writeField(buffer, line, s1, lastTag0, s2, "<headnote>", "<fw>", addSpace, 3);
                 if (!output) {
                     output = writeField(buffer, line, s1, lastTag0, s2, "<body>", "<ab>", addSpace, 3);
@@ -1245,7 +1247,6 @@ public class DictionarySegmentationParser extends AbstractParser {
                 if (!st.hasMoreTokens()) {
                     if (lastTag != null) {
                         buffer = new StringBuffer(LayoutTokensUtil.normalizeText(buffer.toString()));
-                        buffer = new StringBuffer(StringEscapeUtils.unescapeXml(buffer.toString()));
                         testClosingTag(buffer, "", currentTag0, s1);
                     }
                 }

@@ -61,7 +61,7 @@ public class EtymQuoteParser extends AbstractParser {
             String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
             String labelSense = entrySense.getB();
 
-            String content = TextUtilities.HTMLEncode(tokenSense);
+            String content = DocumentUtils.escapeHTMLCharac(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
             sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
@@ -141,7 +141,7 @@ public class EtymQuoteParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = clusterContent.replace("&", "&amp;");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));
@@ -284,7 +284,7 @@ public class EtymQuoteParser extends AbstractParser {
                                 etymQuotes.append(toTEIEtymQuote(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
                         } else {
-                            etymQuotes.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryComponent.getA())));
+                            etymQuotes.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getA()))));
 
                         }
 

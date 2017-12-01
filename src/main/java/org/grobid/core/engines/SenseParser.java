@@ -68,7 +68,7 @@ public class SenseParser extends AbstractParser {
             String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
             String labelSense = entrySense.getB();
 
-            String content = TextUtilities.HTMLEncode(tokenSense);
+            String content = DocumentUtils.escapeHTMLCharac(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
 
@@ -210,7 +210,7 @@ public class SenseParser extends AbstractParser {
     private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = clusterContent.replace("&", "&amp;");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
 
         if (tagLabel.equals(SenseLabels.SENSE_SENSE)) {
@@ -348,7 +348,7 @@ public class SenseParser extends AbstractParser {
                             }
                         }
                         else{
-                            senses.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(lexicalEntryComponent.getA())));
+                            senses.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getA()))));
 
                         }
 
