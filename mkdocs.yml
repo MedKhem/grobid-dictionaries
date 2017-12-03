@@ -10,5 +10,5 @@ pages:
 - ['Install.md', 'About']
 - ['Training.md', 'About', 'Training']
 - ['Generation_training_data.md', 'Generation of training data']
-- ['Service_mode', 'Service mode']
+- ['Service_mode.md', 'Service mode']
 - ['Docker.md', 'Docker']
