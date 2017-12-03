@@ -6,7 +6,7 @@ site_description: Documentation for GROBID-Dictionaries
 docs_dir: docs
 include_search: true
 pages:
-- ['Index.md', 'Home']
+- ['index.md', 'Home']
 - ['Install.md', 'About']
 - ['Training.md', 'About', 'Training']
 - ['Generation_training_data.md', 'Generation of training data']
