@@ -1,9 +1,9 @@
 site_name: GROBID-Dictionaries Documentation
-repo_url: https://github.com/MedKhem/grobid-dictionaries
+repo_url: https://github.com/MedKhem/grobid-dictionaries/
 repo_name: GitHub
 theme: readthedocs
 site_description: Documentation for GROBID-Dictionaries
-docs_dir: doc
+docs_dir: docs
 include_search: true
 pages:
 - ['Index.md', 'Home']

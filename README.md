@@ -31,7 +31,7 @@ Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI St
 
 GROBID-Dictionaries is based on cascading CRF models. The diagram below presents the architecture enabling the processing and the transfer of the text information through the models.
 
-![GROBID Dictionaries Structure](doc/img/modelsGrobid.png)
+![GROBID Dictionaries Structure](docs/img/modelsGrobid.png)
 
 Each box represents a model and not a text structure. Every model allows the processing and the structuring of the information provided by its predecessor. 
 The name of each model reflects the information to be processed per level. Consequently, the same appellation is used for naming the implemented java classes and their functionalities.
@@ -60,7 +60,7 @@ GROBID-Dictionaries takes as input lexical resources digitized in PDF format. Ea
 
 
 ## Documentation
-The documentation of the tool is detailed [here](de)
+The documentation of the tool is detailed [here](http://grobid-dictionaries.readthedocs.io/en/latest/)
 
 
 
