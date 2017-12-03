@@ -1,0 +1,14 @@
+site_name: GROBID-Dictionaries Documentation
+repo_url: https://github.com/MedKhem/grobid-dictionaries
+repo_name: GitHub
+theme: readthedocs
+site_description: Documentation for GROBID-Dictionaries
+docs_dir: doc
+include_search: true
+pages:
+- ['Index.md', 'Home']
+- ['Install.md', 'About']
+- ['Training.md', 'About', 'Training']
+- ['Generation_training_data.md', 'Generation of training data']
+- ['Service_mode', 'Service mode']
+- ['Docker.md', 'Docker']
