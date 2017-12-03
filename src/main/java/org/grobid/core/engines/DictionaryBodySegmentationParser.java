@@ -1119,7 +1119,6 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         xmlStringElement.append("<");
         xmlStringElement.append(elementName);
         xmlStringElement.append(">");
-        xmlStringElement.append("\n");
         xmlStringElement.append(elementContent);
         xmlStringElement.append("</");
         xmlStringElement.append(elementName);
@@ -1310,11 +1309,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
             for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
                 if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
-                    clusterContent.append(clusterContent + formParser.processToTEI(segmentedEntryComponent.getA()).toString());
+                    clusterContent.append(formParser.processToTEI(segmentedEntryComponent.getA()).toString());
 
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_SENSE_LABEL)) {
 
-                    clusterContent.append(clusterContent + senseParser.processToTEI(segmentedEntryComponent.getA()).toString());
+                    clusterContent.append(senseParser.processToTEI(segmentedEntryComponent.getA()).toString());
                 } else if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
                     // Get the result of the first level Etym parsing
                     LabeledLexicalInformation parsedEtymSegOrQuote = etymQuoteParser.process(segmentedEntryComponent.getA(), modelToRun);
@@ -1332,7 +1331,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getA()).toString();
                 } else {
                     String xmlTag = segmentedEntryComponent.getB().replace("<", "").replace(">", "");
-                    clusterContent.append(clusterContent + createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA()))));
+                    clusterContent.append(createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getA()))));
 
 
                 }
