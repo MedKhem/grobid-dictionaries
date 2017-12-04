@@ -8,7 +8,7 @@ include_search: true
 pages:
 - ['index.md', 'Home']
 - ['Install.md', 'About']
-- ['Training.md', 'About', 'Training']
+- ['Training.md', 'Training']
 - ['Generation_training_data.md', 'Generation of training data']
 - ['Service_mode.md', 'Service mode']
 - ['Docker.md', 'Docker']

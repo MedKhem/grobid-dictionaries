@@ -1,9 +1,7 @@
 # GROBID-Dictionaries
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-<!-- [![Build Status](https://travis-ci.org/kermitt2/grobid-quantities.svg?branch=master)](https://travis-ci.org/kermitt2/grobid-quantities) -->
-<!-- [![Coverage Status](https://coveralls.io/repos/kermitt2/grobid-quantities/badge.svg)](https://coveralls.io/r/kermitt2/grobid-quantities) -->
-<!-- [![Documentation Status](https://readthedocs.org/projects/grobid-quantities/badge/?version=latest)](https://readthedocs.org/projects/grobid-quantities/?badge=latest) -->
+[![Documentation Status](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest)](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest) 
 
 ## Purpose
 
@@ -61,7 +59,6 @@ GROBID-Dictionaries takes as input lexical resources digitized in PDF format. Ea
 
 ## Documentation
 The documentation of the tool is detailed [here](http://grobid-dictionaries.readthedocs.io/en/latest/)
-
 
 
 
