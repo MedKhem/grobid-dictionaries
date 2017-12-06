@@ -53,9 +53,9 @@ For the second stage model of processing etymology information (**Etym** model):
 
 5. Run the web service to see the output of the dummy models 
 
-``````bash
+```bash
 mvn -Dmaven.test.skip=true jetty:run-war
-   ``````
+   ```
 You can see the running application in your web browser under:
 ```http://localhost:8080```
 

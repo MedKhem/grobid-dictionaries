@@ -1,0 +1,72 @@
+FROM openjdk:8
+
+RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade
+
+RUN \
+   wget -q https://services.gradle.org/distributions/gradle-3.3-bin.zip \
+    && unzip gradle-3.3-bin.zip -d /opt \
+    && rm gradle-3.3-bin.zip
+
+ENV GRADLE_HOME /opt/gradle-3.3
+ENV PATH $PATH:/opt/gradle-3.3/bin
+
+RUN \
+  apt-get install -y --no-install-recommends software-properties-common && \
+  apt-get install -y vim wget curl git maven
+
+#To clone from fork
+ RUN \
+  git clone https://github.com/MedKhem/grobid && \
+  cd grobid && ./gradlew clean install 
+
+# To copy from a local directory
+#COPY grobid-master.zip grobid-master.zip
+#RUN unzip grobid-master.zip && mv grobid-master grobid && rm grobid-master.zip && cd #grobid && ./gradlew clean install 
+
+RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/models/* && rm -r /grobid/grobid-home/build/distributions/*
+
+
+#To clone from fork
+ RUN \
+  cd /grobid && \
+  git clone https://github.com/MedKhem/grobid-dictionaries
+
+# To copy from a local directory
+#COPY grobid-dictionaries /grobid/grobid-dictionaries
+
+
+RUN \
+  cd /grobid/grobid-dictionaries && \
+  mv toyData resources && \
+ mvn -Dmaven.test.skip=true clean install
+
+WORKDIR /grobid/grobid-dictionaries
+EXPOSE 8080
+
+
+############Useful commands
+
+##See images
+# docker images -a
+
+##See containers
+# docker ps -a 
+
+##To Stop all containers
+#docker stop $(docker ps -qa)
+
+##To remove alla containers
+#docker rm $(docker ps -qa)
+
+##To remove all images
+#docker rmi $(docker images -qa)
+
+##To build an image inside forbid
+#docker build -f FirstGrobidDictionaries -t docker-grobid-training .
+
+##To run a container based on the created image inside forbid
+#docker run docker-grobid-training:latest
