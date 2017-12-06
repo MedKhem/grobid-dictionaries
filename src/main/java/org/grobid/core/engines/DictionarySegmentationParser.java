@@ -1300,7 +1300,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 buffer.append(outField).append(line);
             } else if (field.equals("<body>")) {
                 outField = outField.substring(0, outField.length() - 1) + " type=\"page\">";
-                buffer.append(outField);
+                buffer.append(outField).append(line);
             } else if (lastTag0 == null) {
                 buffer.append(outField).append(line);
             } else if (!lastTag0.equals("<titlePage>")) {

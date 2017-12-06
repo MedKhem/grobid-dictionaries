@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL;
@@ -45,9 +42,9 @@ import static org.grobid.service.DictionaryPaths.*;
 public class DictionaryBodySegmentationParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     private static volatile DictionaryBodySegmentationParser instance;
-    private SortedSet<DocumentPiece> headNotesOfAllPages;
-    private SortedSet<DocumentPiece> footNotesOfAllPages;
-    private SortedSet<DocumentPiece> otherOfAllPages;
+    private SortedSet<DocumentPiece> headNotesOfAllPages = new TreeSet();
+    private SortedSet<DocumentPiece> footNotesOfAllPages= new TreeSet();
+    private SortedSet<DocumentPiece> otherOfAllPages= new TreeSet();
 
 
     int pagesNumber;
@@ -256,10 +253,20 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         StringBuilder headerTEI = new StringBuilder();
         StringBuilder tei = formatHeader(config, schemaDeclaration, doc);
         tei.append(headerTEI);
+        if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL) != null){
+            headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
 
-        headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
-        footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
-        otherOfAllPages = doc.getDocumentDictionaryPart(DICTIONARY_DICTSCRAP_LABEL);
+        }
+        if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL) != null){
+            footNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL);
+
+        }
+        if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL) != null){
+            otherOfAllPages = doc.getDocumentDictionaryPart(DICTIONARY_DICTSCRAP_LABEL);
+        }
+
+
+
 
 
         pagesNumber = doc.getPages().size();
@@ -298,9 +305,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         if (modelToRun.equals(PATH_DICTIONARY_BODY_SEGMENTATATION)) {
             if (lexicalEntriesNumber > pagesNumber) {
-                tei.append("\t\t<fw " + "type=\"header\">");
-                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-                tei.append("</fw>\n");
+
+                if(headNotesOfAllPages.size() != 0){
+                    tei.append("\t\t<fw " + "type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+                    tei.append("</fw>\n");
+                }
+
+
 
 
                 if (pagesOffsetArray.size() > 1) {
@@ -412,11 +424,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
                 if (bigEntryIsInsideDetected) {
                     tei = headerTEI;
-                    for (DocumentPiece header : headNotesOfAllPages) {
-                        tei.append("\t\t<fw type=\"header\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                        tei.append("</fw>");
+                    if(headNotesOfAllPages.size() != 0){
+                        for (DocumentPiece header : headNotesOfAllPages) {
+                            tei.append("\t\t<fw type=\"header\">");
+                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                            tei.append("</fw>");
+                        }
                     }
+
 
                     for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
@@ -435,12 +450,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             } else {
                 // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
 
-
-                for (DocumentPiece header : headNotesOfAllPages) {
-                    tei.append("\t\t<fw type=\"header\">");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                    tei.append("</fw>");
+                if(headNotesOfAllPages.size() != 0){
+                    for (DocumentPiece header : headNotesOfAllPages) {
+                        tei.append("\t\t<fw type=\"header\">");
+                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                        tei.append("</fw>");
+                    }
                 }
+
 
                 for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
@@ -457,11 +474,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         } else if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
             LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
             if (lexicalEntriesNumber > pagesNumber) {
-                tei.append("\t\t<fw " + "type=\"header\">");
-                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-                tei.append("</fw>\n");
+                if(headNotesOfAllPages.size() != 0) {
+                    tei.append("\t\t<fw " + "type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+                    tei.append("</fw>\n");
 
-
+                }
                 if (pagesOffsetArray.size() > 1) {
                     int k = 0;
                     int lexicalEntryBeginIndex;
@@ -621,12 +639,13 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
             } else {
                 // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
+                if(headNotesOfAllPages.size() != 0) {
 
-
-                for (DocumentPiece header : headNotesOfAllPages) {
-                    tei.append("\t\t<fw type=\"header\">");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                    tei.append("</fw>");
+                    for (DocumentPiece header : headNotesOfAllPages) {
+                        tei.append("\t\t<fw type=\"header\">");
+                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                        tei.append("</fw>");
+                    }
                 }
 
                 for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
@@ -651,10 +670,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             FormParser formParser = new FormParser();
             SenseParser senseParser = new SenseParser();
             if (lexicalEntriesNumber > pagesNumber) {
-                tei.append("\t\t<fw " + "type=\"header\">");
-                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-                tei.append("</fw>\n");
-
+                if(headNotesOfAllPages.size() != 0) {
+                    tei.append("\t\t<fw " + "type=\"header\">");
+                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
+                    tei.append("</fw>\n");
+                }
 
                 if (pagesOffsetArray.size() > 1) {
                     int k = 0;
@@ -890,11 +910,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             } else {
                 // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
 
-
-                for (DocumentPiece header : headNotesOfAllPages) {
-                    tei.append("\t\t<fw type=\"header\">");
-                    tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                    tei.append("</fw>");
+                if(headNotesOfAllPages.size() != 0) {
+                    for (DocumentPiece header : headNotesOfAllPages) {
+                        tei.append("\t\t<fw type=\"header\">");
+                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                        tei.append("</fw>");
+                    }
                 }
 
                 for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
@@ -1134,10 +1155,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
-        for (DocumentPiece header : headNotesOfAllPages) {
-            tei.append("\t\t<fw type=\"header\">");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-            tei.append("</fw>");
+        if(headNotesOfAllPages.size() != 0) {
+            for (DocumentPiece header : headNotesOfAllPages) {
+                tei.append("\t\t<fw type=\"header\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
+                tei.append("</fw>");
+            }
         }
 
         for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
@@ -1205,30 +1228,34 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         tei.append("<pb/>");
 
-        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
-            tei.append("\t\t<fw type=\"header\">");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-            currentHeadIndex++;
-            tei.append("</fw>");
+            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
+                tei.append("\t\t<fw type=\"header\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+                currentHeadIndex++;
+                tei.append("</fw>");
 
-        }
+            }
     }
 
     private void simpleDisplayEndOfPage(StringBuilder tei, DictionaryDocument doc) {
-        for (DocumentPiece footer : footNotesOfAllPages) {
+        if(footNotesOfAllPages.size() != 0) {
+            for (DocumentPiece footer : footNotesOfAllPages) {
 
-            tei.append("\t\t<fw type=\"footer\">");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
-            currentFootIndex++;
-            tei.append("</fw>");
-            tei.append("\n");
+                tei.append("\t\t<fw type=\"footer\">");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(footer)));
+                currentFootIndex++;
+                tei.append("</fw>");
+                tei.append("\n");
+            }
         }
-        for (DocumentPiece other : otherOfAllPages) {
-            tei.append("\t\t<dictScrap>");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
-            currentOtherIndex++;
-            tei.append("</dictScrap>");
-            tei.append("\n");
+        if(otherOfAllPages.size() != 0) {
+            for (DocumentPiece other : otherOfAllPages) {
+                tei.append("\t\t<dictScrap>");
+                tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
+                currentOtherIndex++;
+                tei.append("</dictScrap>");
+                tei.append("\n");
+            }
         }
 
     }
@@ -1277,13 +1304,15 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
         textToShowInTokens.add(new LayoutToken("\t\t<pb/>"));
 
-        if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
 
-            textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
-            textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
-            currentHeadIndex++;
-            textToShowInTokens.add(new LayoutToken("</fw>"));
-        }
+            if (currentHeadIndex < headNotesOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))) != "") {
+
+                textToShowInTokens.add(new LayoutToken("\t\t<fw type=\"header\">"));
+                textToShowInTokens.add(new LayoutToken(doc.getDocumentPieceText(Iterables.get(headNotesOfAllPages, currentHeadIndex))));
+                currentHeadIndex++;
+                textToShowInTokens.add(new LayoutToken("</fw>"));
+            }
+
     }
 
     private void processFullABodyComponentToTEI(Pair<List<LayoutToken>, String> bodyComponent, StringBuilder tei, String modelToRun) {

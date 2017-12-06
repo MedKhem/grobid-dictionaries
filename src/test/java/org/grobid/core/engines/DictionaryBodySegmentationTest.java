@@ -1,10 +1,13 @@
 package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
+import org.grobid.core.document.DocumentPiece;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static org.grobid.service.DictionaryPaths.PATH_DICTIONARY_BODY_SEGMENTATATION;
 import static org.hamcrest.MatcherAssert.assertThat;
