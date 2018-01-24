@@ -1,6 +1,7 @@
 # GROBID-Dictionaries
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Version](https://img.shields.io/badge/version-0.4.3--SNAPSHOT-brightgreen.svg)](Readme.md)
 [![Documentation Status](https://readthedocs.org/projects/grobid-dictionaries/badge/?version=latest)](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest) 
 [![Docker build](https://dockerbuildbadges.quelltext.eu/status.svg?organization=medkhem&repository=grobid-dictionaries)](https://hub.docker.com/r/medkhem/grobid-dictionaries/builds/)
 ## Purpose
@@ -55,10 +56,11 @@ The same logic applies respectively for the recognised blocks in the lexical ent
 
 GROBID-Dictionaries takes as input lexical resources digitized in PDF format. Each model of the aforementioned components generates a TEI P5-encoded hierarchy of the different recognized text structures at that specific cascading level.
 
-
+## Docker Use
+To shortcut the installation of the tool, the [Docker manual](https://github.com/MedKhem/grobid-dictionaries/wiki/Docker_Instructions) could be followed to use the latest image of the tool
 
 ## Documentation
-The documentation of the tool is detailed [here](http://grobid-dictionaries.readthedocs.io/en/latest/)
+For more expert and development uses , the documentation of the tool is detailed [here](http://grobid-dictionaries.readthedocs.io/en/latest/)
 
 
 

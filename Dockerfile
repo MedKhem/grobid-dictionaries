@@ -1,5 +1,7 @@
 FROM openjdk:8
 
+MAINTAINER Mohamed Khemakhem <mohamed.khemakhem@inria.fr>
+
 RUN \
   export DEBIAN_FRONTEND=noninteractive && \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
