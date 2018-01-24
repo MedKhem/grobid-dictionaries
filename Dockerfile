@@ -31,12 +31,12 @@ RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && 
 
 
 #To clone from fork
-# RUN \
-#  cd /grobid && \
-#  git clone https://github.com/MedKhem/grobid-dictionaries
+ RUN \
+  cd /grobid && \
+  git clone https://github.com/MedKhem/grobid-dictionaries
 
 # To copy from a local directory
-COPY grobid-dictionaries /grobid/grobid-dictionaries
+#COPY grobid-dictionaries /grobid/grobid-dictionaries
 
 
 RUN \
