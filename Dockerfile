@@ -31,18 +31,25 @@ RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && 
 
 
 #To clone from fork
- RUN \
-  cd /grobid && \
-  git clone https://github.com/MedKhem/grobid-dictionaries
+# RUN \
+#  cd /grobid && \
+#  git clone https://github.com/MedKhem/grobid-dictionaries
 
 # To copy from a local directory
-#COPY grobid-dictionaries /grobid/grobid-dictionaries
+COPY grobid-dictionaries /grobid/grobid-dictionaries
 
 
 RUN \
   cd /grobid/grobid-dictionaries && \
   mv toyData resources && \
- mvn -Dmaven.test.skip=true clean install
+ mvn -Dmaven.test.skip=true clean install && \
+ mvn generate-resources -P train_dictionary_segmentation -e && \
+ mvn generate-resources -P train_dictionary_body_segmentation -e && \
+ mvn generate-resources -P train_lexicalEntries -e && \
+ mvn generate-resources -P train_form -e && \
+ mvn generate-resources -P train_sense -e && \
+ mvn generate-resources -P train_etymQuote -e && \
+ mvn generate-resources -P train_etym -e
 
 WORKDIR /grobid/grobid-dictionaries
 EXPOSE 8080

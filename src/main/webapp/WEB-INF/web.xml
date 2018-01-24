@@ -1,10 +1,21 @@
-<!DOCTYPE web-app PUBLIC
-        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-        "http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
 
-<web-app>
-    <display-name>GROBID Dictionaries web service - RESTful services for dictionaries segmentation and extraction
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         version="2.5"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+<display-name>GROBID Dictionaries web service - RESTful services for dictionaries segmentation and extraction
     </display-name>
+    <welcome-file-list>
+        <welcome-file>grobid/index.html</welcome-file>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/classes/log4j.properties</param-value>
+    </context-param>
 
     <servlet>
         <servlet-name>grobid-service</servlet-name>
@@ -20,10 +31,7 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-    <servlet-mapping>
-        <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processFullDictionary</url-pattern>
-    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processDictionarySegmentation</url-pattern>
@@ -36,28 +44,26 @@
         <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processLexicalEntry</url-pattern>
     </servlet-mapping>
-    <welcome-file-list>
-        <welcome-file>grobid/index.html</welcome-file>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
-
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processFullDictionary</url-pattern>
+    </servlet-mapping>
 
     <!-- Path to properties files and GROBID_HOME -->
     <env-entry>
         <env-entry-name>org.grobid.property</env-entry-name>
-        <env-entry-value>../grobid-home/config/grobid.properties</env-entry-value>
         <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>../grobid-home/config/grobid.properties</env-entry-value>
+
     </env-entry>
 
     <env-entry>
         <env-entry-name>org.grobid.home</env-entry-name>
-        <env-entry-value>../grobid-home</env-entry-value>
         <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>../grobid-home</env-entry-value>
+
     </env-entry>
 
-    <context-param>
-        <param-name>log4jConfigLocation</param-name>
-        <param-value>/WEB-INF/classes/log4j.properties</param-value>
-    </context-param>
+
 
 </web-app>
