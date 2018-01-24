@@ -1,7 +1,7 @@
 # GROBID-Dictionaries
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Documentation Status](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest)](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest) 
+[![Documentation Status](https://readthedocs.org/projects/grobid-dictionaries/badge/?version=latest)](https://readthedocs.org/projects/grobid-dictionaries/?badge=latest) 
 [![Docker build](https://dockerbuildbadges.quelltext.eu/status.svg?organization=medkhem&repository=grobid-dictionaries)](https://hub.docker.com/r/medkhem/grobid-dictionaries/builds/)
 ## Purpose
 
