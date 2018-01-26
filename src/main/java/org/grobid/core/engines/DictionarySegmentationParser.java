@@ -892,7 +892,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         if (doc.getBlocks() == null) {
             throw new Exception("PDF parsing resulted in empty content");
         }
-        List<LayoutToken> tokenizations = doc.getTokenizationsFulltext();
+        List<LayoutToken> tokenizations = doc.getTokenizations();
 
         //Write the features file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionarySegmentation";
