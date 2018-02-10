@@ -38,7 +38,7 @@ Four TEI elements could be used in this level:
 * \<header>: surrounds the header block of a dictionary page. Such a block could contain, for instance, the page number, the first and the last headword on the current page,...
 * \<body>: defines the limits of the main part of the dictionary that contains the lexical entries
 * \<footer>: surrounds the footer block of a dictionary page. Such a block could contain, for instance, the page number, the first and the last headword on the current page,...
-* \<other>: could be used to annotate any text sequence that does not belong to any of the previous blocks. 
+* \<dictScrap>: could be used to annotate any text sequence that does not belong to any of the previous blocks. 
 
 
 *N:B:* The TEI body element is used for a different purpose in this level. But for the structured output, it is replaced by the convenient TEI element : \<ab>   
@@ -47,7 +47,7 @@ Four TEI elements could be used in this level:
 Two TEI elements could be used in this level:
 
 * \<entry>: defines the limits of each lexical entries
-* \<other>: could be used to annotate any text sequence that does not represent a lexical entry. 
+* \<dictScrap>: could be used to annotate any text sequence that does not represent a lexical entry. 
 
 ### Lexical Entry
 Five TEI elements could be used in this level:
@@ -56,7 +56,7 @@ Five TEI elements could be used in this level:
 * \<etym>: surrounds the etymology information of the headword, such as etymon and origin of the word.
 * \<sense>: is placed at the border of the **sense block**. Information like sense definitions, examples, synonyms are typical content of this block.  
 * \<re>: is used to annotate related entries and their belonging information. Such information should not be annotated at this level, if it is included in a sense block
-* \<other>: could be used to annotate any text sequence that does not belong to any of the previous blocks. 
+* \<dictScrap>: could be used to annotate any text sequence that does not belong to any of the previous blocks. 
 
 The following examples illustrate how these annotations could be applied to the raw text of a lexical entry:
 #### Example 1: 
