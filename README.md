@@ -45,10 +45,6 @@ GROBID-Dictionaries is based on cascading CRF models. The diagram below presents
 
 ![GROBID Dictionaries Structure](docs/img/modelsIn.png)
 
-Each box represents a model and not a text structure. Every model allows the processing and the structuring of the information provided by its predecessor. 
-The name of each model reflects the information to be processed per level. Consequently, the same appellation is used for naming the implemented java classes and their functionalities.
-The boxes in red color represent the models which are already implemented, where the rest of the diagram corresponds to the pending components. 
-
 __Dictionary Segmentation__
 This is the first model and has as goal the segmentation of each dictionary page into 3 main blocks: Header, Body and Footer. Another block, "Other" could be generated for text information that do not belong to the principal blocks
 
@@ -60,7 +56,7 @@ The third model parses each lexical entry, recognized by the second model, to se
 
 
 __The rest of the models__
-The same logic applies respectively for the recognised blocks in the lexical entry by having a specific model for each one of them
+The same logic applies respectively for the recognised blocks in a lexical entry by having a specific model for each one of them
 
 
 *N.B*: The current architecture could change at any milestone of the project, as soon as new ideas or technical constraints emerge. 
