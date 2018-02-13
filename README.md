@@ -10,7 +10,7 @@ GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning
 
 ## To Cite
 
-Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands. <hal-01508868v2>
+Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands
 ```@inproceedings{khemakhem:hal-01508868,
      TITLE = {{Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields}},
      AUTHOR = {Khemakhem, Mohamed and Foppiano, Luca and Romary, Laurent},
@@ -22,15 +22,28 @@ Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI St
      KEYWORDS = { digitized dictionaries  ;  automatic structuring ;  CRF ;  TEI ; machine learning},
      PDF = {https://hal.archives-ouvertes.fr/hal-01508868/file/eLex-2017-Template.pdf},
      HAL_ID = {hal-01508868},
-     HAL_VERSION = {v2},
    }
 ```
 
+Mohamed Khemakhem, Axel Herold, Laurent Romary. Enhancing Usability for Automatically Structuring Digitised Dictionaries. GLOBALEX workshop at LREC 2018, May 2018, Miyazaki, Japan
+```@inproceedings{khemakhem:hal-01708137,
+  TITLE = {{Enhancing Usability for Automatically Structuring Digitised Dictionaries}},
+  AUTHOR = {Khemakhem, Mohamed and Herold, Axel and Romary, Laurent},
+  URL = {https://hal.archives-ouvertes.fr/hal-01708137},
+  BOOKTITLE = {{GLOBALEX workshop at LREC 2018}},
+  ADDRESS = {Miyazaki, Japan},
+  YEAR = {2018},
+  MONTH = May,
+  KEYWORDS = {Docker ; TEI ; digitised dictionaries ; electronic lexicography ; usability},
+  PDF = {https://hal.archives-ouvertes.fr/hal-01708137/file/LREC-GLOBALEX2018.pdf},
+  HAL_ID = {hal-01708137},
+}
+```
 ## Approach
 
 GROBID-Dictionaries is based on cascading CRF models. The diagram below presents the architecture enabling the processing and the transfer of the text information through the models.
 
-![GROBID Dictionaries Structure](docs/img/modelsGrobid.png)
+![GROBID Dictionaries Structure](docs/img/modelsIn.png)
 
 Each box represents a model and not a text structure. Every model allows the processing and the structuring of the information provided by its predecessor. 
 The name of each model reflects the information to be processed per level. Consequently, the same appellation is used for naming the implemented java classes and their functionalities.
