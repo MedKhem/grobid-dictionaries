@@ -46,13 +46,13 @@ GROBID-Dictionaries is based on cascading CRF models. The diagram below presents
 ![GROBID Dictionaries Structure](docs/img/modelsIn.png)
 
 __Dictionary Segmentation__
-This is the first model and has as goal the segmentation of each dictionary page into 3 main blocks: Header, Body and Footer. Another block, "Other" could be generated for text information that do not belong to the principal blocks
+This is the first model and has as goal the segmentation of each dictionary page into 3 main blocks: Headnote, Body and Footnote. Another block, "dictScarp" could be generated for text information that do not belong to the principal blocks
 
 __Dictionary Body Segmentation__
 The second model gets the Body, recognized by the first model, and processes it to recognize the boundaries of each lexical entry.
 
 __Lexical Entry__
-The third model parses each lexical entry, recognized by the second model, to segment it into 4 main blocks: Form, Etymology, Senses, Related Entries. An "Other" block is there as well for unrecognised information. 
+The third model parses each lexical entry, recognized by the second model, to segment it into 4 main blocks: Form, Etymology, Senses, Related Entries. A "dictScrap" block is there as well for unrecognised information. 
 
 
 __The rest of the models__
