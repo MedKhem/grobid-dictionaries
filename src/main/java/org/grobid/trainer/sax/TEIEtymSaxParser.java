@@ -78,7 +78,7 @@ public class TEIEtymSaxParser extends DefaultHandler {
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (isNotBlank(text)) {
-                currentTag = "<pc>";
+                currentTag = "<seg>";
                 writeData(qName, false);
 
             }
@@ -92,8 +92,7 @@ public class TEIEtymSaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("mentioned")) || (qName.equals("lang")) ||
-                (qName.equals("seg")) || (qName.equals("bibl")) || (qName.equals("def")) || (qName.equals("dictScrap"))) {
+        if ((qName.equals("mentioned")) || (qName.equals("lang")) || (qName.equals("bibl")) || (qName.equals("def")) || (qName.equals("dictScrap"))) {
             if (currentTag == null) {
                 return;
             }
@@ -104,7 +103,7 @@ public class TEIEtymSaxParser extends DefaultHandler {
                 }
             }
             if (qName.equals("etym")) {
-                currentTag = "<pc>";
+                currentTag = "<seg>";
             }
 
             String text = getText();

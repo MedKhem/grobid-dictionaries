@@ -56,7 +56,9 @@ public class EtymParser extends AbstractParser {
         LabeledLexicalInformation labeledSense = process(etymEntry, PATH_FULL_DICTIONARY);
         StringBuilder sb = new StringBuilder();
 
-        sb.append(label).append("\n");
+        if(label.equals("<quote>")) {
+            sb.append("<quote>").append("\n");
+        }
         //I apply the form also to the sense to recognise the grammatical group, if any!
 
         for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
@@ -66,10 +68,18 @@ public class EtymParser extends AbstractParser {
             String content = DocumentUtils.escapeHTMLCharac(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
-            sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+            if(labelSense.equals("<seg>")){
+                sb.append(content);
+            }
+            else{
+                sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+            }
+
 
         }
-        sb.append(label).append("\n");
+        if(label.equals("<quote>")) {
+            sb.append("</quote>").append("\n");
+        }
         return sb;
 
     }
