@@ -115,6 +115,17 @@
             </oneOrMore>
         </element>
     </define>
+    <define name="num">
+        <element name="num">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
     <define name="entry">
         <element name="entry">
             <oneOrMore>
@@ -126,6 +137,7 @@
                     <ref name="etym"/>
                     <ref name="sense"/>
                     <ref name="re"/>
+                    <ref name="num"/>
                     <ref name="dictScrap"/>
                 </choice>
             </oneOrMore>

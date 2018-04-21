@@ -36,6 +36,10 @@ re {
     display: inline;
     background-color: purple;
 }
+num {
+    display: inline;
+    background-color: blue;
+}
 
 dictScrap { /* what's that for? */
     display: inline;
