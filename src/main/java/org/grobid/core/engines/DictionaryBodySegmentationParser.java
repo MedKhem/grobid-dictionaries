@@ -570,7 +570,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     List<LayoutToken> restOfSplitComponentTokens = componentOfLastLexicalEntry.subList(indexOfLastTokenInThePage, componentOfLastLexicalEntry.size());
 
                                     //Compound the element to split in tokens and insert the oher page blocks
-                                    textToShowInTokens= tagOfSplitComponent;
+                                    textToShowInTokens+= tagOfSplitComponent;
                                     textToShowInTokens += DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(firstPartOfSplitComponent));
 
 
