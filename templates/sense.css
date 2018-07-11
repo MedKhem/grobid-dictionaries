@@ -20,12 +20,32 @@ gramGrp { display: inline;
 
 pc {
 	display: inline;
-	background-color: SkyBlue;
+	background-color: #0e90d2;
 }
 
 dictScrap {
 	display: inline;
 	background-color: greenyellow;
+}
+
+def {
+	display: inline;
+	background-color: #1e347b;
+}
+
+note {
+	display: inline;
+	background-color: #d58512;
+}
+
+cit {
+	display: inline;
+	background-color: #b92c28;
+}
+
+sense {
+	display: inline;
+	background-color: #9acfea;
 }
 
 

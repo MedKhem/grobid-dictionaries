@@ -108,6 +108,62 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="lang">
+		<element name="lang">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="persName">
+		<element name="persName">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="surName">
+		<element name="surName">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="addName">
+		<element name="addName">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="desc">
+		<element name="desc">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
 	<define name="form">
 		<element name="form">
 			<oneOrMore>
@@ -118,6 +174,11 @@
 					<ref name="orth"/>
 					<ref name="pron"/>
 					<ref name="gramGrp"/>
+					<ref name="lang"/>
+					<ref name="persName"/>
+					<ref name="surName"/>
+					<ref name="addName"/>
+					<ref name="desc"/>
 					<ref name="dictScrap"/>
 
 				</choice>

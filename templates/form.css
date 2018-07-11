@@ -37,9 +37,30 @@ dictScrap {
 
 
 pron {
+	 display: inline;
+	 background-color: PaleGreen;
+ }
+lang {
 	display: inline;
-	background-color: PaleGreen;
+	background-color: forestgreen;
 }
+addName {
+	display: inline;
+	background-color: #d58512;
+}
+persName {
+	display: inline;
+	background-color: #0e90d2;
+}
+surName {
+	display: inline;
+	background-color: #b92c28;
+}
+desc {
+	display: inline;
+	background-color: olive;
+}
+
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

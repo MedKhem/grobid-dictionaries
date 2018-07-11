@@ -69,6 +69,39 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="def">
+		<element name="def">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="cit">
+		<element name="cit">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="note">
+		<element name="note">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
 	
 	<define name="sense">
 		<element name="sense">
@@ -79,8 +112,10 @@
 					<ref name="lb"/>
 					<ref name="sense"/>
 					<ref name="gramGrp"/>
+					<ref name="def"/>
+					<ref name="cit"/>
+					<ref name="note"/>
 					<ref name="dictScrap"/>
-
 				</choice>
 			</oneOrMore>
 		</element>
