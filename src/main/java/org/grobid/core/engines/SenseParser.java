@@ -213,13 +213,19 @@ public class SenseParser extends AbstractParser {
         clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
 
-        if (tagLabel.equals(SenseLabels.SENSE_SENSE)) {
+        if (tagLabel.equals(SenseLabels.SENSE_SENSE_LABEL)) {
             buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.SENSE_GRAMMATICAL_GROUP)) {
+        } else if (tagLabel.equals(SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL)) {
             buffer.append(createMyXMLString("gramGrp", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+        } else if (tagLabel.equals(SenseLabels.PC_SENSE_LABEL)) {
             buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
+        } else if (tagLabel.equals(SenseLabels.DEF_SENSE_LABEL)) {
+            buffer.append(createMyXMLString("def", clusterContent));
+        } else if (tagLabel.equals(SenseLabels.NOTE_SENSE_LABEL)) {
+            buffer.append(createMyXMLString("note", clusterContent));
+        } else if (tagLabel.equals(SenseLabels.CIT_SENSE_LABEL)) {
+            buffer.append(createMyXMLString("cit", clusterContent));
+        } else if (tagLabel.equals(SenseLabels.DICTSCRAP_SENSE_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));
         } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
