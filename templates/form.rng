@@ -40,10 +40,6 @@
 	</define>
 	
 	
-	
-	
-	
-	
 	<define name="dictScrap">
 		<element name="dictScrap">
 			<oneOrMore>
@@ -119,8 +115,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="persName">
-		<element name="persName">
+	<define name="name">
+		<element name="name">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -130,28 +126,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="surName">
-		<element name="surName">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="addName">
-		<element name="addName">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
+
+
 	<define name="desc">
 		<element name="desc">
 			<oneOrMore>
@@ -175,9 +151,7 @@
 					<ref name="pron"/>
 					<ref name="gramGrp"/>
 					<ref name="lang"/>
-					<ref name="persName"/>
-					<ref name="surName"/>
-					<ref name="addName"/>
+					<ref name="name"/>
 					<ref name="desc"/>
 					<ref name="dictScrap"/>
 

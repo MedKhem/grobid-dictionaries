@@ -226,12 +226,8 @@ public class FormParser extends AbstractParser {
             buffer.append(createMyXMLString("gramGrp", clusterContent));
         } else if (tagLabel.equals(LANG_LABEL)) {
             buffer.append(createMyXMLString("lang", clusterContent));
-        } else if (tagLabel.equals(PERSNAME_FROM_LABEL)) {
+        } else if (tagLabel.equals(NAME_FROM_LABEL)) {
             buffer.append(createMyXMLString("persName", clusterContent));
-        }else if (tagLabel.equals(SURNAME_FROM_LABEL)) {
-            buffer.append(createMyXMLString("surName", clusterContent));
-        }else if (tagLabel.equals(ADDNAME_FROM_LABEL)) {
-            buffer.append(createMyXMLString("addName", clusterContent));
         }else if (tagLabel.equals(DESC_FROM_LABEL)) {
             buffer.append(createMyXMLString("desc", clusterContent));
         } else if (tagLabel.equals(DICTSCRAP_FORM_LABEL)) {

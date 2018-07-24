@@ -44,18 +44,12 @@ lang {
 	display: inline;
 	background-color: forestgreen;
 }
-addName {
-	display: inline;
-	background-color: #d58512;
-}
-persName {
+
+name {
 	display: inline;
 	background-color: #0e90d2;
 }
-surName {
-	display: inline;
-	background-color: #b92c28;
-}
+
 desc {
 	display: inline;
 	background-color: olive;
