@@ -74,17 +74,19 @@ public class FormParser extends AbstractParser {
                 gramGrp.append("<gramGrp>");
                 gramGrp.append(createMyXMLString("pos", content));
                 gramGrp.append("</gramGrp>").append("\n");
-            }else if (labelForm.equals("<name>")){
-                AuthorParser personNameParser = new AuthorParser();
-                List<Person> structuredPersons = personNameParser.processing(entryForm.getA(),true);
-
-                for (Person person: structuredPersons ){
-                    sb.append("<name>");
-                    sb.append(person.toTEI(false));
-                    sb.append("</name>");
-                }
-
-            } else {
+            }
+//            else if (labelForm.equals("<name>")){
+//                AuthorParser personNameParser = new AuthorParser();
+//                List<Person> structuredPersons = personNameParser.processing(entryForm.getA(),true);
+//
+//                for (Person person: structuredPersons ){
+//                    sb.append("<name>");
+//                    sb.append(person.toTEI(false));
+//                    sb.append("</name>");
+//                }
+//
+//            }
+            else {
                 sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
             }
         }
