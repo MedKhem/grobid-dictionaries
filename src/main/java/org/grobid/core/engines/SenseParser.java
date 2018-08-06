@@ -341,13 +341,14 @@ public class SenseParser extends AbstractParser {
                         }
                         senses.append("<sense>");
                         LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getA());
+                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                        featureWriter.write(featSeg + "\n");
                         if(isAnnotated){
-                            String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                             String labeledFeatures = null;
                             // if featSeg is null, it usually means that no body segment is found in the
 
                             if ((featSeg != null) && (featSeg.trim().length() > 0)) {
-                                featureWriter.write(featSeg + "\n");
+
 
                                 labeledFeatures = label(featSeg);
                                 senses.append(toTEISense(labeledFeatures, layoutTokenization.getTokenization(), true));

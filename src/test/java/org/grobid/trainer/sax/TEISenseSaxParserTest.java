@@ -44,7 +44,7 @@ public class TEISenseSaxParserTest {
 
     @Test
     public void testNoteLabel() throws Exception {
-        InputStream input = this.getClass().getResourceAsStream("/train_set_1.training.sense.tei.xml");
+        InputStream input = this.getClass().getResourceAsStream("/train_set_2.training.sense.tei.xml");
         SAXParser p = spf.newSAXParser();
         p.parse(input, target);
 
