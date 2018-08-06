@@ -79,11 +79,18 @@ public class FormParser extends AbstractParser {
 //                AuthorParser personNameParser = new AuthorParser();
 //                List<Person> structuredPersons = personNameParser.processing(entryForm.getA(),true);
 //
-//                for (Person person: structuredPersons ){
-//                    sb.append("<name>");
-//                    sb.append(person.toTEI(false));
-//                    sb.append("</name>");
+//                if ( structuredPersons == null){
+//                    sb.append("<dictScrap>");
+//                    sb.append(LayoutTokensUtil.normalizeText(entryForm.getA()));
+//                    sb.append("</dictScrap>");
+//                }else{
+//                    for (Person person: structuredPersons ){
+////                        sb.append("<name>");
+//                        sb.append(person.toTEI(false));
+////                        sb.append("</name>");
+//                    }
 //                }
+//
 //
 //            }
             else {

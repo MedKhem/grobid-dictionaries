@@ -123,7 +123,8 @@ public class TEISenseSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if (("sense".equals(qName) && inInnerSense) || "gramGrp".equals(qName)) {
+        if (("sense".equals(qName) && inInnerSense) || "gramGrp".equals(qName) || "def".equals(qName)
+                || "note".equals(qName) || "dictScrap".equals(qName) || "cit".equals(qName)) {
             return true;
         }
         return false;
