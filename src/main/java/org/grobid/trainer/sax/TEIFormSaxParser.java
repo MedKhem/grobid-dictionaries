@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 
 public class TEIFormSaxParser extends DefaultHandler {
 
@@ -45,6 +47,12 @@ public class TEIFormSaxParser extends DefaultHandler {
             if (isFormTag(qName)) {
                 currentForm = new SimpleLabeled();
             }
+            String text = getText();
+            if (isNotBlank(text)) {
+                currentTag = "<pc>";
+                writeData();
+
+            }
             accumulator.setLength(0);
 
             currentTags.push("<" + qName + ">");
@@ -60,7 +68,7 @@ public class TEIFormSaxParser extends DefaultHandler {
         if (isRelevantTag(qName)) {
             writeData();
             if (!currentTags.isEmpty()) {
-                currentTag = currentTags.peek();
+                currentTag = currentTags.pop();
             }
         } else if ("form".equals(qName)) {
             labeled.add(currentForm);
@@ -114,7 +122,7 @@ public class TEIFormSaxParser extends DefaultHandler {
 
     private boolean isRelevantTag(String qName) {
         if ("orth".equals(qName) || "pron".equals(qName)
-                || "gramGrp".equals(qName) || "dictScrap".equals(qName) || "name".equals(qName) || "desc".equals(qName)) {
+                || "gramGrp".equals(qName) || "dictScrap".equals(qName) || "name".equals(qName) || "desc".equals(qName) || "pc".equals(qName)) {
             return true;
         }
         return false;

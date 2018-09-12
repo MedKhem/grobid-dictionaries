@@ -53,8 +53,8 @@ public class TEISenseSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(46));
 
-        assertThat(labeled.get(1).getLabels().get(0).a, is("L"));
-        assertThat(labeled.get(1).getLabels().get(0).b, is("I-<def>"));
+        assertThat(labeled.get(1).getLabels().get(1).a, is("L"));
+        assertThat(labeled.get(1).getLabels().get(1).b, is("I-<def>"));
     }
 
 

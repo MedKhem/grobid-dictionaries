@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 
 public class TEISenseSaxParser extends DefaultHandler {
 
@@ -49,6 +51,12 @@ public class TEISenseSaxParser extends DefaultHandler {
                 } else {
                     inInnerSense = true;
                 }
+            }
+            String text = getText();
+            if (isNotBlank(text)) {
+                currentTag = "<pc>";
+                writeData();
+
             }
             accumulator.setLength(0);
 
@@ -124,7 +132,7 @@ public class TEISenseSaxParser extends DefaultHandler {
 
     private boolean isRelevantTag(String qName) {
         if (("sense".equals(qName) && inInnerSense) || "gramGrp".equals(qName) || "def".equals(qName)
-                || "note".equals(qName) || "dictScrap".equals(qName) || "cit".equals(qName)) {
+                || "note".equals(qName) || "dictScrap".equals(qName) || "cit".equals(qName) || "pc".equals(qName) ) {
             return true;
         }
         return false;
