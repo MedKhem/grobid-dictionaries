@@ -49,14 +49,16 @@
     <div class="content">
 
         <div class="page-header">
-            <h1><span style="color:#333;">Grobid Dictionaries<!--img src="resources/img/grobid_header_logo.png" /-->
+            <h1><span style="color:#333;">GROBID-Dictionaries<!--img src="resources/img/grobid_header_logo.png" /-->
 					 <span style="padding-left:40px;color:#AE0C0C;">
                         <h2><small>
                             <a class="section-active" id="about" href="#">About</a>
                                 <span style="padding-left:20px;">&nbsp;</span>
                             <!--a class="section-active" id="demo" href="#">Demo</a>
                                 <span style="padding-left:20px;">&nbsp;</span-->
-                            <a class="section-not-active" id="rest" href="#">RESTfull services</a>
+                            <a class="section-not-active" id="rest" href="#">Dictionary services</a>
+                                <span style="padding-left:20px;">&nbsp;</span>
+                            <a class="section-not-active" id="restBib" href="#">Bibliography services</a>
                                 <span style="padding-left:20px;">&nbsp;</span>
                             <a class="section-not-active" id="admin" href="#">Admin</a>
                                 <span style="padding-left:20px;">&nbsp;</span>
@@ -91,13 +93,12 @@
                     <tr>
                         <td>Service to call &nbsp;</td>
                         <td>
-                            <select id="selectedService">
-
-                                <option value="processDictionarySegmentation" selected>Process
-                                    Dictionary </option>
-                                <option value="processDictionaryBodySegmentation">Process Dictionary Body</option>
-                                <option value="processLexicalEntry">Process Lexical Entries</option>
-                                <option value="processFullDictionary">Process full dictionary</option>
+                            <select id="selectedDictionaryService">
+                                <option selected="true" disabled="true">Select a service </option>
+                                <option value="processDictionarySegmentation" >Parse Dictionary </option>
+                                <option value="processDictionaryBodySegmentation">Parse Dictionary Body</option>
+                                <option value="processLexicalEntry">Parse Lexical Entries</option>
+                                <option value="processFullDictionary">Parse full dictionary</option>
 
                             </select>
                         </td>
@@ -136,14 +137,82 @@
                             </div>
                         </td>
                     </tr>
+                    <!--<tr>-->
+                        <!--<td>&nbsp;</td><td colspan="2"><input id="checkOptimise" type="checkbox" class="btn" style="margin-bottom: 7px; font-size:0.9em" /> Optimise TEI rendering</td><br>-->
+                    <!--</tr>-->
                     <tr>
-                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest" type="submit" value="Submit" class="btn"/> <input id="btn_download" class="btn" value="Download TEI Result"/></td>
+                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest" type="submit" name="Submit" class="btn"/><td colspan="2">  <input id="btn_download" class="btn" value="Download TEI Result"/></td>
                     </tr>
+
                 </table>
             </form>
             <br>
 
             <div id="requestResult"></div>
+
+
+        </div>
+        <div id="divRestII">
+            <form class="form-horizontal" method="post" id="gbdBibForm" target=_blank accept-charset="UTF-8">
+                <table border="0">
+                    <tr>
+                        <td>Service to call &nbsp;</td>
+                        <td>
+                            <select id="selectedBibliographyService">
+
+                                <option value="processDictionarySegmentation" selected>Parse Bibliography</option>
+                                <option value="processDictionaryBodySegmentation">Parse Bibliography Body</option>
+                                <option value="processLexicalEntry">Parse Bibliographic Entries</option>
+                                <option value="processFullDictionary">Parse Full Bibliography</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td>&nbsp;</td><td/></tr>
+                    <tr>
+                        <td><span id="labelBib">&nbsp;</span></td>
+                        <td>
+                            <div id="fieldBib">
+                                <div class="fileupload fileupload-new" data-provides="fileupload" id="fileInputDivBib">
+                                    <div class="input-append">
+                                        <div class="uneditable-input span4" style="white-space:normal;">
+                                            <i class="icon-file fileupload-exists" style="white-space:normal;"></i>
+                                            <span class="fileupload-preview" style="white-space:normal;"></span>
+                                        </div>
+
+                                        <span class="btn btn-file" id="btn_block_Bib">
+											<span class="fileupload-new" id="labelFileBib">Select file</span>
+											<span class="fileupload-exists">Change</span>
+
+											<input id="inputBib" name="input" type="file" />
+										</span>
+                                        <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+                                    </div>
+                                </div>
+                                <div id="textInputDivBib">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <textarea id="textInputAreaBib" class="span7" rows="5" name="input"></textarea>
+                                            </td>
+                                            <td><span style='padding-left:20px;'>&nbsp;</span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td><td colspan="2"><input id="submitRequestBib" type="submit" name="Submit" class="btn"/><td colspan="2">  <input id="btn_downloadBib" class="btn" value="Download TEI Result"/></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest2Bib" type="submit" value="Submit & Optimise TEI rendering" name="Submit" class="btn"/>
+                    </tr>
+                </table>
+            </form>
+            <br>
+
+            <div id="requestResultBib"></div>
 
 
         </div>
@@ -168,7 +237,11 @@
     </div>
 
     <footer>
-        <p><span style="color:#848484;">&copy; Grobid Dictionaries contributors - 2017 </span></p>
+        <p><span style="color:#848484;">&copy; GROBID-Dictionaries contributors - <script type="text/JavaScript">
+
+document.write(new Date().getFullYear());
+
+</script> </span></p>
     </footer>
 </div>
 

@@ -15,8 +15,11 @@ public interface DictionaryPaths {
     /**
      * path extension for initiateProcessing dictionary entries.
      */
-    public static final String PATH_DICTIONARY_SEGMENTATATION = "processDictionarySegmentation";
-    public static final String PATH_DICTIONARY_BODY_SEGMENTATATION = "processDictionaryBodySegmentation";
+    public static final String PROCESS_DICTIONARY_SEGMENTATION = "processDictionarySegmentation";
+    public static final String PROCESS_DICTIONARY_BODY_SEGMENTATION = "processDictionaryBodySegmentation";
+//    public static final String PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED = "processDictionaryBodySegmentationOptimised";
     public static final String PATH_LEXICAL_ENTRY = "processLexicalEntry";
+//    public static final String PATH_LEXICAL_ENTRY_OPTIMISED = "processLexicalEntryOptimised";
     public static final String PATH_FULL_DICTIONARY = "processFullDictionary";
+//    public static final String PATH_FULL_DICTIONARY_OPTIMISED = "processFullDictionaryOptimised";
 }

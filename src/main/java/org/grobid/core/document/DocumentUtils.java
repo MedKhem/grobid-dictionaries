@@ -46,15 +46,15 @@ public class DocumentUtils {
         return doc;
     }
 
-    public static LayoutTokenization getLayoutTokenizations(DictionaryDocument doc, SortedSet<DocumentPiece> documentBodyParts) {
+    public static LayoutTokenization getLayoutTokenizations(DictionaryDocument doc, SortedSet<DocumentPiece> documentParts) {
 
 
         List<LayoutToken> layoutTokens = new ArrayList<>();
 
-        if (documentBodyParts != null) {
+        if (documentParts != null) {
 
 
-            for (DocumentPiece docPiece : documentBodyParts) {
+            for (DocumentPiece docPiece : documentParts) {
                 //Every document Piece contains two Parts
                 DocumentPointer dp1 = docPiece.a;
                 DocumentPointer dp2 = docPiece.b;

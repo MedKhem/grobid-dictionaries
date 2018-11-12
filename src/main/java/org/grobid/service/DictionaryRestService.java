@@ -37,7 +37,7 @@ public class DictionaryRestService implements DictionaryPaths {
     }
 
 
-    @Path(PATH_DICTIONARY_SEGMENTATATION)
+    @Path(PROCESS_DICTIONARY_SEGMENTATION)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
@@ -45,13 +45,21 @@ public class DictionaryRestService implements DictionaryPaths {
         return DictionaryProcessFile.processDictionarySegmentation(inputStream);
     }
 
-    @Path(PATH_DICTIONARY_BODY_SEGMENTATATION)
+    @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream,PATH_DICTIONARY_BODY_SEGMENTATATION);
+        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_DICTIONARY_BODY_SEGMENTATION);
     }
+//    @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED)
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    @Produces(MediaType.APPLICATION_XML)
+//    @POST
+//    public Response processDictionaryBodySegmentationOptimised_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+//        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED);
+//    }
+
 
     @Path(PATH_LEXICAL_ENTRY)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -60,6 +68,13 @@ public class DictionaryRestService implements DictionaryPaths {
     public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY);
     }
+//    @Path(PATH_LEXICAL_ENTRY_OPTIMISED)
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    @Produces(MediaType.APPLICATION_XML)
+//    @POST
+//    public Response processLexicalEntriesOptimised_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+//        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY_OPTIMISED);
+//    }
 
     @Path(PATH_FULL_DICTIONARY)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -68,5 +83,13 @@ public class DictionaryRestService implements DictionaryPaths {
     public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processFullDictionary(inputStream, PATH_FULL_DICTIONARY);
     }
+
+//    @Path(PATH_FULL_DICTIONARY_OPTIMISED)
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    @Produces(MediaType.APPLICATION_XML)
+//    @POST
+//    public Response processFullDictionaryOptimised_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+//        return DictionaryProcessFile.processFullDictionary(inputStream, PATH_FULL_DICTIONARY_OPTIMISED);
+//    }
 
 }

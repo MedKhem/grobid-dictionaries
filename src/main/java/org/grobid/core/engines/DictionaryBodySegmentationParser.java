@@ -6,7 +6,6 @@ import org.grobid.core.engines.label.*;
 import org.grobid.core.layout.Page;
 import org.grobid.core.utilities.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
@@ -28,8 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL;
-import static org.grobid.core.engines.label.EtymQuoteLabels.SEG_ETYMQUOTE_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
@@ -44,13 +41,18 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     private static volatile DictionaryBodySegmentationParser instance;
     private SortedSet<DocumentPiece> headNotesOfAllPages = new TreeSet();
     private SortedSet<DocumentPiece> footNotesOfAllPages= new TreeSet();
-    private SortedSet<DocumentPiece> otherOfAllPages= new TreeSet();
+    private SortedSet<DocumentPiece> bodiesOfAllPages= new TreeSet();
+    private SortedSet<DocumentPiece> dictScrapsOfAllPages = new TreeSet();
 
+
+    private List<Integer> headnotesPageNumber = new ArrayList<Integer>();
+    private List<Integer> pagesOffsetArray = new ArrayList<Integer>();
 
     int pagesNumber;
     int currentHeadIndex;
     int currentFootIndex;
     int currentOtherIndex;
+
 
     public DictionaryBodySegmentationParser() {
 
@@ -247,14 +249,13 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return headerTEI;
 
     }
-
-    public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config,
-                                                               TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration, DictionaryDocument doc, String modelToRun) {
-        StringBuilder headerTEI = new StringBuilder();
-        StringBuilder tei = formatHeader(config, schemaDeclaration, doc);
-        tei.append(headerTEI);
+    public void getDocumentParts(DictionaryDocument doc){
         if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL) != null){
             headNotesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL);
+
+        }
+        if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL) != null){
+            bodiesOfAllPages = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         }
         if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL) != null){
@@ -262,9 +263,67 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         }
         if (doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL) != null){
-            otherOfAllPages = doc.getDocumentDictionaryPart(DICTIONARY_DICTSCRAP_LABEL);
+            dictScrapsOfAllPages = doc.getDocumentDictionaryPart(DICTIONARY_DICTSCRAP_LABEL);
+        }
+    }
+    public void extractPagesOffsetArray(DictionaryDocument doc){
+
+
+        for (Page page : doc.getPages()) {
+            if (page.getBlocks() != null) {
+                int beginOffSet = page.getBlocks().get(0).getTokens().get(0).getOffset();
+
+                pagesOffsetArray.add(beginOffSet);
+            }
+
         }
 
+    }
+//    public void extractPageNumberForBodyParts(DictionaryDocument doc){
+////        List<DocumentPiece> listOfHeadnotes = new ArrayList<DocumentPiece>(headNotesOfAllPages);
+////        ArrayList<List<Object>> mixedDocLogicIndex = new ArrayList();
+////        ArrayList<Object> listInner = new ArrayList();
+////        List<Object> sortedDocLogicIndex = new ArrayList<Object>();
+////        for(int  i; i< listOfHeadnotes.size(); i++){
+////            listInner.add("<fw =\"header\">");
+////            listInner.add(listOfHeadnotes.get(i));
+////            listInner.add("<fw =\"header\">");
+////            listInner.add("<fw =\"header\">");
+////            ,"","","");
+////        }
+////
+////
+////        getDocumentParts(doc);
+////        LayoutTokenization headnotesLayoutTokenization = DocumentUtils.getLayoutTokenizations(doc, headNotesOfAllPages);
+////        List<LayoutToken> headnoteTokens = layoutTokenization.getTokenization();
+////        System.out.println("number of headnotes"+headNotesOfAllPages.size());
+////        for (LayoutToken tk : headnoteTokens ) {
+////
+////            System.out.println(tk.getPage());
+////
+//////            headnotesPageNumber
+////        }
+////        extractPagesOffsetArray(doc);
+////        System.out.println("size of OffsetArray"+pagesOffsetArray.size());
+////        System.out.println("Offset of the page "+pagesOffsetArray.get(1));
+////
+//////        System.out.println("---------------------");
+//////        extractPagesOffsetArray(doc);
+//////        for (Iterator<Integer> iter = pagesOffsetArray.iterator(); iter.hasNext(); ){
+//////
+//////            System.out.println(iter.toString());
+//////        }
+////
+//
+//    }
+
+    public StringBuilder toTEIFormatDictionaryBodySegmentation(GrobidAnalysisConfig config,
+                                                               TEIDictionaryFormatter.SchemaDeclaration schemaDeclaration, DictionaryDocument doc, String modelToRun) {
+        StringBuilder headerTEI = new StringBuilder();
+        StringBuilder tei = formatHeader(config, schemaDeclaration, doc);
+        tei.append(headerTEI);
+
+        getDocumentParts( doc);
 
 
 
@@ -278,16 +337,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
         // Prepare an offset based index for pages
-        List<Integer> pagesOffsetArray = new ArrayList<Integer>();
-
-        for (Page page : doc.getPages()) {
-            if (page.getBlocks() != null) {
-                int beginOffSet = page.getBlocks().get(0).getTokens().get(0).getOffset();
-
-                pagesOffsetArray.add(beginOffSet);
-            }
-
-        }
+        extractPagesOffsetArray(doc);
 
 
         // Prepare an offset based index for LEs
@@ -303,7 +353,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         Boolean bigEntryIsInsideDetected = false;
         List<Pair<List<LayoutToken>, String>> lexicalEntriesSubList = new ArrayList<>();
 
-        if (modelToRun.equals(PATH_DICTIONARY_BODY_SEGMENTATATION)) {
+        if (modelToRun.equals(PROCESS_DICTIONARY_BODY_SEGMENTATION)) {
             if (lexicalEntriesNumber > pagesNumber) {
 
                 if(headNotesOfAllPages.size() != 0){
@@ -367,7 +417,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             }
 
 
-                            for (int h = 0; h < lexicalEntriesSubList.size() - 2; h++) {
+                            for (int h = 0; h < lexicalEntriesSubList.size() - 1; h++) {
                                 List<LayoutToken> allTokensOfaLE = lexicalEntriesSubList.get(h).getA();
                                 String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                                 String tag = lexicalEntriesSubList.get(h).getB();
@@ -1213,7 +1263,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
             String clusterContent = "";
             String tagLabel = bodyComponent.getB();
-            if (modelToRun.equals(PATH_DICTIONARY_BODY_SEGMENTATATION)) {
+            if (modelToRun.equals(PROCESS_DICTIONARY_BODY_SEGMENTATION)) {
 
             } else if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
 
@@ -1261,11 +1311,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
 
-        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+        if (currentOtherIndex < dictScrapsOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex))) != "") {
             // Same logic as the footnote
 //                                if (lastVisitedLayoutToken.getPage() == currentFootIndex+1) {
             tei.append("\t\t<dictScrap>");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex))));
             currentOtherIndex++;
             tei.append("</dictScrap>");
             tei.append("\n");
@@ -1294,8 +1344,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 tei.append("\n");
             }
         }
-        if(otherOfAllPages.size() != 0) {
-            for (DocumentPiece other : otherOfAllPages) {
+        if(dictScrapsOfAllPages.size() != 0) {
+            for (DocumentPiece other : dictScrapsOfAllPages) {
                 tei.append("\t\t<dictScrap>");
                 tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(other)));
                 currentOtherIndex++;
@@ -1320,10 +1370,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
 
-        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+        if (currentOtherIndex < dictScrapsOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex))) != "") {
             // Same logic as the footnote
             tei.append("\t\t<dictScrap>");
-            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))));
+            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex))));
             currentOtherIndex++;
             tei.append("</dictScrap>");
             tei.append("\n");
@@ -1341,9 +1391,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
 
-        if (currentOtherIndex < otherOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex))) != "") {
+        if (currentOtherIndex < dictScrapsOfAllPages.size() && LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex))) != "") {
             textToShowInTokens += "\t\t<dictScrap>";
-            textToShowInTokens += doc.getDocumentPieceText(Iterables.get(otherOfAllPages, currentOtherIndex));
+            textToShowInTokens += doc.getDocumentPieceText(Iterables.get(dictScrapsOfAllPages, currentOtherIndex));
             currentOtherIndex++;
             textToShowInTokens += "</dictScrap>";
             textToShowInTokens += "\n";
