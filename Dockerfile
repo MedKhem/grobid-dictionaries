@@ -29,7 +29,7 @@ RUN \
 #COPY grobid-master.zip grobid-master.zip
 #RUN unzip grobid-master.zip && mv grobid-master grobid && rm grobid-master.zip && cd #grobid && ./gradlew clean install 
 
-RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/models/* && rm -r /grobid/grobid-home/build/distributions/*
+RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/build/distributions/*
 
 
 #To clone from fork
