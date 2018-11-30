@@ -3,6 +3,7 @@ package org.grobid.core.engines;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.util.IOUtils;
+import org.grobid.core.data.BiblioItem;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
@@ -30,6 +31,7 @@ import java.util.List;
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+import static org.grobid.service.DictionaryPaths.PATH_BIBLIOGRAPHY_ENTRY;
 import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 
 /**
@@ -56,7 +58,9 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
-
+        EngineParsers engineParsers = new EngineParsers();
+        CitationParser citationParser = engineParsers.getCitationParser();
+        BiblioItem segmentedCitation = citationParser.processing(entry,false);
 
         // Get the clustors of token in the LE
         LabeledLexicalInformation labeledEntry = process(entry, DICTIONARY_ENTRY_LABEL);
@@ -69,7 +73,12 @@ public class LexicalEntryParser extends AbstractParser {
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
                 bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
             }
-        } else {
+        } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)){
+
+                bodyWithSegmentedLexicalEntries.append(segmentedCitation.toTEI(-1));
+
+
+        } else{
             //In the complete case, parse the component of the LE
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
                 bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
@@ -138,6 +147,7 @@ public class LexicalEntryParser extends AbstractParser {
 
         return sb.toString();
     }
+
 
     public String toTEILexicalEntryAndBeyond(Pair<List<LayoutToken>, String> entryComponent) {
         final StringBuilder sb = new StringBuilder();

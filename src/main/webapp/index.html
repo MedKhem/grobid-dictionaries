@@ -128,7 +128,7 @@
                                     <table>
                                         <tr>
                                             <td>
-                                                <textarea id="textInputArea" class="span7" rows="5" name="input"></textarea>
+                                                <textarea id="textInputArea" class="span7" rows="5" name="inputDictionary"></textarea>
                                             </td>
                                             <td><span style='padding-left:20px;'>&nbsp;</span></td>
                                         </tr>
@@ -159,11 +159,11 @@
                         <td>Service to call &nbsp;</td>
                         <td>
                             <select id="selectedBibliographyService">
-
-                                <option value="processDictionarySegmentation" selected>Parse Bibliography</option>
-                                <option value="processDictionaryBodySegmentation">Parse Bibliography Body</option>
-                                <option value="processLexicalEntry">Parse Bibliographic Entries</option>
-                                <option value="processFullDictionary">Parse Full Bibliography</option>
+                                <option selected="true" disabled="true">Select a service </option>
+                                <option value="processBibliographySegmentation">Parse Bibliography</option>
+                                <option value="processBibliographyBodySegmentation">Parse Bibliography Body</option>
+                                <option value="processBibliographyEntry">Parse Bibliographic Entries</option>
+                                <!--<option value="processFullBibliography">Parse Full Bibliography</option>-->
 
                             </select>
                         </td>
@@ -184,7 +184,7 @@
 											<span class="fileupload-new" id="labelFileBib">Select file</span>
 											<span class="fileupload-exists">Change</span>
 
-											<input id="inputBib" name="input" type="file" />
+											<input id="inputBib" name="inputBib" type="file" />
 										</span>
                                         <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
                                     </div>
@@ -193,7 +193,7 @@
                                     <table>
                                         <tr>
                                             <td>
-                                                <textarea id="textInputAreaBib" class="span7" rows="5" name="input"></textarea>
+                                                <textarea id="textInputAreaBib" class="span7" rows="5" name="inputBibliography"></textarea>
                                             </td>
                                             <td><span style='padding-left:20px;'>&nbsp;</span></td>
                                         </tr>
@@ -203,10 +203,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>&nbsp;</td><td colspan="2"><input id="submitRequestBib" type="submit" name="Submit" class="btn"/><td colspan="2">  <input id="btn_downloadBib" class="btn" value="Download TEI Result"/></td>
+
                     </tr>
                     <tr>
-                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest2Bib" type="submit" value="Submit & Optimise TEI rendering" name="Submit" class="btn"/>
+                        <td>&nbsp;</td><td colspan="2"><input id="submitRequest2Bib" type="submit" name="Submit" class="btn"/> <input id="btn_downloadBib" class="btn" value="Download TEI Result"/></td>
                     </tr>
                 </table>
             </form>

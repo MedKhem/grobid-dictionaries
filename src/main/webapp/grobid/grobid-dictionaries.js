@@ -14,6 +14,7 @@ var grobid = (function ($) {
 
     $(document).ready(function () {
 
+
         $("#subTitle").html("About");
         $("#divAbout").show();
         $("#divAdmin").hide();
@@ -22,19 +23,21 @@ var grobid = (function ($) {
         $("#divDoc").hide();
         $('#consolidateBlock').show();
         $("#btn_download").hide();
+        $("#btn_downloadBib").hide();
 
         createInputFile();
+        createInputFileBib();
         setBaseUrl('processLexicalEntry');
 
-        $('#selectedDictionaryService').change(function () {
-            processChange();
-            return true;
-        });
+        // $('#selectedDictionaryService').change(function () {
+        //     processDictionaryChange();
+        //     return true;
+        // });
 
-        $('#checkOptimise').change(function () {
-            processChange();
-            return true;
-        });
+        // $('#checkOptimise').change(function () {
+        //     processDictionaryChange();
+        //     return true;
+        // });
 
 
         $('#gbdForm').ajaxForm({
@@ -44,10 +47,21 @@ var grobid = (function ($) {
             dataType: "text"
         });
 
+        $('#gbdBibForm').ajaxForm({
+            beforeSubmit: ShowRequestBib,
+            success: SubmitBibSuccesful,
+            error: AjaxErrorBib,
+            dataType: "text"
+        });
 
-        // bind download buttons with download methods
-        $('#btn_download').bind('click', download);
+
+        // bind downloadDictionary buttons with downloadDictionary methods
+        $('#btn_download').bind('click', downloadDictionary);
         $("#btn_download").hide();
+
+        $('#btn_downloadBib').bind('click', downloadBibliography());
+        $("#btn_downloadBib").hide();
+
         $('#btn_block_1').bind('click', downloadVisibilty);
         $('#btn_block_Bib').bind('click', downloadVisibiltyBib);
         $('#adminForm').attr("action", $(location).attr('href') + "allProperties");
@@ -88,7 +102,7 @@ var grobid = (function ($) {
 
             $("#subTitle").hide();
             //$("#subTitle").show();
-            processChange();
+            processDictionaryChange();
 
             $("#divRestI").show();
             $("#divRestII").hide();
@@ -108,7 +122,7 @@ var grobid = (function ($) {
 
             $("#subTitle").hide();
             //$("#subTitle").show();
-            processChange();
+            processBibliographyChange();
 
             $("#divRestI").hide();
             $("#divRestII").show();
@@ -176,6 +190,15 @@ var grobid = (function ($) {
             $("#divAdmin").hide();
             return false;
         });
+
+        $('#selectedDictionaryService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedBibliographyService').change(function () {
+            processBibliographyChange();
+            return true;
+        });
     });
 
     function ShowRequest(formData, jqForm, options){
@@ -184,9 +207,19 @@ var grobid = (function ($) {
         $('#requestResult').html('<font color="grey">Requesting server...</font>');
         return true;
     }
+    function ShowRequestBib(formData, jqForm, options){
+        //console.log(formData.value);
+        var queryString = $.param(formData);
+        $('#requestResultBib').html('<font color="grey">Requesting server...</font>');
+        return true;
+    }
 
     function AjaxError(jqXHR, textStatus, errorThrown) {
         $('#requestResult').html("<font color='red'>Error encountered while requesting the server.<br/>" + jqXHR.responseText + "</font>");
+        responseJson = null;
+    }
+    function AjaxErrorBib(jqXHR, textStatus, errorThrown) {
+        $('#requestResultBib').html("<font color='red'>Error encountered while requesting the server.<br/>" + jqXHR.responseText + "</font>");
         responseJson = null;
     }
 
@@ -208,6 +241,22 @@ var grobid = (function ($) {
         window.prettyPrint && prettyPrint();
         $('#requestResult').show();
         $("#btn_download").show();
+    }
+
+    function SubmitBibSuccesful(responseText, statusText, xhr) {
+        var selected = $('#selectedBibliographyService option:selected').attr('value');
+        var display = "<pre class='prettyprint lang-xml' id='xmlCode'>";
+        var testStr = vkbeautify.xml(responseText);
+        // console.log(responseText);
+        // console.log(testStr);
+        xmlToDownload = responseText;
+        display += htmll(testStr);
+
+        display += "</pre>";
+        $('#requestResultBib').html(display);
+        window.prettyPrint && prettyPrint();
+        $('#requestResultBib').show();
+        $("#btn_downloadBib").show();
     }
 
     $(document).ready(function () {
@@ -324,7 +373,7 @@ var grobid = (function ($) {
 
 })(jQuery);
 
-function processChange()  {
+function processDictionaryChange()  {
     var selected = $('#selectedDictionaryService option:selected').attr('value');
     // var checked = $('#checkOptimise').is(':checked');
 
@@ -365,6 +414,39 @@ function processChange()  {
    }
 
 }
+
+function processBibliographyChange()  {
+    var selected = $('#selectedBibliographyService option:selected').attr('value');
+    // var checked = $('#checkOptimise').is(':checked');
+
+
+    if (selected == 'processBibliographySegmentation') {
+        // if(checked == true){
+        //    //Nothing to optimise yet
+        // }
+        // else {
+        createInputFileBib(selected);
+        $('#consolidateBlock').show();
+        setBaseUrlBib('processBibliographySegmentation');
+        // }
+    }
+    else if (selected == 'processBibliographyBodySegmentation') {
+
+        createInputFileBib(selected);
+        $('#consolidateBlock').show();
+        setBaseUrlBib('processBibliographyBodySegmentation');
+
+    }
+    else if (selected == 'processBibliographyEntry') {
+
+        createInputFileBib(selected);
+        $('#consolidateBlock').show();
+        setBaseUrlBib('processBibliographyEntry');
+
+    }
+
+
+}
 // or, if you want to encapsulate variables within the plugin
 (function($) {
     $.fn.MessageBoxScoped = function(msg) {
@@ -372,7 +454,7 @@ function processChange()  {
     };
 })(jQuery);
 
-function download() {
+function downloadDictionary() {
     var name = "export";
     if ((document.getElementById("input").files[0].type == 'application/pdf') ||
         (document.getElementById("input").files[0].name.endsWith(".pdf")) ||
@@ -395,6 +477,29 @@ function download() {
         return true;
     });
 }
+function downloadBibliography() {
+    // var name = "export";
+    // if ((document.getElementById("input").files[1].type == 'application/pdf') ||
+    //     (document.getElementById("input").files[1].name.endsWith(".pdf")) ||
+    //     (document.getElementById("input").files[1].name.endsWith(".PDF"))) {
+    //     name = document.getElementById("input").files[0].name;
+    // }
+    // var fileName = name + ".tei.xml";
+    // var a = document.createElement("a");
+    //
+    //
+    // var file = new Blob([xmlToDownload], {type: 'application/xml'});
+    // var fileURL = URL.createObjectURL(file);
+    // a.href = fileURL;
+    // a.download = fileName;
+    //
+    // document.body.appendChild(a);
+    //
+    // $(a).ready(function () {
+    //     a.click();
+    //     return true;
+    // });
+}
 function defineBaseURL(ext) {
     var baseUrl = null;
     if ($(location).attr('href').indexOf("index.html") != -1)
@@ -408,6 +513,10 @@ function setBaseUrl(ext) {
     var baseUrl = defineBaseURL(ext);
     $('#gbdForm').attr('action', baseUrl);
 }
+function setBaseUrlBib(ext) {
+    var baseUrl = defineBaseURL(ext);
+    $('#gbdBibForm').attr('action', baseUrl);
+}
 
 function createInputFile(selected) {
     //$('#label').html('&nbsp;');
@@ -418,6 +527,17 @@ function createInputFile(selected) {
 
     $('#gbdForm').attr('enctype', 'multipart/form-data');
     $('#gbdForm').attr('method', 'post');
+}
+
+function createInputFileBib(selected) {
+    //$('#label').html('&nbsp;');
+    $('#textInputDivBib').hide();
+    //$('#fileInputDiv').fileupload({uploadtype:'file'});
+    //$('#fileInputDiv').fileupload('reset');
+    $('#fileInputDivBib').show();
+
+    $('#gbdBibForm').attr('enctype', 'multipart/form-data');
+    $('#gbdBibForm').attr('method', 'post');
 }
 
 function downloadVisibilty(){

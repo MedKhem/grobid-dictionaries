@@ -49,6 +49,20 @@
         <url-pattern>/processFullDictionary</url-pattern>
     </servlet-mapping>
 
+
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processBibliographySegmentation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processBibliographyBodySegmentation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processBibliographyEntry</url-pattern>
+    </servlet-mapping>
+
     <!-- Path to properties files and GROBID_HOME -->
     <env-entry>
         <env-entry-name>org.grobid.property</env-entry-name>

@@ -25,6 +25,7 @@ import java.io.InputStream;
 public class DictionaryRestService implements DictionaryPaths {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryRestService.class);
     private static final String INPUT = "input";
+    private static final String INPUT_BIB = "inputBib";
 
     public DictionaryRestService() {
         LOGGER.info("Initiating Servlet DictionaryRestService");
@@ -44,6 +45,13 @@ public class DictionaryRestService implements DictionaryPaths {
     public Response processDictionarySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processDictionarySegmentation(inputStream);
     }
+    @Path(PROCESS_BIBLIOGRAPHY_SEGMENTATION)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processBibliographySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processDictionarySegmentation(inputStream);
+    }
 
     @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -51,6 +59,14 @@ public class DictionaryRestService implements DictionaryPaths {
     @POST
     public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_DICTIONARY_BODY_SEGMENTATION);
+    }
+
+    @Path(PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processBibliographyBodySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION);
     }
 //    @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED)
 //    @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -67,6 +83,14 @@ public class DictionaryRestService implements DictionaryPaths {
     @POST
     public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
         return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY);
+    }
+
+    @Path(PATH_BIBLIOGRAPHY_ENTRY)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_XML)
+    @POST
+    public Response processBibliographyEntries_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
+        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_BIBLIOGRAPHY_ENTRY);
     }
 //    @Path(PATH_LEXICAL_ENTRY_OPTIMISED)
 //    @Consumes(MediaType.MULTIPART_FORM_DATA)
