@@ -832,7 +832,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                                     } else {
                                                         //The split token is found, so wrap the current component
                                                         List<LayoutToken> firstPartOfSplitComponent = secondLevelComponent.getA().subList(0, indexOfLastTokenInThePage);
-                                                        List<LayoutToken> restOfSplitComponentTokens = secondLevelComponent.getA().subList(indexOfLastTokenInThePage, lastSecondLevelComponent.size());
+                                                        List<LayoutToken> restOfSplitComponentTokens = secondLevelComponent.getA().subList(indexOfLastTokenInThePage, secondLevelComponent.getA().size());
 
                                                         //Wrap the second level element
                                                         textToShowInTokens += secondLevelComponent.getB();
