@@ -831,8 +831,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                                                     } else {
                                                         //The split token is found, so wrap the current component
-                                                        List<LayoutToken> firstPartOfSplitComponent = lastSecondLevelComponent.subList(0, indexOfLastTokenInThePage);
-                                                        List<LayoutToken> restOfSplitComponentTokens = lastSecondLevelComponent.subList(indexOfLastTokenInThePage, lastSecondLevelComponent.size());
+                                                        List<LayoutToken> firstPartOfSplitComponent = secondLevelComponent.getA().subList(0, indexOfLastTokenInThePage);
+                                                        List<LayoutToken> restOfSplitComponentTokens = secondLevelComponent.getA().subList(indexOfLastTokenInThePage, lastSecondLevelComponent.size());
 
                                                         //Wrap the second level element
                                                         textToShowInTokens += secondLevelComponent.getB();
@@ -876,7 +876,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     //if the last token of the component is on the second page && the split is not yet processed, then split
                                     if ((componentOfLastLexicalEntry.get(componentOfLastLexicalEntry.size() - 1).getOffset() > newPageOffset) && (splitProcessed == false)) {
                                         indexOfLastTokenInThePage = 0;
-                                        textToShowInTokens = "";
+//                                        textToShowInTokens = "";
 
                                         //Find first the token just before the split
                                         for (Pair<List<LayoutToken>, String> entryComponent : lastEntryInSublist.getLabels()) {
