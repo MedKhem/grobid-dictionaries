@@ -802,14 +802,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             for (int h = 0; h < lastEntryInSublist.getLabels().size(); h++) {
                                 LabeledLexicalInformation segmentedEntryComponent = new LabeledLexicalInformation();
                                 String tagOfSplitEntryComponent = lastEntryInSublist.getLabels().get(h).getB();
-                                List<LayoutToken> componentOfLastLexicalEntry = lastEntryInSublist.getLabels().get(h).getA();
+                                Pair<List<LayoutToken>,String> componentOfLastLexicalEntry = lastEntryInSublist.getLabels().get(h);
                                 //Gather all segmented forms, senses..
                                 if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_FORM_LABEL) || tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
                                     if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_FORM_LABEL)) {
-                                        segmentedEntryComponent.setLabels(formParser.process(componentOfLastLexicalEntry).getLabels());
+                                        segmentedEntryComponent.setLabels(formParser.process(componentOfLastLexicalEntry.getA()).getLabels());
                                     }
                                     if (tagOfSplitEntryComponent.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-                                        segmentedEntryComponent.setLabels(senseParser.process(componentOfLastLexicalEntry).getLabels());
+                                        segmentedEntryComponent.setLabels(senseParser.process(componentOfLastLexicalEntry.getA()).getLabels());
                                     }
                                     // lastSecondLevelComponent could be, for example, a component of form or sense
                                     List<LayoutToken> lastSecondLevelComponent = segmentedEntryComponent.getLabels().get(segmentedEntryComponent.getLabels().size() - 1).getA();
@@ -863,8 +863,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     } else {
                                         //Case where there is nothing to split
                                         String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
-                                        String formattedSecondLevelComponent = checkFullABodyComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
-                                        textToShowInTokens += createMyXMLString(tag, formattedSecondLevelComponent);
+//                                        String formattedSecondLevelComponent = processALexicalEntryComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
+//                                        textToShowInTokens += createMyXMLString(tag, formattedSecondLevelComponent);
+                                        textToShowInTokens += processALexicalEntryComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
                                     }
 
 
@@ -874,7 +875,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
                                     //if the last token of the component is on the second page && the split is not yet processed, then split
-                                    if ((componentOfLastLexicalEntry.get(componentOfLastLexicalEntry.size() - 1).getOffset() > newPageOffset) && (splitProcessed == false)) {
+                                    if ((componentOfLastLexicalEntry.getA().get(componentOfLastLexicalEntry.getA().size() - 1).getOffset() > newPageOffset) && (splitProcessed == false)) {
                                         indexOfLastTokenInThePage = 0;
 //                                        textToShowInTokens = "";
 
@@ -897,8 +898,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                                         }
                                         splitProcessed = true;
-                                        List<LayoutToken> firstPartOfSplitComponent = componentOfLastLexicalEntry.subList(0, indexOfLastTokenInThePage);
-                                        List<LayoutToken> restOfSplitComponentTokens = componentOfLastLexicalEntry.subList(indexOfLastTokenInThePage, componentOfLastLexicalEntry.size());
+                                        List<LayoutToken> firstPartOfSplitComponent = componentOfLastLexicalEntry.getA().subList(0, indexOfLastTokenInThePage);
+                                        List<LayoutToken> restOfSplitComponentTokens = componentOfLastLexicalEntry.getA().subList(indexOfLastTokenInThePage, componentOfLastLexicalEntry.getA().size());
 
                                         //Compound the element to split in tokens and insert the oher page blocks
                                         textToShowInTokens += tagOfSplitEntryComponent;
@@ -913,7 +914,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                                     } else {
                                         String tag = lastEntryInSublist.getLabels().get(h).getB().replace("<", "").replace(">", "");
-                                        textToShowInTokens += createMyXMLString(tag, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry)));
+                                        textToShowInTokens += createMyXMLString(tag, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry.getA())));
                                     }
 
 
@@ -1785,27 +1786,35 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     }
 
     private void processFullABodyComponentToTEI(Pair<List<LayoutToken>, String> bodyComponent, StringBuilder tei, String modelToRun) {
-        String clusterContent = "";
+        StringBuilder clusterContent = new StringBuilder();
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         List<LayoutToken> allTokensOfaLE = bodyComponent.getA();
 
         String tagLabel = bodyComponent.getB();
-        clusterContent = checkFullABodyComponentToTEI(tagLabel, allTokensOfaLE, modelToRun);
+        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+            LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
+            for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
+                clusterContent.append(processALexicalEntryComponentToTEI(tagLabel, segmentedEntryComponent,modelToRun));
+            }
+        } else {
 
-        produceXmlNode(tei, clusterContent, tagLabel, true);
+            clusterContent.append(LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE)));
+
+        }
+//        clusterContent = processALexicalEntryComponentToTEI(tagLabel, allTokensOfaLE, modelToRun);
+
+        produceXmlNode(tei, clusterContent.toString(), tagLabel, true);
     }
 
-    private String checkFullABodyComponentToTEI(String tagLabel, List<LayoutToken> allTokensOfaLE, String modelToRun) {
+    private String processALexicalEntryComponentToTEI(String tagLabel, Pair<List<LayoutToken>, String>  segmentedEntryComponent, String modelToRun) {
         StringBuilder clusterContent = new StringBuilder();
-        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
         EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
         EtymParser etymParser = new EtymParser();
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            clusterContent.append(LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE)));
-        } else {
-            LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
-            for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
+
+
                 if (segmentedEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
                     clusterContent.append(formParser.processToTEI(segmentedEntryComponent.getA()).toString());
 
@@ -1834,9 +1843,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 }
 
-            }
 
-        }
+
+
         return clusterContent.toString();
     }
 
