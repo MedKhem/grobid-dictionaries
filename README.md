@@ -8,37 +8,6 @@
 
 GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning library, for structuring digitized lexical resources. It allows the parsing, extraction and structuring of text information in such resources. 
 
-## To Cite
-
-Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands
-```@inproceedings{khemakhem:hal-01508868,
-     TITLE = {{Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields}},
-     AUTHOR = {Khemakhem, Mohamed and Foppiano, Luca and Romary, Laurent},
-     URL = {https://hal.archives-ouvertes.fr/hal-01508868},
-     BOOKTITLE = {{electronic lexicography, eLex 2017}},
-     ADDRESS = {Leiden, Netherlands},
-     YEAR = {2017},
-     MONTH = Sep,
-     KEYWORDS = { digitized dictionaries  ;  automatic structuring ;  CRF ;  TEI ; machine learning},
-     PDF = {https://hal.archives-ouvertes.fr/hal-01508868/file/eLex-2017-Template.pdf},
-     HAL_ID = {hal-01508868},
-   }
-```
-
-Mohamed Khemakhem, Axel Herold, Laurent Romary. Enhancing Usability for Automatically Structuring Digitised Dictionaries. GLOBALEX workshop at LREC 2018, May 2018, Miyazaki, Japan
-```@inproceedings{khemakhem:hal-01708137,
-  TITLE = {{Enhancing Usability for Automatically Structuring Digitised Dictionaries}},
-  AUTHOR = {Khemakhem, Mohamed and Herold, Axel and Romary, Laurent},
-  URL = {https://hal.archives-ouvertes.fr/hal-01708137},
-  BOOKTITLE = {{GLOBALEX workshop at LREC 2018}},
-  ADDRESS = {Miyazaki, Japan},
-  YEAR = {2018},
-  MONTH = May,
-  KEYWORDS = {Docker ; TEI ; digitised dictionaries ; electronic lexicography ; usability},
-  PDF = {https://hal.archives-ouvertes.fr/hal-01708137/file/LREC-GLOBALEX2018.pdf},
-  HAL_ID = {hal-01708137},
-}
-```
 ## Approach
 
 GROBID-Dictionaries is based on cascading CRF models. The diagram below presents the architecture enabling the processing and the transfer of the text information through the models.
@@ -67,6 +36,21 @@ GROBID-Dictionaries takes as input lexical resources digitized in PDF format. Ea
 
 ## Docker Use
 To shortcut the installation of the tool, the [Docker manual](https://github.com/MedKhem/grobid-dictionaries/wiki/Docker_Instructions) could be followed to use the latest image of the tool
+
+## To Cite
+
+Mohamed Khemakhem, Luca Foppiano, Laurent Romary. Automatic Extraction of TEI Structures in Digitized Lexical Resources using Conditional Random Fields. electronic lexicography, eLex 2017, Sep 2017, Leiden, Netherlands. ![hal-01508868v2](https://hal.archives-ouvertes.fr/hal-01508868v2)
+
+Mohamed Khemakhem, Axel Herold, Laurent Romary. Enhancing Usability for Automatically Structuring Digitised Dictionaries. GLOBALEX workshop at LREC 2018, May 2018, Miyazaki, Japan. 2018.  ![hal-01708137v2](https://hal.archives-ouvertes.fr/hal-01708137v2)
+
+## More Reading
+Hervé Bohbot, Francesca Frontini, Giancarlo Luxardo, Mohamed Khemakhem, Laurent Romary. Presenting the Nénufar Project: a Diachronic Digital Edition of the Petit Larousse Illustré. GLOBALEX 2018 - Globalex workshop at LREC2018, May 2018, Miyazaki, Japan. ![hal-01728328](https://hal.archives-ouvertes.fr/hal-01728328v1)
+
+Mohamed Khemakhem, Carmen Brando, Laurent Romary, Frédérique Mélanie-Becquet, Jean-Luc Pinol. Fueling Time Machine: Information Extraction from Retro-Digitised Address Directories. JADH2018 "Leveraging Open Data", Sep 2018, Tokyo, Japan.  ![hal-01814189](https://hal.archives-ouvertes.fr/hal-01814189v1)
+
+Mohamed Khemakhem, Laurent Romary, Simon Gabay, Hervé Bohbot, Francesca Frontini, et al.. Automatically Encoding Encyclopedic-like Resources in TEI. The annual TEI Conference and Members Meeting, Sep 2018, Tokyo, Japan.![hal-01819505](https://hal.archives-ouvertes.fr/hal-01819505v1)
+
+David Lindemann, Mohamed Khemakhem, Laurent Romary. Retro-digitizing and Automatically Structuring a Large Bibliography Collection. European Association for Digital Humanities (EADH) Conference, Dec 2018, Galway, Ireland. ![hal-01941534](https://hal.archives-ouvertes.fr/hal-01941534v1)
 
 ## Documentation
 For more expert and development uses, the documentation of the tool is detailed [here](http://grobid-dictionaries.readthedocs.io/en/latest/)
