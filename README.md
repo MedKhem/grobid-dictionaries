@@ -6,7 +6,7 @@
 [![Docker build](https://dockerbuildbadges.quelltext.eu/status.svg?organization=medkhem&repository=grobid-dictionaries)](https://hub.docker.com/r/medkhem/grobid-dictionaries/builds/)
 ## Purpose
 
-GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning library, for structuring digitized lexical resources and entry-based documents with lexicographic or bibliographic content. It allows the parsing, extraction and structuring of text information in such resources. 
+GROBID-Dictionaries is a GROBID sub-module, implementing a java machine learning library, for structuring digitized lexical resources and entry-based documents with encyclopedic or bibliographic content. It allows the parsing, extraction and structuring of text information in such resources. 
 
 ## Approach
 
