@@ -1,7 +1,7 @@
 package org.grobid.core.data;
 
-import org.grobid.core.utilities.Pair;
-
+//import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * Created by lfoppiano on 05/05/2017.
  */
 public class SimpleLabeled {
-    private List<org.grobid.core.utilities.Pair<String, String>> labels = new ArrayList<>();
+    private List<Pair<String, String>> labels = new ArrayList<>();
 
     public boolean addLabel(Pair<String, String> label) {
         return labels.add(label);

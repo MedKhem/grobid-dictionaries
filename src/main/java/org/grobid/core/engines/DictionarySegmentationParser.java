@@ -18,6 +18,7 @@ import org.grobid.core.features.FeatureFactory;
 import org.grobid.core.features.FeaturesVectorSegmentation;
 import org.grobid.core.layout.*;
 import org.grobid.core.utilities.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         String ignoredLabel = "@IGNORED_LABEL@";
         for (Pair<String, String> labeledTokenPair :
                 Iterables.concat(labeledTokens,
-                        Collections.singleton(new Pair<String, String>("IgnoredToken", ignoredLabel)))) {
+                        Collections.singleton(Pair.of("IgnoredToken", ignoredLabel)))) {
             if (labeledTokenPair == null) {
                 p++;
                 continue;
@@ -166,7 +167,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                             && (currentLineStartPos != lastTokenInd)) {
                         currentLineStartPos++;
                     }
-                    if (!labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
+                    if (!labeledTokenPair.getLeft().startsWith(documentTokens.get(currentLineStartPos).getText())) {
                         while (currentLineStartPos < block.getEndToken()) {
                             if (documentTokens.get(currentLineStartPos).t().equals("\n")
                                     || documentTokens.get(currentLineStartPos).t().equals("\r")) {
@@ -178,7 +179,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                                     currentLineStartPos++;
                                 }
                                 if ((currentLineStartPos != lastTokenInd) &&
-                                        labeledTokenPair.a.startsWith(documentTokens.get(currentLineStartPos).getText())) {
+                                        labeledTokenPair.getLeft().startsWith(documentTokens.get(currentLineStartPos).getText())) {
                                     break;
                                 }
                             }
@@ -198,7 +199,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                     }
                 }
             }
-            curLabel = labeledTokenPair.b;
+            curLabel = labeledTokenPair.getRight();
             curPlainLabel = GenericTaggerUtils.getPlainLabel(curLabel);
 
 
@@ -284,10 +285,10 @@ public class DictionarySegmentationParser extends AbstractParser {
             // keep it clean when leaving...
             if (config.getPdfAssetPath() == null) {
                 // remove the pdf2xml tmp file
-                DocumentSource.close(documentSource, false, true);
+                DocumentSource.close(documentSource, false, true,true);
             } else {
                 // remove the pdf2xml tmp files, including the sub-directories
-                DocumentSource.close(documentSource, true, true);
+                DocumentSource.close(documentSource, true, true,true);
             }
         }
     }
@@ -419,7 +420,7 @@ public class DictionarySegmentationParser extends AbstractParser {
 
                     if (currentHeadnotePageNumber > previousHeadnotePageNumber) {
 
-                        headnotesOptimised.addLabel(new Pair(currentHeadnote, dictionaryPartLabel));
+                        headnotesOptimised.addLabel(Pair.of(currentHeadnote, dictionaryPartLabel));
 
                         currentHeadnote = doc.getDocumentPieceTokenization(aDocumentPartOfAllPages.get(i));
                         i++;
@@ -445,10 +446,10 @@ public class DictionarySegmentationParser extends AbstractParser {
 
             }
             if (aDocumentPartOfAllPages.size() !=1 ){
-                headnotesOptimised.addLabel(new Pair(currentHeadnote, dictionaryPartLabel));
+                headnotesOptimised.addLabel(Pair.of(currentHeadnote, dictionaryPartLabel));
             }
 
-            headnotesOptimised.addLabel(new Pair(lastHeadnote, dictionaryPartLabel));
+            headnotesOptimised.addLabel(Pair.of(lastHeadnote, dictionaryPartLabel));
             doc.setDictionaryPagePartOptimised(headnotesOptimised,dictionaryPartLabel);
 
         }

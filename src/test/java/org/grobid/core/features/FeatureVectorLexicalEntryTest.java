@@ -9,7 +9,7 @@ import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class FeatureVectorLexicalEntryTest {
     @Test
     public void testCreateFeaturesFromLayoutTokens() throws Exception {
         Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("BasicEnglish.pdf");
-        LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
+        LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.getLeft(), input.getRight());
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization());
         assertThat(output, notNullValue());
 //        System.out.println(output);
@@ -82,7 +82,7 @@ public class FeatureVectorLexicalEntryTest {
     @Test
     public void testCreateFeaturesFromLayoutTokens2() throws Exception {
         Pair<DictionaryDocument, SortedSet<DocumentPiece>> input = prepare("LettreP-117082016.pdf");
-        LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.a, input.b);
+        LayoutTokenization layoutTokenization = target2.getLayoutTokenizations(input.getLeft(), input.getRight());
         StringBuilder output = target.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization());
         assertThat(output, notNullValue());
 //        System.out.println(output);
@@ -111,7 +111,7 @@ public class FeatureVectorLexicalEntryTest {
         DictionaryDocument doc = parser.initiateProcessing(input, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
-        return new Pair<>(doc, documentBodyParts);
+        return Pair.of(doc, documentBodyParts);
 
     }
 

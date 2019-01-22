@@ -4,7 +4,7 @@ import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -91,7 +91,7 @@ public class DocumentUtilsTest {
         DictionaryDocument doc =  parser.initiateProcessing(input, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
-        return new Pair<>(doc, documentBodyParts);
+        return Pair.of(doc, documentBodyParts);
 
     }
 

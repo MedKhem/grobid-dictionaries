@@ -1,7 +1,8 @@
 package org.grobid.trainer.sax;
 
 import org.grobid.core.data.SimpleLabeled;
-import org.grobid.core.utilities.Pair;
+//import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -119,10 +120,10 @@ public class TEISenseSaxParser extends DefaultHandler {
             String content = tok;
             if (content.length() > 0) {
                 if (begin) {
-                    currentSense.addLabel(new Pair(content, "I-" + currentTag));
+                    currentSense.addLabel(Pair.of(content, "I-" + currentTag));
                     begin = false;
                 } else {
-                    currentSense.addLabel(new Pair(content, currentTag));
+                    currentSense.addLabel(Pair.of(content, currentTag));
                 }
             }
             begin = false;

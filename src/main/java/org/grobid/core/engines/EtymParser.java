@@ -14,8 +14,8 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
-import org.grobid.core.utilities.Pair;
-import org.grobid.core.utilities.TextUtilities;
+//import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +62,8 @@ public class EtymParser extends AbstractParser {
         //I apply the form also to the sense to recognise the grammatical group, if any!
 
         for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
-            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getA());
-            String labelSense = entrySense.getB();
+            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getLeft());
+            String labelSense = entrySense.getRight();
 
             String content = DocumentUtils.escapeHTMLCharac(tokenSense);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
@@ -108,7 +108,7 @@ public class EtymParser extends AbstractParser {
                 List<LayoutToken> concatenatedTokens = cluster.concatTokens();
                 String tagLabel = clusterLabel.getLabel();
 
-                labeledLexicalEntry.addLabel(new Pair(concatenatedTokens, tagLabel));
+                labeledLexicalEntry.addLabel(Pair.of(concatenatedTokens, tagLabel));
             }
         }
 
@@ -276,21 +276,21 @@ public class EtymParser extends AbstractParser {
         EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
-            if (lexicalEntryLayoutTokens.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getA(), DICTIONARY_ENTRY_LABEL);
+            if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_ETYM_LABEL)) {
                         etyms.append("<etym>");
-                        LabeledLexicalInformation segOrQuoteComponents = etymQuoteParser.process(lexicalEntryComponent.getA(), EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL);
+                        LabeledLexicalInformation segOrQuoteComponents = etymQuoteParser.process(lexicalEntryComponent.getLeft(), EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL);
                         for (Pair<List<LayoutToken>, String> segOrQuoteComponent : segOrQuoteComponents.getLabels()) {
-                            if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL)) {
+                            if (segOrQuoteComponent.getRight().equals(EtymQuoteLabels.QUOTE__ETYMQUOTE_LABEL)) {
                                 //Write raw text
-                                for (LayoutToken txtline : segOrQuoteComponent.getA()) {
+                                for (LayoutToken txtline : segOrQuoteComponent.getLeft()) {
                                     rawtxt.append(txtline.getText());
                                 }
                                 etyms.append("<quote>");
-                                LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getA());
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getLeft());
                                 String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                                 featureWriter.write(featSeg + "\n");
                                 if (isAnnotated) {
@@ -304,18 +304,18 @@ public class EtymParser extends AbstractParser {
                                         etyms.append(toTEIEtym(labeledFeatures, layoutTokenization.getTokenization(), true));
                                     }
                                 } else {
-                                    etyms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(segOrQuoteComponent.getA()))));
+                                    etyms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(segOrQuoteComponent.getLeft()))));
 
                                 }
 
                                 etyms.append("</quote>");
-                            } else if (segOrQuoteComponent.getB().equals(EtymQuoteLabels.SEG_ETYMQUOTE_LABEL)) {
+                            } else if (segOrQuoteComponent.getRight().equals(EtymQuoteLabels.SEG_ETYMQUOTE_LABEL)) {
                                 //Write raw text
-                                for (LayoutToken txtline : segOrQuoteComponent.getA()) {
+                                for (LayoutToken txtline : segOrQuoteComponent.getLeft()) {
                                     rawtxt.append(txtline.getText());
                                 }
                                 etyms.append("<seg>");
-                                LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getA());
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(segOrQuoteComponent.getLeft());
                                 if (isAnnotated) {
                                     String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                                     String labeledFeatures = null;
@@ -328,7 +328,7 @@ public class EtymParser extends AbstractParser {
                                         etyms.append(toTEIEtym(labeledFeatures, layoutTokenization.getTokenization(), true));
                                     }
                                 } else {
-                                    etyms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(segOrQuoteComponent.getA())));
+                                    etyms.append(DocumentUtils.replaceLinebreaksWithTags(LayoutTokensUtil.toText(segOrQuoteComponent.getLeft())));
 
                                 }
 

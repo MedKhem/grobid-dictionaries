@@ -19,7 +19,7 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
-import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class LexicalEntryParser extends AbstractParser {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
         EngineParsers engineParsers = new EngineParsers();
         CitationParser citationParser = engineParsers.getCitationParser();
-        BiblioItem segmentedCitation = citationParser.processing(entry,false);
+        BiblioItem segmentedCitation = citationParser.processing(entry,0);
 
         // Get the clustors of token in the LE
         LabeledLexicalInformation labeledEntry = process(entry, DICTIONARY_ENTRY_LABEL);
@@ -129,7 +129,7 @@ public class LexicalEntryParser extends AbstractParser {
                 List<LayoutToken> concatenatedTokens = cluster.concatTokens();
                 String tagLabel = clusterLabel.getLabel();
 
-                labeledLexicalEntry.addLabel(new Pair(concatenatedTokens, tagLabel));
+                labeledLexicalEntry.addLabel(Pair.of(concatenatedTokens, tagLabel));
             }
         }
 
@@ -141,8 +141,8 @@ public class LexicalEntryParser extends AbstractParser {
     public String toTEILexicalEntry(Pair<List<LayoutToken>, String> entry) {
         final StringBuilder sb = new StringBuilder();
 
-        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getA()));
-        String label = entry.getB();
+        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
+        String label = entry.getRight();
         produceXmlNode(sb, token, label);
 
         return sb.toString();
@@ -151,24 +151,24 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String toTEILexicalEntryAndBeyond(Pair<List<LayoutToken>, String> entryComponent) {
         final StringBuilder sb = new StringBuilder();
-        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getA()));
-        String label = entryComponent.getB();
+        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getLeft()));
+        String label = entryComponent.getRight();
 
         if (label.equals("<form>")) {
-            sb.append(new FormParser().processToTEI(entryComponent.getA()));
+            sb.append(new FormParser().processToTEI(entryComponent.getLeft()));
 
 
         } else if (label.equals("<sense>")) {
-            sb.append(new SenseParser().processToTEI(entryComponent.getA()));
+            sb.append(new SenseParser().processToTEI(entryComponent.getLeft()));
 
 //            } else if (label.equals("<re>")) {
 //                //I apply the same model recursively on the relative entry
 //                sb.append("<re>").append("\n");
 //                //I apply the form also to the sense to recognise the grammatical group, if any!
-//                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getA(), LEXICAL_ENTRY_RE_LABEL);
+//                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getLeft(), LEXICAL_ENTRY_RE_LABEL);
 //                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
-//                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getA()));
-//                    String labelForm = lexicalEntry.getB();
+//                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getLeft()));
+//                    String labelForm = lexicalEntry.getRight();
 //
 //                    String content = TextUtilities.HTMLEncode(tokenForm);
 //                    content = content.replace("&lt;lb/&gt;", "<lb/>");
@@ -349,12 +349,12 @@ public class LexicalEntryParser extends AbstractParser {
         StringBuffer lexicalEntries = new StringBuffer();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
-            if (lexicalEntryLayoutTokens.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                for (LayoutToken txtline : lexicalEntryLayoutTokens.getA()) {
+            if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                for (LayoutToken txtline : lexicalEntryLayoutTokens.getLeft()) {
                     rawtxt.append(txtline.getText());
                 }
                 lexicalEntries.append("<entry>");
-                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getA());
+                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getLeft());
                 String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                 featureWriter.write(featSeg + "\n");
                 if(isAnnotated){
@@ -369,7 +369,7 @@ public class LexicalEntryParser extends AbstractParser {
                     }
                 }
                 else {
-                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getA()))));
+                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getLeft()))));
                 }
 
 

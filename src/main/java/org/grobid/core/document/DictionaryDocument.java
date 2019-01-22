@@ -3,7 +3,7 @@ package org.grobid.core.document;
 import org.grobid.core.data.LabeledLexicalEntry;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.layout.LayoutToken;
-import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -38,9 +38,9 @@ public class DocumentUtils {
 
         } finally {
             if (GrobidAnalysisConfig.defaultInstance().getPdfAssetPath() == null) {
-                documentSource.close(true, true);
+                documentSource.close(true, true,true);
             } else {
-                documentSource.close(false, true);
+                documentSource.close(false, true,true);
             }
         }
         return doc;
@@ -56,8 +56,8 @@ public class DocumentUtils {
 
             for (DocumentPiece docPiece : documentParts) {
                 //Every document Piece contains two Parts
-                DocumentPointer dp1 = docPiece.a;
-                DocumentPointer dp2 = docPiece.b;
+                DocumentPointer dp1 = docPiece.getLeft();
+                DocumentPointer dp2 = docPiece.getRight();
                 //The first part is identified by its first token. The second part is identified by its final token
                 int tokenStart = dp1.getTokenDocPos();
                 int tokenEnd = dp2.getTokenDocPos();
@@ -248,8 +248,8 @@ public class DocumentUtils {
         List<Block> documentPartBlocks = null;
 
         for (DocumentPiece docPiece : documentBodyParts) {
-            DocumentPointer dp1 = docPiece.a;
-            DocumentPointer dp2 = docPiece.b;
+            DocumentPointer dp1 = docPiece.getLeft();
+            DocumentPointer dp2 = docPiece.getRight();
 
             //int blockPos = dp1.getBlockPtr();
             for (int blockIndex = dp1.getBlockPtr(); blockIndex <= dp2.getBlockPtr(); blockIndex++) {

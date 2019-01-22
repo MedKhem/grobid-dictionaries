@@ -17,7 +17,8 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
-import org.grobid.core.utilities.Pair;
+//import org.grobid.core.utilities.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +67,8 @@ public class FormParser extends AbstractParser {
         sb.append("<form type=\"lemma\">").append("\n");
         StringBuilder gramGrp = new StringBuilder();
         for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
-            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getA());
-            String labelForm = entryForm.getB();
+            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getLeft());
+            String labelForm = entryForm.getRight();
 
             String content = DocumentUtils.escapeHTMLCharac(tokenForm);
             if (labelForm.equals("<gramGrp>")) {
@@ -77,11 +78,11 @@ public class FormParser extends AbstractParser {
             }
 //            else if (labelForm.equals("<name>")){
 //                AuthorParser personNameParser = new AuthorParser();
-//                List<Person> structuredPersons = personNameParser.processing(entryForm.getA(),true);
+//                List<Person> structuredPersons = personNameParser.processing(entryForm.getLeft(),true);
 //
 //                if ( structuredPersons == null){
 //                    sb.append("<dictScrap>");
-//                    sb.append(LayoutTokensUtil.normalizeText(entryForm.getA()));
+//                    sb.append(LayoutTokensUtil.normalizeText(entryForm.getLeft()));
 //                    sb.append("</dictScrap>");
 //                }else{
 //                    for (Person person: structuredPersons ){
@@ -188,7 +189,7 @@ public class FormParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
             List<LayoutToken> concatenatedTokens = cluster.concatTokens();
 
-            labelledLayoutTokens.addLabel(new Pair(concatenatedTokens, tagLabel));
+            labelledLayoutTokens.addLabel(Pair.of(concatenatedTokens, tagLabel));
 
         }
 
@@ -356,17 +357,17 @@ public class FormParser extends AbstractParser {
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
-            if (lexicalEntryLayoutTokens.getB().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getA(), DICTIONARY_ENTRY_LABEL);
+            if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getB().equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL)) {
                         //Write raw text
-                        for (LayoutToken txtline : lexicalEntryComponent.getA()) {
+                        for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
                             rawtxt.append(txtline.getText());
                         }
                         forms.append("<form>");
-                        LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getA());
+                        LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
                         String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                         featureWriter.write(featSeg + "\n");
                         if (isAnnotated) {
@@ -381,7 +382,7 @@ public class FormParser extends AbstractParser {
                                 forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
                         } else {
-                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getA()))));
+                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
 
                         }
 

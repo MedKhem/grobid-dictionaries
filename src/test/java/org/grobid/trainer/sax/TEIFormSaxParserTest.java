@@ -38,8 +38,8 @@ public class TEIFormSaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(2));
 
-        assertThat(labeled.get(0).getLabels().get(0).a, is("ally"));
-        assertThat(labeled.get(0).getLabels().get(0).b, is("I-<orth>"));
+        assertThat(labeled.get(0).getLabels().get(0).getLeft(), is("ally"));
+        assertThat(labeled.get(0).getLabels().get(0).getRight(), is("I-<orth>"));
     }
 
 
