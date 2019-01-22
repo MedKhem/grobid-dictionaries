@@ -10,6 +10,7 @@
     <version>0.5.4-SNAPSHOT</version>
     <packaging>war</packaging>
 
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <assemblies.name>src/main/assembly/assembly.xml</assemblies.name>
