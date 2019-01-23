@@ -30,29 +30,34 @@ RUN \
 #COPY grobid-master.zip grobid-master.zip
 #RUN unzip grobid-master.zip && mv grobid-master grobid && rm grobid-master.zip && cd #grobid && ./gradlew clean install 
 
-RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/build/distributions/*
+RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/
+#&& rm -r /grobid/grobid-home/build/distributions/*
 
-
+#RUN mvn install:install-file -Dfile=tmp/grobid-core-0.5.4-SNAPSHOT.jar -DgroupId=org.grobid -DartifactId=grobid-core -Dversion=0.5.4-SNAPSHOT -Dpackaging=jar
+#
+#RUN mvn install:install-file -Dfile=tmp/grobid-trainer-0.5.4-SNAPSHOT.jar -DgroupId=org.grobid -DartifactId=grobid-trainer -Dversion=0.5.4-SNAPSHOT -Dpackaging=jar
+#
 #To clone from fork
  RUN \
   cd /grobid && \
   git clone https://github.com/MedKhem/grobid-dictionaries
-
-# To copy from a local directory
-#COPY grobid-dictionaries /grobid/grobid-dictionaries
-
-
+#
+## To copy from a local directory
+##COPY grobid-dictionaries /grobid/grobid-dictionaries
+#
+#
 RUN \
   cd /grobid/grobid-dictionaries && \
-  mv toyData resources && \
- mvn -Dmaven.test.skip=true clean install && \
- mvn generate-resources -P train_dictionary_segmentation -e && \
- mvn generate-resources -P train_dictionary_body_segmentation -e && \
- mvn generate-resources -P train_lexicalEntries -e && \
- mvn generate-resources -P train_form -e && \
- mvn generate-resources -P train_sense -e && \
- mvn generate-resources -P train_etymQuote -e && \
- mvn generate-resources -P train_etym -e
+  mv toyData resources
+#&& \
+# mvn -Dmaven.test.skip=true clean install && \
+# mvn generate-resources -P train_dictionary_segmentation -e && \
+# mvn generate-resources -P train_dictionary_body_segmentation -e && \
+# mvn generate-resources -P train_lexicalEntries -e && \
+# mvn generate-resources -P train_form -e && \
+# mvn generate-resources -P train_sense -e && \
+# mvn generate-resources -P train_etymQuote -e && \
+# mvn generate-resources -P train_etym -e
 
 
 WORKDIR /grobid/grobid-dictionaries

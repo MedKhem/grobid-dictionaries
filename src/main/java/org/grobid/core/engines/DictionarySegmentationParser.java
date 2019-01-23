@@ -6,7 +6,7 @@ import com.google.common.collect.TreeMultimap;
 import eugfc.imageio.plugins.PNMRegistry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.lucene.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
@@ -961,7 +961,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         String featuredText = getAllLinesFeatured(doc);
         writer.write(featuredText);
-        IOUtils.closeWhileHandlingException(writer);
+        IOUtils.closeQuietly(writer);
 
         //Create rng and css files for guiding the annotation
         File existingRngFile = new File("templates/dictionarySegmentation.rng");

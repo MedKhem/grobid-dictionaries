@@ -2,7 +2,8 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.util.IOUtils;
+
+import org.apache.commons.io.IOUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
@@ -317,7 +318,8 @@ public class EtymQuoteParser extends AbstractParser {
         teiWriter.write("\n\t</text>\n</tei>\n");
 
 
-        IOUtils.closeWhileHandlingException(featureWriter, teiWriter);
+        IOUtils.closeQuietly(featureWriter);
+        IOUtils.closeQuietly(teiWriter);
     }
 
     private static void copyFileUsingStream(File source, File dest) throws IOException {

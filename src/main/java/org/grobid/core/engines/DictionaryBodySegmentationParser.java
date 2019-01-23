@@ -6,7 +6,7 @@ import org.grobid.core.engines.label.*;
 import org.grobid.core.layout.Page;
 import org.grobid.core.utilities.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentPiece;
 import org.grobid.core.document.DocumentUtils;
@@ -1419,7 +1419,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation";
         Writer writer = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         writer.write(bodyTextFeatured);
-        IOUtils.closeWhileHandlingException(writer);
+        IOUtils.closeQuietly(writer);
 
         // also write the raw text as seen before segmentation
         StringBuffer rawtxt = new StringBuffer();
