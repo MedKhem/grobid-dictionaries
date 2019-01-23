@@ -53,9 +53,10 @@ mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-0.5.4-SNAPSHOT
  mvn generate-resources -P train_form -e && \
  mvn generate-resources -P train_sense -e && \
  mvn generate-resources -P train_etymQuote -e && \
- mvn generate-resources -P train_etym -e && \
- mvn -Dmaven.test.skip=true jetty:run-war && \
- kill -INT 888
+ mvn generate-resources -P train_etym -e
+# && \
+# mvn -Dmaven.test.skip=true jetty:run-war && \
+# kill -INT 888
 
 
 WORKDIR /grobid/grobid-dictionaries
