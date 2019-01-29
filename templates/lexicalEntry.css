@@ -22,7 +22,7 @@ form {
 
 pc {
     display: inline;
-    background-color: SkyBlue;
+    background-color: blue;
 }
 
 /* things to mark-up in etymQuote */
@@ -36,14 +36,18 @@ re {
     display: inline;
     background-color: purple;
 }
+xr {
+    display: inline;
+    background-color: greenyellow ;
+}
 num {
     display: inline;
-    background-color: blue;
+    background-color:  SkyBlue;
 }
 
 dictScrap { /* what's that for? */
     display: inline;
-    background-color: greenyellow;
+    background-color: #70695C;
 }
 
 /* special whitespace handling for minimally better readability */

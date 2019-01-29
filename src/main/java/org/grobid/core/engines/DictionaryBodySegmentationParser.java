@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
@@ -1503,6 +1504,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             buffer.append(createMyXMLString("sense", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
             buffer.append(createMyXMLString("re", clusterContent));
+        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
+            buffer.append(createMyXMLString("xr", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
             buffer.append(createMyXMLString("num", clusterContent));
         }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
@@ -1563,6 +1566,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             buffer.append(createMyXMLString("sense", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
             buffer.append(createMyXMLString("re", clusterContent));
+        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
+            buffer.append(createMyXMLString("xr", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
             buffer.append(createMyXMLString("num", clusterContent));
         }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {

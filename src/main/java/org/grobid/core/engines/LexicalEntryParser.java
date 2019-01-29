@@ -242,6 +242,8 @@ public class LexicalEntryParser extends AbstractParser {
             buffer.append(createMyXMLString("sense", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
             buffer.append(createMyXMLString("re", clusterContent));
+        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
+            buffer.append(createMyXMLString("xr", clusterContent));
         } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
             buffer.append(createMyXMLString("num", clusterContent));
         }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
