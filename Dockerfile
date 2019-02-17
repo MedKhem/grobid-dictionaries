@@ -22,9 +22,9 @@ RUN \
 
 #To clone from fork
  RUN \
-  git clone https://github.com/MedKhem/grobid
-  && \
-  cd grobid && ./gradlew clean install
+  git clone https://github.com/MedKhem/grobid && \
+  cd grobid && \
+  ./gradlew clean install
 
 # To copy from a local directory
 #COPY grobid-master.zip grobid-master.zip
