@@ -4,7 +4,7 @@ After making sure that a model exists for each segmentation level you could star
 
 After running jetty with the following command:
 ```bash
-> mvn -Dmaven.test.skip=true jetty:run-war
+> mvn -DskipTests jetty:run-war
 ```
 
 the web service would be accessible directly at the navigator (if you run it locally):
