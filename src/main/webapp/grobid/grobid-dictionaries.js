@@ -24,6 +24,7 @@ var grobid = (function ($) {
         $('#consolidateBlock').show();
         $("#btn_download").hide();
         $("#btn_downloadBib").hide();
+        $('#refinedModels').hide();
 
         createInputFile();
         createInputFileBib();
@@ -384,21 +385,23 @@ function processDictionaryChange()  {
         // }
         // else {
             createInputFile(selected);
-            $('#consolidateBlock').show();
+       $('#refinedModels').hide();
             setBaseUrl('processDictionarySegmentation');
         // }
     }
     else if (selected == 'processDictionaryBodySegmentation') {
 
             createInputFile(selected);
-            $('#consolidateBlock').show();
+       $('#refinedModels').hide();
+
             setBaseUrl('processDictionaryBodySegmentation');
 
     }
     else if (selected == 'processLexicalEntry') {
 
             createInputFile(selected);
-            $('#consolidateBlock').show();
+
+       $('#refinedModels').hide();
             setBaseUrl('processLexicalEntry');
 
     }
@@ -410,6 +413,7 @@ function processDictionaryChange()  {
 
            setBaseUrl('processFullDictionary');
 
+       $('#refinedModels').show();
 
    }
 

@@ -91,7 +91,7 @@
             <form class="form-horizontal" method="post" id="gbdForm" target=_blank accept-charset="UTF-8">
                 <table border="0">
                     <tr>
-                        <td>Service to call &nbsp;</td>
+                        <td>Macro Structures &nbsp;</td>
                         <td>
                             <select id="selectedDictionaryService">
                                 <option selected="true" disabled="true">Select a service </option>
@@ -101,6 +101,77 @@
                                 <option value="processFullDictionary">Parse full dictionary</option>
 
                             </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Refined Structures &nbsp;</td>
+                        <td>
+                            <div id="refinedModels">
+
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <select id="selectedFormSense"  style="width: 100px">                                                 <option disabled="true">Select a model </option>
+                                                    <option value="">Skip from</option>
+                                                    <option  selected="true" value="">form</option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedSenseService" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip sense </option>
+                                                    <option value="" selected="true" >sense</option>
+                                                    <option value="">sense & sub sense</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedEtymService" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip etym </option>
+                                                    <option value="" selected="true">etym </option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedReService" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip re </option>
+                                                    <option value="" selected="true">re </option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedXrService" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip xr </option>
+                                                    <option value="" selected="true">xr </option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedSubEntryService" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip subEntry </option>
+                                                    <option value="" selected="true" >subEntry </option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select id="selectedNoteSetvice" style="width: 100px">
+                                                    <option disabled="true">Select a model </option>
+                                                    <option value="" >Skip note </option>
+                                                    <option selected="true" value="" >note </option>
+
+                                                </select>
+                                            </td>
+
+                                        </tr>
+                                    </table>
+                                </div>
+
+
+
                         </td>
                     </tr>
                     <tr><td>&nbsp;</td><td/></tr>
