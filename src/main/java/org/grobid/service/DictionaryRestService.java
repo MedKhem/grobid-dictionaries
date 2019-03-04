@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -100,12 +101,20 @@ public class DictionaryRestService implements DictionaryPaths {
 //        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY_OPTIMISED);
 //    }
 
-    @Path(PATH_FULL_DICTIONARY)
+    @Path("{form}/{sense}/{etym}/{re}/{xr}/{subEntry}/{note}.processFullDictionary")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processFullDictionary(inputStream, PATH_FULL_DICTIONARY);
+    public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream,
+                                               @PathParam("form") String form,
+                                               @PathParam("sense") String sense,
+                                               @PathParam("etym") String etym,
+                                               @PathParam("re") String re,
+                                               @PathParam("xr") String xr,
+                                               @PathParam("subEntry") String subEntry,
+                                               @PathParam("note") String note) throws Exception {
+
+        return DictionaryProcessFile.processFullDictionary(inputStream, form+"-"+sense+"-"+etym+"-"+re+"-"+xr+"-"+subEntry+"-"+note);
     }
 
 //    @Path(PATH_FULL_DICTIONARY_OPTIMISED)

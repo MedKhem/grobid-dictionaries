@@ -200,6 +200,35 @@ var grobid = (function ($) {
             processBibliographyChange();
             return true;
         });
+        $('#selectedFormService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedSenseService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedEtymService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedReService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedXrService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedSubEntryService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+        $('#selectedNoteService').change(function () {
+            processDictionaryChange();
+            return true;
+        });
+
     });
 
     function ShowRequest(formData, jqForm, options){
@@ -375,45 +404,52 @@ var grobid = (function ($) {
 })(jQuery);
 
 function processDictionaryChange()  {
-    var selected = $('#selectedDictionaryService option:selected').attr('value');
+    var selectedMacroLevel = $('#selectedDictionaryService option:selected').attr('value');
     // var checked = $('#checkOptimise').is(':checked');
 
 
-   if (selected == 'processDictionarySegmentation') {
+   if (selectedMacroLevel == 'processDictionarySegmentation') {
         // if(checked == true){
         //    //Nothing to optimise yet
         // }
         // else {
-            createInputFile(selected);
+            createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
             setBaseUrl('processDictionarySegmentation');
         // }
     }
-    else if (selected == 'processDictionaryBodySegmentation') {
+    else if (selectedMacroLevel == 'processDictionaryBodySegmentation') {
 
-            createInputFile(selected);
+            createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
 
             setBaseUrl('processDictionaryBodySegmentation');
 
     }
-    else if (selected == 'processLexicalEntry') {
+    else if (selectedMacroLevel == 'processLexicalEntry') {
 
-            createInputFile(selected);
+            createInputFile(selectedMacroLevel);
 
        $('#refinedModels').hide();
             setBaseUrl('processLexicalEntry');
 
     }
-    else   if (selected == 'processFullDictionary' ) {
+    else if (selectedMacroLevel == 'processFullDictionary' ) {
 
+       var form = $('#selectedFormService option:selected').attr('value');
+       var sense = $('#selectedSenseService option:selected').attr('value');
+       var etym = $('#selectedEtymService option:selected').attr('value');
+       var re = $('#selectedReService option:selected').attr('value');
+       var xr = $('#selectedXrService option:selected').attr('value');
+       var subEntry = $('#selectedSubEntryService option:selected').attr('value');
+       var note = $('#selectedNoteService option:selected').attr('value');
+        console.log(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
 
-
-           createInputFile(selected);
-
-           setBaseUrl('processFullDictionary');
-
+        //   createInputFile(selectedMacroLevel);
        $('#refinedModels').show();
+           setBaseUrl(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
+
+
 
    }
 

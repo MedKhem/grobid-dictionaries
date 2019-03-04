@@ -58,9 +58,7 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
-        EngineParsers engineParsers = new EngineParsers();
-        CitationParser citationParser = engineParsers.getCitationParser();
-        BiblioItem segmentedCitation = citationParser.processing(entry,0);
+
 
         // Get the clustors of token in the LE
         LabeledLexicalInformation labeledEntry = process(entry, DICTIONARY_ENTRY_LABEL);
@@ -74,6 +72,9 @@ public class LexicalEntryParser extends AbstractParser {
                 bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
             }
         } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)){
+            EngineParsers engineParsers = new EngineParsers();
+            CitationParser citationParser = engineParsers.getCitationParser();
+            BiblioItem segmentedCitation = citationParser.processing(entry,0);
 
                 bodyWithSegmentedLexicalEntries.append(segmentedCitation.toTEI(-1));
 
