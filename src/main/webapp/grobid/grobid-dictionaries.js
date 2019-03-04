@@ -60,6 +60,10 @@ var grobid = (function ($) {
         $('#btn_download').bind('click', downloadDictionary);
         $("#btn_download").hide();
 
+        $('#btn_download_lemmas').bind('click', downloadLemma);
+        $("#btn_download_lemmas").hide();
+
+
         $('#btn_downloadBib').bind('click', downloadBibliography());
         $("#btn_downloadBib").hide();
 
@@ -269,8 +273,17 @@ var grobid = (function ($) {
         display += "</pre>";
         $('#requestResult').html(display);
         window.prettyPrint && prettyPrint();
+
+
         $('#requestResult').show();
         $("#btn_download").show();
+        var selectedDictionaryForm = $('#selectedFormService option:selected').attr('value');
+        console.log(selectedDictionaryForm);
+        if (selectedDictionaryForm == 'form' || selectedDictionaryForm == 'customisedForm'){
+            $('#btn_download_lemmas').show();
+        }else{
+            $('#btn_download_lemmas').hide();
+        }
     }
 
     function SubmitBibSuccesful(responseText, statusText, xhr) {
@@ -443,7 +456,7 @@ function processDictionaryChange()  {
        var xr = $('#selectedXrService option:selected').attr('value');
        var subEntry = $('#selectedSubEntryService option:selected').attr('value');
        var note = $('#selectedNoteService option:selected').attr('value');
-        console.log(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
+        // console.log(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
 
         //   createInputFile(selectedMacroLevel);
        $('#refinedModels').show();
@@ -506,6 +519,48 @@ function downloadDictionary() {
 
 
     var file = new Blob([xmlToDownload], {type: 'application/xml'});
+    var fileURL = URL.createObjectURL(file);
+    a.href = fileURL;
+    a.download = fileName;
+
+    document.body.appendChild(a);
+
+    $(a).ready(function () {
+        a.click();
+        return true;
+    });
+}
+
+function downloadLemma() {
+    var name = "export";
+    if ((document.getElementById("input").files[0].type == 'application/pdf') ||
+        (document.getElementById("input").files[0].name.endsWith(".pdf")) ||
+        (document.getElementById("input").files[0].name.endsWith(".PDF"))) {
+        name = document.getElementById("input").files[0].name;
+    }
+    var fileName = name + ".txt";
+    var a = document.createElement("a");
+
+
+
+    var parser, xmlDoc, segmentedBody, entryList;
+    parser = new DOMParser();
+    xmlDoc = parser.parseFromString(xmlToDownload,"application/xml");
+
+    entryList = xmlDoc.getElementsByTagName("entry");
+    console.log(entryList.length.toString());
+    // entryList = segmentedBody.getElementsByTagName("entry");
+    var lemmas = "";
+    var form, i;
+    for (i = 0; i< entryList.length; i++) {
+        form = entryList[i].getElementsByTagName("form")[0];
+
+        lemmas += form.getElementsByTagName("orth")[0].childNodes[0].nodeValue +" "+ entryList[i].getElementsByTagName("gramGrp")[0].getElementsByTagName("pos")[0].childNodes[0].nodeValue +"\n";
+    }
+    console.log(lemmas);
+
+
+    var file = new Blob([lemmas], {type: 'text/plain'});
     var fileURL = URL.createObjectURL(file);
     a.href = fileURL;
     a.download = fileName;
