@@ -146,6 +146,26 @@ public class LexicalEntryParser extends AbstractParser {
         String label = entry.getRight();
         produceXmlNode(sb, token, label);
 
+//        String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
+//        String label = entry.getRight();
+//        if (label.equals("<form>")) {
+//            sb.append("<form type=\"lemma\">");
+//            sb.append(componentText).append("</form>").append("\n");
+//        } else if(label.equals("<inflected>")){
+//            sb.append("<form type=\"inflected\">");
+//            sb.append(componentText).append("</form>").append("\n");
+//        }else if(label.equals("<ending>")){
+//            sb.append("<form type=\"ending\">");
+//            sb.append(componentText).append("</form>").append("\n");
+//        }else if(label.equals("<subEntry>")){
+//            sb.append("<entry>");
+//            sb.append(componentText).append("</entry>").append("\n");
+//        }else{
+//            sb.append(label);
+//            sb.append(createMyXMLString(label,componentText)).append("\n");
+//        }
+//
+
         return sb.toString();
     }
 
