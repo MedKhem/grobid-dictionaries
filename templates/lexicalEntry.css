@@ -52,6 +52,14 @@ note {
     display: inline;
     background-color: #eb1844;
 }
+inflected {
+    display: inline;
+    background-color: #35b1eb;
+}
+ending {
+    display: inline;
+    background-color: #a94deb;
+}
 
 dictScrap { /* what's that for? */
     display: inline;
