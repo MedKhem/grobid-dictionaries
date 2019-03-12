@@ -44,6 +44,14 @@ num {
     display: inline;
     background-color:  SkyBlue;
 }
+subEntry {
+    display: inline;
+    background-color: #1fba5d;
+}
+note {
+    display: inline;
+    background-color: #eb1844;
+}
 
 dictScrap { /* what's that for? */
     display: inline;

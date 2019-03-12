@@ -138,6 +138,28 @@
             </oneOrMore>
         </element>
     </define>
+    <define name="subEntry">
+        <element name="subEntry">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="note">
+        <element name="note">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
     <define name="entry">
         <element name="entry">
             <oneOrMore>
@@ -150,6 +172,8 @@
                     <ref name="sense"/>
                     <ref name="re"/>
                     <ref name="xr"/>
+                    <ref name="note"/>
+                    <ref name="subEntry"/>
                     <ref name="num"/>
                     <ref name="dictScrap"/>
                 </choice>

@@ -15,7 +15,7 @@ form {
 
 pc {
 	display: inline;
-	background-color: SkyBlue;
+	background-color: #465eaf;
 }
 
 
@@ -53,6 +53,15 @@ name {
 desc {
 	display: inline;
 	background-color: olive;
+}
+note {
+	display: inline;
+	background-color: #9e0d41;
+}
+usg {
+	display: inline;
+	background-color: SkyBlue;
+
 }
 
 
