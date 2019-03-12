@@ -7,17 +7,16 @@
         <body>
             <sense>
                 <gramGrp>verb</gramGrp>
-                <sense>to give weapons to The<lb/>police were armed with guns. arm in<lb/>arm with arms linked together
+                <subSense>to give weapons to The<lb/>police were armed with guns. arm in<lb/>arm with arms linked together
                     They<lb/>walked down the street arm in arm
-                </sense>
+                </subSense>
             </sense>
             <sense>
                 <gramGrp>verb</gramGrp>
-                <sense>1. to help some-<lb/>thing to happen 2. to help someone
-                </sense>
+                <subSense>1. to help some-<lb/>thing to happen 2. to help someone
+                </subSense>
             </sense>
         </body>
-        <footnote></footnote>
     </text>
 </tei>
 

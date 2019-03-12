@@ -27,6 +27,8 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_FORM = "createAnnotatedTrainingForm";
     private static final String CREATE_TRAINING_SENSE = "createTrainingSense";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE = "createAnnotatedTrainingSense";
+    private static final String CREATE_TRAINING_SUB_SENSE = "createTrainingSubSense";
+    private static final String CREATE_ANNOTATED_TRAINING_SUB_SENSE = "createAnnotatedTrainingSubSense";
     private static final String CREATE_TRAINING_ETYMQUOTE = "createTrainingEtymQuote";
     private static final String CREATE_ANNOTATED_TRAINING_ETYMQUOTE = "createAnnotatedTrainingEtymQuote";
     private static final String CREATE_TRAINING_ETYM = "createTrainingEtym";
@@ -40,11 +42,13 @@ public class DictionaryMain {
             CREATE_TRAINING_LEXICAL_ENTRY,
             CREATE_TRAINING_FORM,
             CREATE_TRAINING_SENSE,
+            CREATE_TRAINING_SUB_SENSE,
             CREATE_TRAINING_ETYMQUOTE,
             CREATE_TRAINING_ETYM,
             CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY,
             CREATE_ANNOTATED_TRAINING_FORM,
             CREATE_ANNOTATED_TRAINING_SENSE,
+            CREATE_ANNOTATED_TRAINING_SUB_SENSE,
             CREATE_ANNOTATED_TRAINING_ETYMQUOTE,
             CREATE_ANNOTATED_TRAINING_ETYM);
 
@@ -251,6 +255,16 @@ public class DictionaryMain {
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE)) {
                 SenseParser senseParser = SenseParser.getInstance();
                 nb = senseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SUB_SENSE)) {
+                SubSenseParser subSenseParser = SubSenseParser.getInstance();
+                nb = subSenseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SUB_SENSE)) {
+                SubSenseParser subSenseParser = SubSenseParser.getInstance();
+                nb = subSenseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_ETYMQUOTE)) {

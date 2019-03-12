@@ -23,53 +23,9 @@
 			<text/>
 		</interleave>
 	</define>
-	<define name="lb">
-		<element name="lb">
-			<empty/>
-		</element>
-	</define>
-	<define name="pc">
-		<element name="pc">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
 
-
-
-
-	<define name="subSense">
-		<element name="subSense">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	
-	<define name="dictScrap">
-		<element name="dictScrap">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	
-	
-	
-	<define name="gramGrp">
-		<element name="gramGrp">
+	<define name="def">
+		<element name="def">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -91,18 +47,132 @@
 			</oneOrMore>
 		</element>
 	</define>
-	
-	<define name="sense">
-		<element name="sense">
+	<define name="usg">
+		<element name="usg">
 			<oneOrMore>
 				<choice>
 					<text/>
 					<ref name="pc"/>
 					<ref name="lb"/>
-					<ref name="subSense"/>
-					<ref name="gramGrp"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="example">
+		<element name="example">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="translation">
+		<element name="translation">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="re">
+		<element name="re">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="etym">
+		<element name="etym">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
+	<define name="xr">
+		<element name="xr">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="lbl">
+		<element name="lbl">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
+	<define name="lb">
+		<element name="lb">
+			<empty/>
+		</element>
+	</define>
+	<define name="pc">
+		<element name="pc">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
+	<define name="dictScrap">
+		<element name="dictScrap">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
+	
+	<define name="subSense">
+		<element name="subSense">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+					<ref name="def"/>
+					<ref name="example"/>
+					<ref name="translation"/>
+					<ref name="usg"/>
+					<ref name="re"/>
+					<ref name="xr"/>
+					<ref name="lbl"/>
+					<ref name="etym"/>
 					<ref name="note"/>
 					<ref name="dictScrap"/>
+
 				</choice>
 			</oneOrMore>
 		</element>
@@ -112,7 +182,7 @@
 			<oneOrMore>
 				<choice>
 					
-					<ref name="sense"></ref>
+					<ref name="subSense"></ref>
 					
 				</choice>
 			</oneOrMore>

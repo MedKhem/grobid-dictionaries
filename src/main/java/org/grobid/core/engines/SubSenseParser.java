@@ -29,20 +29,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 
 /**
  * Created by lfoppiano on 05/05/2017.
  */
-public class SenseParser extends AbstractParser {
+public class SubSenseParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SenseParser.class);
-    private static volatile SenseParser instance;
+    private static volatile SubSenseParser instance;
 
-    public SenseParser() {
-        super(DictionaryModels.SENSE);
+    public SubSenseParser() {
+        super(DictionaryModels.SUB_SENSE);
     }
 
 
-    public static SenseParser getInstance() {
+    public static SubSenseParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -50,7 +51,7 @@ public class SenseParser extends AbstractParser {
     }
 
     private static synchronized void getNewInstance() {
-        instance = new SenseParser();
+        instance = new SubSenseParser();
     }
 
     public StringBuilder processToTEI(List<LayoutToken> senseEntry) {
@@ -64,26 +65,27 @@ public class SenseParser extends AbstractParser {
         sb.append("<sense>").append("\n");
         //I apply the form also to the sense to recognise the grammatical group, if any!
 
-        for (Pair<List<LayoutToken>, String> entrySense : labeledSense.getLabels()) {
-            String tokenSense = LayoutTokensUtil.normalizeText(entrySense.getLeft());
-            String labelSense = entrySense.getRight();
+        for (Pair<List<LayoutToken>, String> subSense : labeledSense.getLabels()) {
+            String subSenseText = LayoutTokensUtil.normalizeText(subSense.getLeft());
+            String subSenseLabel = subSense.getRight();
 
-            String content = DocumentUtils.escapeHTMLCharac(tokenSense);
+            String content = DocumentUtils.escapeHTMLCharac(subSenseText);
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
-
-            if (labelSense.equals("<subSense>")) {
-
-                sb.append(createMyXMLString("sense", content));
-
-            } else if (labelSense.equals("<gramGrp>")) {
-                sb.append("<gramGrp>");
-                sb.append(createMyXMLString("pos", content));
-                sb.append("</gramGrp>").append("\n");
+            if (subSenseLabel.equals("<example>")){
+                sb.append("<cit type=\"example\">").append("\n").append("<quote>").append("\n");
+                sb.append(content);
+                sb.append("</quote>").append("\n").append("</cit>").append("\n");
+            } else if (subSenseLabel.equals("<translation>")){
+                sb.append("<cit type=\"translation\">").append("\n").append("<quote>").append("\n");
+                sb.append(content);
+                sb.append("</quote>").append("\n").append("</cit>").append("\n");
+            }else{
+                sb.append(createMyXMLString(subSenseLabel.replaceAll("[<>]", ""), content));
             }
-            else {
-                sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
-            }
+
+
+
 
         }
         sb.append("</sense>").append("\n");
@@ -154,7 +156,7 @@ public class SenseParser extends AbstractParser {
 
         String features = featureMatrix.toString();
         String output = label(features);
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SENSE,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SUB_SENSE,
                 output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -177,11 +179,11 @@ public class SenseParser extends AbstractParser {
 
     }
 
-    public StringBuilder toTEISense(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+    public StringBuilder toTEISubSense(String bodyContentFeatured, List<LayoutToken> layoutTokens,
                                     boolean isTrainingData) {
         StringBuilder buffer = new StringBuilder();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SENSE,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SUB_SENSE,
                 bodyContentFeatured, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -217,16 +219,26 @@ public class SenseParser extends AbstractParser {
         clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
 
 
-        if (tagLabel.equals(SenseLabels.SUBSENSE_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("gramGrp", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.PC_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.NOTE_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("note", clusterContent));
-        }  else if (tagLabel.equals(SenseLabels.DICTSCRAP_SENSE_LABEL)) {
+        if (tagLabel.equals(SubSenseLabels.SUB_SENSE_DEF_LABEL)) {
+            buffer.append(createMyXMLString("def", clusterContent));
+        } else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_EXAMPLE_LABEL)) {
+            buffer.append(createMyXMLString("example", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_TRANSLATION_LABEL)) {
+            buffer.append(createMyXMLString("translation", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_USAGE_LABEL)) {
+            buffer.append(createMyXMLString("usg", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_RE_LABEL)) {
+            buffer.append(createMyXMLString("re", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_ETYM_LABEL)) {
+            buffer.append(createMyXMLString("etym", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_XR_LABEL)) {
+            buffer.append(createMyXMLString("xr", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_LBL_LABEL)) {
+            buffer.append(createMyXMLString("lbl", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_DICTSCRAP_LABEL)) {
             buffer.append(createMyXMLString("dictScrap", clusterContent));
+        }else if (tagLabel.equals(SubSenseLabels.SUB_SENSE_PC_LABEL)) {
+            buffer.append(createMyXMLString("pc", clusterContent));
         } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
@@ -250,12 +262,12 @@ public class SenseParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingSense(fileEntry, outputDirectory, false);
+                    createTrainingSubSense(fileEntry, outputDirectory, false);
                     n++;
                 }
 
             } else {
-                createTrainingSense(path, outputDirectory, false);
+                createTrainingSubSense(path, outputDirectory, false);
                 n++;
 
             }
@@ -286,12 +298,12 @@ public class SenseParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingSense(fileEntry, outputDirectory, true);
+                    createTrainingSubSense(fileEntry, outputDirectory, true);
                     n++;
                 }
 
             } else {
-                createTrainingSense(path, outputDirectory, true);
+                createTrainingSubSense(path, outputDirectory, true);
                 n++;
 
             }
@@ -304,22 +316,22 @@ public class SenseParser extends AbstractParser {
         }
     }
 
-    public void createTrainingSense(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingSubSense(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.sense";
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subSense";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/sense.rng");
-        File newRngFile = new File(outputDirectory + "/" +"sense.rng");
+        File existingRngFile = new File("templates/subSense.rng");
+        File newRngFile = new File(outputDirectory + "/" +"subSense.rng");
         copyFileUsingStream(existingRngFile,newRngFile);
 
-        File existingCssFile = new File("templates/sense.css");
-        File newCssFile = new File(outputDirectory + "/" +"sense.css");
+        File existingCssFile = new File("templates/subSense.css");
+        File newCssFile = new File(outputDirectory + "/" +"subSense.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile,newCssFile);
 
@@ -328,6 +340,7 @@ public class SenseParser extends AbstractParser {
 
         StringBuffer senses = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+        SenseParser senseParser = new SenseParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
             if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
@@ -335,31 +348,39 @@ public class SenseParser extends AbstractParser {
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
                     if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL)){
-                        //Write raw text
-                        for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
-                            rawtxt.append(txtline.getText());
-                        }
-                        senses.append("<sense>");
-                        LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
-                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                        featureWriter.write(featSeg + "\n");
-                        if(isAnnotated){
-                            String labeledFeatures = null;
-                            // if featSeg is null, it usually means that no body segment is found in the
+                        LabeledLexicalInformation senseComponents = senseParser.process(lexicalEntryComponent.getLeft());
+                        for (Pair<List<LayoutToken>, String> senseComponent : senseComponents.getLabels()) {
+                            if (senseComponent.getRight().equals(SUBSENSE_SENSE_LABEL)) {
+                                //Write raw text
+                                for (LayoutToken txtline : senseComponent.getLeft()) {
+                                    rawtxt.append(txtline.getText());
+                                }
+                                senses.append("<subSense>");
 
-                            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                                if(isAnnotated){
+                                    LayoutTokenization layoutTokenization = new LayoutTokenization(senseComponent.getLeft());
+                                    String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                    featureWriter.write(featSeg + "\n");
+                                    String labeledFeatures = null;
+                                    // if featSeg is null, it usually means that no body segment is found in the
+
+                                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
 
 
-                                labeledFeatures = label(featSeg);
-                                senses.append(toTEISense(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                        labeledFeatures = label(featSeg);
+                                        senses.append(toTEISubSense(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                    }
+                                }
+                                else{
+                                    senses.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(senseComponent.getLeft()))));
+
+                                }
+
+                                senses.append("</subSense>");
+
                             }
                         }
-                        else{
-                            senses.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
 
-                        }
-
-                        senses.append("</sense>");
                     }
                 }
 
@@ -372,15 +393,15 @@ public class SenseParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.sense.rawtxt";
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subSense.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.sense.tei.xml";
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subSense.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"sense.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"sense.css\"?>\n"+
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"subSense.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"subSense.css\"?>\n"+
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");

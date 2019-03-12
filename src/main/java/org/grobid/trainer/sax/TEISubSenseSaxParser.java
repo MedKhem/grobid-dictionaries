@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
-public class TEISenseSaxParser extends DefaultHandler {
+public class TEISubSenseSaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null;
     private Stack<String> currentTags = null;
@@ -28,7 +28,7 @@ public class TEISenseSaxParser extends DefaultHandler {
 
 
 
-    public TEISenseSaxParser() {
+    public TEISubSenseSaxParser() {
         labeled = new ArrayList<>();
         currentTags = new Stack<>();
         accumulator = new StringBuffer();
@@ -57,7 +57,7 @@ public class TEISenseSaxParser extends DefaultHandler {
             if (!currentTags.isEmpty()) {
                 currentTag = currentTags.pop();
             }
-        }else if ("sense".equals(qName)) {
+        }else if ("subSense".equals(qName)) {
             labeled.add(currentSense);
         }
 
@@ -73,9 +73,9 @@ public class TEISenseSaxParser extends DefaultHandler {
         } else if (qName.equals("space")) {
             accumulator.append(" ");
         } else {
-            if (isSenseTag(qName) ) {
+            if (isSubSenseTag(qName) ) {
 
-                    currentSense = new SimpleLabeled();
+                currentSense = new SimpleLabeled();
 
             }
 
@@ -123,17 +123,17 @@ public class TEISenseSaxParser extends DefaultHandler {
             if (tok.length() == 0)
                 continue;
 
-                String content = tok;
+            String content = tok;
 
-                if (content.length() > 0) {
-                    if (begin) {
-                        currentSense.addLabel(Pair.of(content, "I-" + currentTag));
+            if (content.length() > 0) {
+                if (begin) {
+                    currentSense.addLabel(Pair.of(content, "I-" + currentTag));
 
-                        begin = false;
-                    } else {
-                        currentSense.addLabel(Pair.of(content,   currentTag));
-                    }
+                    begin = false;
+                } else {
+                    currentSense.addLabel(Pair.of(content,   currentTag));
                 }
+            }
 
             begin = false;
         }
@@ -141,8 +141,9 @@ public class TEISenseSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if (("subSense".equals(qName)) || "gramGrp".equals(qName)
-                || "note".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+        if (("def".equals(qName)) || "example".equals(qName) || "translation".equals(qName) || "usg".equals(qName)
+                || "re".equals(qName) || "etym".equals(qName) || "xr".equals(qName) || "lbl".equals(qName)
+                || "dictScrap".equals(qName) || "pc".equals(qName) ) {
             return true;
         }
         return false;
@@ -150,8 +151,8 @@ public class TEISenseSaxParser extends DefaultHandler {
 
 
 
-    private boolean isSenseTag(String qName) {
-        if ("sense".equals(qName)) {
+    private boolean isSubSenseTag(String qName) {
+        if ("subSense".equals(qName)) {
             return true;
         }
         return false;

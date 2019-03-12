@@ -42,20 +42,20 @@ public class TEISenseSaxParserTest {
         assertThat(labeled.get(0).getLabels().get(0).getRight(), is("I-<gramGrp>"));
     }
 
-    @Test
-    public void testNoteLabel() throws Exception {
-        InputStream input = this.getClass().getResourceAsStream("/train_set_2.training.sense.tei.xml");
-        SAXParser p = spf.newSAXParser();
-        p.parse(input, target);
-
-        List<SimpleLabeled> labeled = target.getLabeledResult();
-
-        assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(46));
-
-        assertThat(labeled.get(1).getLabels().get(1).getLeft(), is("L"));
-        assertThat(labeled.get(1).getLabels().get(1).getRight(), is("I-<def>"));
-    }
+//    @Test
+//    public void testNoteLabel() throws Exception {
+//        InputStream input = this.getClass().getResourceAsStream("/train_set_2.training.sense.tei.xml");
+//        SAXParser p = spf.newSAXParser();
+//        p.parse(input, target);
+//
+//        List<SimpleLabeled> labeled = target.getLabeledResult();
+//
+//        assertThat(labeled.size(), greaterThan(0));
+//        assertThat(labeled.size(), is(46));
+//
+//        assertThat(labeled.get(1).getLabels().get(1).getLeft(), is("L"));
+//        assertThat(labeled.get(1).getLabels().get(1).getRight(), is("I-<def>"));
+//    }
 
 
 }

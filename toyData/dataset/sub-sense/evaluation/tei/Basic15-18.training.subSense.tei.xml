@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<tei>
+    <teiHeader>
+        <fileDesc xml:id=""/>
+    </teiHeader>
+    <text xml:lang="en">
+        <body>
+            <subSense><def>verb</def></subSense></body>
+    </text>
+</tei>
