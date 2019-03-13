@@ -37,7 +37,7 @@ public class TEILexicalEntrySaxParserTest {
         assertThat(labeled.size(), greaterThan(0));
         assertThat(labeled.size(), is(93));
 
-        assertThat(labeled.get(92), is("work <re> <sense>\n"));
+        assertThat(labeled.get(92), is("work <sense>\n"));
     }
 
 

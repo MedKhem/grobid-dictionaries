@@ -137,10 +137,9 @@ public class EtymQuoteTrainer extends AbstractTrainer {
                         if (st.hasMoreTokens()) {
                             String localToken = st.nextToken();
                             if (localToken.equals(token)) {
-                                String parentTag = st.nextToken();
-                                trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(parentTag);
-                                String label = st.nextToken();
-                                trainingDataLineBuilder.append(" ").append(label);
+                              String label = st.nextToken();
+                              trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(label);
+
                                 q = pp + 1;
                                 pp = q + 10;
                             }

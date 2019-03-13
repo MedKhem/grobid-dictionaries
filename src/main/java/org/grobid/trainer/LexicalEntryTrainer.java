@@ -113,14 +113,14 @@ public class LexicalEntryTrainer extends AbstractTrainer {
 
                 // we can now add the features
                 // we open the featured file
-                BufferedReader bis = new BufferedReader(
+                BufferedReader featuresFile = new BufferedReader(
                         new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
                                                                           name.replace(".tei.xml", "")), "UTF8"));
                 int q = 0;
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
                 String line;
-                while ((line = bis.readLine()) != null) {
+                while ((line = featuresFile.readLine()) != null) {
 
                     //A new line in the feature file separate the new training example
                     if(StringUtils.isBlank(line)) {
@@ -137,10 +137,8 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                         if (st.hasMoreTokens()) {
                             String localToken = st.nextToken();
                             if (localToken.equals(token)) {
-                                String parentTag = st.nextToken();
-                                trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(parentTag);
                                 String label = st.nextToken();
-                                trainingDataLineBuilder.append(" ").append(label);
+                                trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(label);
                                 q = pp + 1;
                                 pp = q + 10;
                             }
@@ -150,7 +148,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
                         }
                     }
                 }
-                bis.close();
+                featuresFile.close();
                 writer2.write(trainingDataLineBuilder.toString() + "");
             }
 

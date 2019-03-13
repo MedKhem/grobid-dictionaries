@@ -111,8 +111,7 @@ public class FormTrainer extends AbstractTrainer {
                             final String labelToken = simpleLabeled.getLabels().get(qq).getRight();
                             final String tokenFromLabels = simpleLabeled.getLabels().get(qq).getLeft();
                             if (StringUtils.equals(tokenFromLabels, tokenFromFeatures)) {
-                                trainingDataLineBuilder.append(line)
-                                        .append(" ").append(labelToken).append("\n");
+                                trainingDataLineBuilder.append(line).append(" ").append(labelToken).append("\n");
                                 indexLabeledForm = qq + 1;
                                 if (simpleLabeled.getLabels().size() == indexLabeledForm) {
                                     pp++;

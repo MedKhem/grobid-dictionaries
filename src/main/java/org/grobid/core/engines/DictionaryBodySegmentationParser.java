@@ -1533,44 +1533,45 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
         clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
     }
+    buffer.append(createMyXMLString(tagLabel.replace("<", "").replace(">", ""), clusterContent));
 
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-            buffer.append(createMyXMLString("form", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-            buffer.append(createMyXMLString("re", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
-            buffer.append(createMyXMLString("xr", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
-            buffer.append(createMyXMLString("num", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("quote", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("bibl", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("def", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("mentioned", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("lang", clusterContent));
-        } else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
+//        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+//            buffer.append(createMyXMLString("entry", clusterContent));
+//        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
+//            buffer.append(createMyXMLString("dictScrap", clusterContent));
+//        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+//            buffer.append(createMyXMLString("pc", clusterContent));
+//        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
+//            buffer.append(createMyXMLString("form", clusterContent));
+//        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("etym", clusterContent));
+//        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
+//            buffer.append(createMyXMLString("sense", clusterContent));
+//        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
+//            buffer.append(createMyXMLString("re", clusterContent));
+//        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
+//            buffer.append(createMyXMLString("xr", clusterContent));
+//        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
+//            buffer.append(createMyXMLString("num", clusterContent));
+//        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
+//            buffer.append(createMyXMLString("dictScrap", clusterContent));
+//        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
+//            buffer.append(createMyXMLString("quote", clusterContent));
+//        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
+//            buffer.append(createMyXMLString("seg", clusterContent));
+//        } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("seg", clusterContent));
+//        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("bibl", clusterContent));
+//        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("def", clusterContent));
+//        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("mentioned", clusterContent));
+//        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
+//            buffer.append(createMyXMLString("lang", clusterContent));
+//        } else {
+//            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
+//        }
     }
 
     private void produceXmlNodeBib(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped) {

@@ -100,7 +100,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("form")) || (qName.equals("etym")) ||
+        if ((qName.equals("form")) || (qName.equals("etym")) || (qName.equals("inflected")) ||  (qName.equals("ending")) ||
                 (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap"))|| (qName.equals("xr"))) {
             if (currentTag == null) {
                 return;
@@ -134,10 +134,10 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                     int i = 0;
                     if (content.length() > 0) {
                         if (begin) {
-                            labeled.add(content + " " + parentTag + " I-" + currentTag + "\n");
+                            labeled.add(content + " I-" + currentTag + "\n");
                             begin = false;
                         } else {
-                            labeled.add(content + " " + parentTag + " " + currentTag + "\n");
+                            labeled.add(content + " " + currentTag + "\n");
                         }
                     }
                 }
