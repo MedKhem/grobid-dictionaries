@@ -26,7 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
+
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
@@ -45,6 +45,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     private SortedSet<DocumentPiece> footNotesOfAllPages= new TreeSet();
     private SortedSet<DocumentPiece> bodiesOfAllPages= new TreeSet();
     private SortedSet<DocumentPiece> dictScrapsOfAllPages = new TreeSet();
+    private DocumentUtils formatter = new DocumentUtils();
 
 
     private List<Integer> headnotesPageNumber = new ArrayList<Integer>();
@@ -438,7 +439,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                             textToShowInTokens += DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(restOfLexicalEntryTokens));
                             String clusterContent = LayoutTokensUtil.normalizeText(textToShowInTokens);
-                            produceXmlNodeWithSplitInside(tei, clusterContent, tagLabel, false);
+                            produceXmlNodeWithSplitInside(tei, clusterContent, tagLabel, false,null);
 
 
                         }
@@ -633,14 +634,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                                     textToShowInTokens += tagOfSplitComponent.replace("<", "</");
 
                                 } else {
-                                    String tag = lastEntryInSublist.getLabels().get(h).getRight().replace("<", "").replace(">", "");
-                                    textToShowInTokens += createMyXMLString(tag, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry)));
+                                    String tag = lastEntryInSublist.getLabels().get(h).getRight();
+                                    textToShowInTokens += formatter.createMyXMLString(tag, null, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry)));
                                 }
 
                             }
                             String tagLabel = lexicalEntriesSubList.get(lexicalEntriesSubList.size() - 1).getRight();
                             String clusterContent = LayoutTokensUtil.normalizeText(textToShowInTokens);
-                            produceXmlNodeWithSplitInside(tei, clusterContent, tagLabel, true);
+                            produceXmlNodeWithSplitInside(tei, clusterContent, tagLabel, true,null);
 
                         }
                         if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
@@ -791,7 +792,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //
 //                                            clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getLeft()).toString();
 //                                        } else {
-//                                            String xmlTag = segmentedEntryComponent.getRight().replace("<", "").replace(">", "");
+//                                            String xmlTag = segmentedEntryComponent.getRight();
 //                                            clusterContent = clusterContent + createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getLeft())));
 //
 //
@@ -892,7 +893,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //
 //                                        } else {
 //                                            //Case where there is nothing to split
-//                                            String tag = lastEntryInSublist.getLabels().get(h).getRight().replace("<", "").replace(">", "");
+//                                            String tag = lastEntryInSublist.getLabels().get(h).getRight();
 ////                                        String formattedSecondLevelComponent = processALexicalEntryComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
 ////                                        textToShowInTokens += createMyXMLString(tag, formattedSecondLevelComponent);
 //                                            textToShowInTokens += processALexicalEntryComponentToTEI(tag, componentOfLastLexicalEntry, modelToRun);
@@ -1365,8 +1366,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             textToShowInTokens += tagOfSplitEntryComponent.replace("<", "</");
 
         } else {
-            String tag = lastEntryInSublist.getLabels().get(h).getRight().replace("<", "").replace(">", "");
-            textToShowInTokens += createMyXMLString(tag, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry.getLeft())));
+            String tag = lastEntryInSublist.getLabels().get(h).getRight();
+            textToShowInTokens += formatter.createMyXMLString(tag, null, DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(componentOfLastLexicalEntry.getLeft())));
         }
         return textToShowInTokens;
 
@@ -1533,7 +1534,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
         clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
     }
-    buffer.append(createMyXMLString(tagLabel.replace("<", "").replace(">", ""), clusterContent));
+    buffer.append(formatter.createMyXMLString(tagLabel,  null, clusterContent));
 
 //        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
 //            buffer.append(createMyXMLString("entry", clusterContent));
@@ -1582,58 +1583,23 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            buffer.append(createMyXMLString("biblStruct", clusterContent));
+            buffer.append(formatter.createMyXMLString("biblStruct", null, clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
+            buffer.append(formatter.createMyXMLString("dictScrap", null, clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
+            buffer.append(formatter.createMyXMLString("pc", null, clusterContent));
         }
     }
 
-    private void produceXmlNodeWithSplitInside(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped) {
+    private void produceXmlNodeWithSplitInside(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped, String attributes) {
 
         if(!clusterContentIsEscaped){
             clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
 
         }
 
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-            buffer.append(createMyXMLString("form", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-            buffer.append(createMyXMLString("re", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
-            buffer.append(createMyXMLString("xr", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
-            buffer.append(createMyXMLString("num", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("quote", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("bibl", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("def", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("mentioned", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("lang", clusterContent));
-        } else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
+        buffer.append(formatter.createMyXMLString(tagLabel, attributes, clusterContent));
+
     }
 
     private void produceXmlNodeWithSplitInsideBib(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped) {
@@ -1644,29 +1610,17 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
 
         if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-            buffer.append(createMyXMLString("biblStruct", clusterContent));
+            buffer.append(formatter.createMyXMLString("biblStruct", null, clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
+            buffer.append(formatter.createMyXMLString("dictScrap", null, clusterContent));
         } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
+            buffer.append(formatter.createMyXMLString("pc", null, clusterContent));
         } else {
             throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
         }
     }
 
-    public static String createMyXMLString(String elementName, String elementContent) {
-        StringBuilder xmlStringElement = new StringBuilder();
-        xmlStringElement.append("<");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
-        xmlStringElement.append("</");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append("\n");
 
-        return xmlStringElement.toString();
-    }
 
     public StringBuilder bigEntryFormat(String modelToRun, StringBuilder tei, LabeledLexicalInformation bodyComponents, DictionaryDocument doc) {
 
@@ -1859,6 +1813,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     private String processALexicalEntryComponentToTEI(String tagLabel, Pair<List<LayoutToken>, String>  segmentedEntryComponent, String modelToRun) {
         StringBuilder clusterContent = new StringBuilder();
         String[] parsingModels = modelToRun.split("-");
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
         EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
@@ -1898,8 +1853,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                     //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getLeft()).toString();
                 }  else {
-                    String xmlTag = segmentedEntryComponent.getRight().replace("<", "").replace(">", "");
-                    clusterContent.append(createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getLeft()))));
+                    String xmlTag = segmentedEntryComponent.getRight();
+                    clusterContent.append(lexicalEntryParser.toTEILexicalEntry(segmentedEntryComponent));
+                   // clusterContent.append(formatter.createMyXMLString(xmlTag, null, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getLeft()))));
 
 
                 }

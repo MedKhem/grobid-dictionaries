@@ -8,6 +8,7 @@ import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
 
+import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.label.LexicalEntryLabels;
@@ -28,9 +29,9 @@ import java.io.*;
 
 import java.util.List;
 
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
+
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+
 import static org.grobid.service.DictionaryPaths.PATH_BIBLIOGRAPHY_ENTRY;
 import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 
@@ -40,6 +41,7 @@ import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 public class LexicalEntryParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LexicalEntryParser.class);
     private static volatile LexicalEntryParser instance;
+    private DocumentUtils formatter = new DocumentUtils();
 
     public LexicalEntryParser() {
         super(DictionaryModels.LEXICAL_ENTRY);
@@ -71,15 +73,15 @@ public class LexicalEntryParser extends AbstractParser {
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
                 bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
             }
-        } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)){
+        } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)) {
             EngineParsers engineParsers = new EngineParsers();
             CitationParser citationParser = engineParsers.getCitationParser();
-            BiblioItem segmentedCitation = citationParser.processing(entry,0);
+            BiblioItem segmentedCitation = citationParser.processing(entry, 0);
 
-                bodyWithSegmentedLexicalEntries.append(segmentedCitation.toTEI(-1));
+            bodyWithSegmentedLexicalEntries.append(segmentedCitation.toTEI(-1));
 
 
-        } else{
+        } else {
             //In the complete case, parse the component of the LE
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
                 bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
@@ -101,6 +103,7 @@ public class LexicalEntryParser extends AbstractParser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         return doc;
     }
@@ -142,30 +145,24 @@ public class LexicalEntryParser extends AbstractParser {
     public String toTEILexicalEntry(Pair<List<LayoutToken>, String> entry) {
         final StringBuilder sb = new StringBuilder();
 
-        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
+        String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
         String label = entry.getRight();
-        produceXmlNode(sb, token, label);
 
-//        String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
-//        String label = entry.getRight();
-//        if (label.equals("<form>")) {
-//            sb.append("<form type=\"lemma\">");
-//            sb.append(componentText).append("</form>").append("\n");
-//        } else if(label.equals("<inflected>")){
-//            sb.append("<form type=\"inflected\">");
-//            sb.append(componentText).append("</form>").append("\n");
-//        }else if(label.equals("<ending>")){
-//            sb.append("<form type=\"ending\">");
-//            sb.append(componentText).append("</form>").append("\n");
-//        }else if(label.equals("<subEntry>")){
-//            sb.append("<entry>");
-//            sb.append(componentText).append("</entry>").append("\n");
-//        }else{
-//            sb.append(label);
-//            sb.append(createMyXMLString(label,componentText)).append("\n");
-//        }
-//
 
+        if (label.equals("<form>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-lemma");
+        } else if (label.equals("<inflected>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-inflected");
+        } else if (label.equals("<ending>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-ending");
+        } else if (label.equals("<subEntry>")) {
+            formatter.produceXmlNode(sb, componentText, "entry", null);
+        } else {
+
+            sb.append(formatter.createMyXMLString(label, null, componentText)).append("\n");
+        }
+
+//        sb.append("\n");
         return sb.toString();
     }
 
@@ -202,7 +199,7 @@ public class LexicalEntryParser extends AbstractParser {
 //                sb.append("</re>").append("\n");
 
         } else {
-            produceXmlNode(sb, token, label);
+            formatter.produceXmlNode(sb, token, label, null);
         }
 
         return sb.toString();
@@ -237,44 +234,13 @@ public class LexicalEntryParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            produceXmlNode(buffer, clusterContent, tagLabel);
+            formatter.produceXmlNode(buffer, clusterContent, tagLabel, null);
         }
 
         return buffer;
     }
 
-    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
-        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
-
-        if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-
-            buffer.append(createMyXMLString("entry", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL)) {
-            buffer.append(createMyXMLString("form", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("etym", clusterContent));
-        } else if (tagLabel.equals(LEXICAL_ENTRY_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_RE_LABEL)) {
-            buffer.append(createMyXMLString("re", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL)) {
-            buffer.append(createMyXMLString("xr", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_NUM_LABEL)) {
-            buffer.append(createMyXMLString("num", clusterContent));
-        }else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_PC_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
-    }
 
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
@@ -295,12 +261,12 @@ public class LexicalEntryParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingLexicalEntries(fileEntry, outputDirectory,false);
+                    createTrainingLexicalEntries(fileEntry, outputDirectory, false);
                     n++;
                 }
 
             } else {
-                createTrainingLexicalEntries(path, outputDirectory,false);
+                createTrainingLexicalEntries(path, outputDirectory, false);
                 n++;
 
             }
@@ -331,12 +297,12 @@ public class LexicalEntryParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingLexicalEntries(fileEntry, outputDirectory,true);
+                    createTrainingLexicalEntries(fileEntry, outputDirectory, true);
                     n++;
                 }
 
             } else {
-                createTrainingLexicalEntries(path, outputDirectory,true);
+                createTrainingLexicalEntries(path, outputDirectory, true);
                 n++;
 
             }
@@ -359,13 +325,13 @@ public class LexicalEntryParser extends AbstractParser {
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         //Create rng and css files for guiding the annotation
         File existingRngFile = new File("templates/lexicalEntry.rng");
-        File newRngFile = new File(outputDirectory + "/" +"lexicalEntry.rng");
-        copyFileUsingStream(existingRngFile,newRngFile);
+        File newRngFile = new File(outputDirectory + "/" + "lexicalEntry.rng");
+        copyFileUsingStream(existingRngFile, newRngFile);
 
         File existingCssFile = new File("templates/lexicalEntry.css");
-        File newCssFile = new File(outputDirectory + "/" +"lexicalEntry.css");
+        File newCssFile = new File(outputDirectory + "/" + "lexicalEntry.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
-        copyFileUsingStream(existingCssFile,newCssFile);
+        copyFileUsingStream(existingCssFile, newCssFile);
 
         StringBuffer rawtxt = new StringBuffer();
 
@@ -380,8 +346,8 @@ public class LexicalEntryParser extends AbstractParser {
                 LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getLeft());
                 String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                 featureWriter.write(featSeg + "\n");
-                if(isAnnotated){
-                   String labeledFeatures = null;
+                if (isAnnotated) {
+                    String labeledFeatures = null;
                     // if featSeg is null, it usually means that no body segment is found in the
 
                     if ((featSeg != null) && (featSeg.trim().length() > 0)) {
@@ -390,15 +356,13 @@ public class LexicalEntryParser extends AbstractParser {
                         labeledFeatures = label(featSeg);
                         lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
                     }
-                }
-                else {
+                } else {
                     lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getLeft()))));
                 }
 
 
                 lexicalEntries.append("</entry>");
             }
-
 
 
         }
@@ -412,13 +376,13 @@ public class LexicalEntryParser extends AbstractParser {
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
         teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"lexicalEntry.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"lexicalEntry.css\"?>\n"+
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"lexicalEntry.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
 
         teiWriter.write("\n\t\t<body>");
 
-        teiWriter.write(lexicalEntries.toString().replaceAll("&","&amp;"));
+        teiWriter.write(lexicalEntries.toString().replaceAll("&", "&amp;"));
         teiWriter.write("</body>");
 
         teiWriter.write("\n\t</text>\n</tei>\n");
@@ -443,8 +407,6 @@ public class LexicalEntryParser extends AbstractParser {
             os.close();
         }
     }
-
-
 
 
 }

@@ -14,6 +14,9 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.SortedSet;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.notNullValue;
+
 /**
  * Created by med on 20.10.16.
  */
@@ -32,6 +35,19 @@ public class DocumentUtilsTest {
         LibraryLoader.load();
     }
 
+    @Test
+    public void testCreateXML() throws Exception {
+
+        String xmlNonTypedElement = target.createMyXMLString("myelement", null,"picasso");
+        String xmlTypedElement = target.createMyXMLString("myelement", "type-peinture-subType-1990","picasso");
+
+//        System.out.println(xmlNonTypedElement);
+//        System.out.println(xmlTypedElement);
+        assertThat(xmlNonTypedElement.compareTo("<myelement>picasso</myelement>"), notNullValue());
+
+        assertThat(xmlTypedElement.compareTo("<myelement type=\"peinture\" subType=\"1990\">picasso</myelement>"), notNullValue());
+
+    }
 
 //    @Test
 //    public void testGetLayoutTokenizationsFromDocAndDocPart1() throws Exception {

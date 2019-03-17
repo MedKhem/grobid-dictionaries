@@ -27,7 +27,6 @@ import java.io.*;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.FormLabels.*;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
@@ -39,6 +38,7 @@ import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FOR
 public class FormParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FormParser.class);
     private static volatile FormParser instance;
+    private DocumentUtils formatter = new DocumentUtils();
 
     public FormParser() {
         super(DictionaryModels.FORM);
@@ -73,7 +73,7 @@ public class FormParser extends AbstractParser {
             String content = DocumentUtils.escapeHTMLCharac(tokenForm);
             if (labelForm.equals("<gramGrp>")) {
                 gramGrp.append("<gramGrp>");
-                gramGrp.append(createMyXMLString("pos", content));
+                gramGrp.append(formatter.createMyXMLString("pos", null, content));
                 gramGrp.append("</gramGrp>").append("\n");
             }
 //            else if (labelForm.equals("<name>")){
@@ -95,7 +95,7 @@ public class FormParser extends AbstractParser {
 //
 //            }
             else {
-                sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+                sb.append(formatter.createMyXMLString(labelForm, null, content));
             }
         }
 
@@ -225,38 +225,13 @@ public class FormParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            produceXmlNode(buffer, clusterContent, tagLabel);
+            formatter.produceXmlNode(buffer, clusterContent, tagLabel,null);
         }
 
         return buffer;
     }
 
-    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
-        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
-
-
-        if (tagLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
-            buffer.append(createMyXMLString("orth", clusterContent));
-        } else if (tagLabel.equals(PRONUNCIATION_FORM_LABEL)) {
-            buffer.append(createMyXMLString("pron", clusterContent));
-        } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(GRAMMATICAL_GROUP_FORM_LABEL)) {
-            buffer.append(createMyXMLString("gramGrp", clusterContent));
-        } else if (tagLabel.equals(LANG_LABEL)) {
-            buffer.append(createMyXMLString("lang", clusterContent));
-        } else if (tagLabel.equals(NAME_FROM_LABEL)) {
-            buffer.append(createMyXMLString("persName", clusterContent));
-        }else if (tagLabel.equals(DESC_FROM_LABEL)) {
-            buffer.append(createMyXMLString("desc", clusterContent));
-        } else if (tagLabel.equals(DICTSCRAP_FORM_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        }else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
-    }
 
 
     @SuppressWarnings({"UnusedParameters"})

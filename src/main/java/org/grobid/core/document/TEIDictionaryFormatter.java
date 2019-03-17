@@ -29,6 +29,7 @@ import java.util.TimeZone;
 public class TEIDictionaryFormatter {
 
     private DictionaryDocument doc = null;
+    private DocumentUtils formatter = new DocumentUtils();
 
     public TEIDictionaryFormatter(DictionaryDocument document) {
         doc = document;
@@ -68,7 +69,7 @@ public class TEIDictionaryFormatter {
 
             //For the result data (shown as result of applying the second model) any the text that is not contained between tags is removed (not like the following)
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                buffer.append(createMyXMLString("entry", clusterContent));
+                buffer.append(formatter.createMyXMLString("entry", null, clusterContent));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                 buffer.append(clusterContent);
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
@@ -109,11 +110,11 @@ public class TEIDictionaryFormatter {
 
 
             if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL)) {
-                buffer.append(createMyXMLString("body", clusterContent));
+                buffer.append(formatter.createMyXMLString("body", null, clusterContent));
             } else if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL)) {
-                buffer.append(createMyXMLString("headnote", clusterContent));
+                buffer.append(formatter.createMyXMLString("headnote", null, clusterContent));
             } else if (tagLabel.equals(DictionarySegmentationLabels.DICTIONARY_FOOTNOTE_LABEL)) {
-                buffer.append(createMyXMLString("footnote", clusterContent));
+                buffer.append(formatter.createMyXMLString("footnote", null,  clusterContent));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
@@ -219,18 +220,7 @@ public class TEIDictionaryFormatter {
     }
 
 
-    public static String createMyXMLString(String elementName, String elementContent) {
-        StringBuilder xmlStringElement = new StringBuilder();
-        xmlStringElement.append("<");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
-        xmlStringElement.append("</");
-        xmlStringElement.append(elementName);
-        xmlStringElement.append(">");
 
-        return xmlStringElement.toString();
-    }
 
     // possible association to Grobid customised TEI schemas: DTD, XML schema, RelaxNG or compact RelaxNG
     // DEFAULT means no schema association in the generated XML documents

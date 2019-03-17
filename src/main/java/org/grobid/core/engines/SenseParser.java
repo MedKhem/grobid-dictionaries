@@ -26,7 +26,6 @@ import java.io.*;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 
@@ -36,6 +35,7 @@ import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SEN
 public class SenseParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SenseParser.class);
     private static volatile SenseParser instance;
+    private DocumentUtils formatter = new DocumentUtils();
 
     public SenseParser() {
         super(DictionaryModels.SENSE);
@@ -74,15 +74,15 @@ public class SenseParser extends AbstractParser {
 
             if (labelSense.equals("<subSense>")) {
 
-                sb.append(createMyXMLString("sense", content));
+                sb.append(formatter.createMyXMLString("sense", null, content));
 
             } else if (labelSense.equals("<gramGrp>")) {
                 sb.append("<gramGrp>");
-                sb.append(createMyXMLString("pos", content));
+                sb.append(formatter.createMyXMLString("pos", null, content));
                 sb.append("</gramGrp>").append("\n");
             }
             else {
-                sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+                sb.append(formatter.createMyXMLString(labelSense, null, content));
             }
 
         }
@@ -205,32 +205,13 @@ public class SenseParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            produceXmlNode(buffer, clusterContent, tagLabel);
+            formatter.produceXmlNode(buffer, clusterContent, tagLabel,null);
         }
 
         return buffer;
     }
 
-    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
 
-        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
-
-
-        if (tagLabel.equals(SenseLabels.SUBSENSE_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("sense", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("gramGrp", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.PC_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("pc", clusterContent));
-        } else if (tagLabel.equals(SenseLabels.NOTE_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("note", clusterContent));
-        }  else if (tagLabel.equals(SenseLabels.DICTSCRAP_SENSE_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
-    }
 
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {

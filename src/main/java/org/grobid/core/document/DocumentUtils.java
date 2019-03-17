@@ -282,4 +282,48 @@ public class DocumentUtils {
 
         return text;
     }
+
+    public  String createMyXMLString(String elementName, String attributes, String elementContent) {
+        if (elementName.contains("<")){
+            elementName = elementName.replace("<", "").replace(">","");
+        }
+
+        StringBuilder xmlStringElement = new StringBuilder();
+        String[] attributeList ;
+
+        xmlStringElement.append("<");
+        xmlStringElement.append(elementName);
+        if (attributes!= null){
+            attributeList = attributes.split("-");
+            for (int i = 0; i < attributeList.length ; i += 2){
+                if (attributeList[i]!= null){
+                    xmlStringElement.append(" " + attributeList[i]+"=" + "\"" + attributeList[i+1] + "\"");
+                }
+
+            }
+
+        }
+
+        xmlStringElement.append(">");
+        xmlStringElement.append(elementContent);
+        xmlStringElement.append("</");
+        xmlStringElement.append(elementName);
+        xmlStringElement.append(">");
+        xmlStringElement.append("\n");
+
+        return xmlStringElement.toString();
+    }
+
+    public void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel, String attributes) {
+
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
+
+
+        buffer.append(createMyXMLString(tagLabel, attributes, clusterContent));
+
+
+    }
+
+
 }

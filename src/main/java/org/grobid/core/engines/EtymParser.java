@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.List;
 
-import static org.grobid.core.document.TEIDictionaryFormatter.createMyXMLString;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
@@ -35,6 +34,7 @@ import static org.grobid.service.DictionaryPaths.PATH_FULL_DICTIONARY;
 public class EtymParser extends AbstractParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtymParser.class);
     private static volatile EtymParser instance;
+    private DocumentUtils formatter = new DocumentUtils();
 
     public EtymParser() {
         super(DictionaryModels.ETYM);
@@ -72,7 +72,7 @@ public class EtymParser extends AbstractParser {
                 sb.append(content);
             }
             else{
-                sb.append(createMyXMLString(labelSense.replaceAll("[<>]", ""), content));
+                sb.append(formatter.createMyXMLString(labelSense, null,content));
             }
 
 
@@ -144,38 +144,13 @@ public class EtymParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            produceXmlNode(buffer, clusterContent, tagLabel);
+            formatter.produceXmlNode(buffer, clusterContent, tagLabel,null);
         }
 
         return buffer;
     }
 
 
-    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel) {
-
-        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
-        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
-
-        if (tagLabel.equals(LexicalEntryLabels.LEXICAL_ENTRY_OTHER_LABEL)) {
-            buffer.append(createMyXMLString("dictScrap", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("quote", clusterContent));
-        } else if (tagLabel.equals(EtymQuoteLabels.ETYM_QUOTE_SEG)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.SEG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("seg", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.BIBL_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("bibl", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.DEF_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("def", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.MENTIONED_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("mentioned", clusterContent));
-        } else if (tagLabel.equals(EtymLabels.LANG_ETYM_LABEL)) {
-            buffer.append(createMyXMLString("lang", clusterContent));
-        } else {
-            throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
-        }
-    }
 
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
