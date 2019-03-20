@@ -476,7 +476,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 }
                 if (bigEntryIsInsideDetected) {
-                    tei = headerTEI;
+//                    tei = headerTEI;
                     if(headNotesOfAllPages.size() != 0){
                         for (DocumentPiece header : headNotesOfAllPages) {
                             tei.append("\t\t<fw type=\"header\">");
@@ -686,7 +686,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 }
                 if (bigEntryIsInsideDetected) {
-                    tei = headerTEI;
+             //        tei = headerTEI;
                     tei = bigEntryFormat(modelToRun, tei, bodyComponents, doc);
 
                 }
