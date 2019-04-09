@@ -2,12 +2,18 @@ package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
 import org.grobid.core.document.DictionaryDocument;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.parsers.SAXParser;
 import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
@@ -34,6 +40,7 @@ public class DictionaryBodySegmentationTest extends EngineMockTest{
         assertThat(body, notNullValue());
 
     }
+
 
 
 

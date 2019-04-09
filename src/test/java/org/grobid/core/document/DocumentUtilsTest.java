@@ -6,15 +6,21 @@ import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.main.LibraryLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.xml.parsers.SAXParser;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.SortedSet;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
@@ -48,6 +54,20 @@ public class DocumentUtilsTest {
         assertThat(xmlTypedElement.compareTo("<myelement type=\"peinture\" subType=\"1990\">picasso</myelement>"), notNullValue());
 
     }
+
+//    @Test
+//    public void testPutPcInside() throws Exception {
+//
+//        String ss =  target.reformatPonctuation("<entry>...</entry><pc>.(</pc> <entry>.bla..</entry><pc>;</pc>");
+//
+//        List<String> labeled = target;
+//
+//        Assert.assertThat(labeled.size(), greaterThan(0));
+//        Assert.assertThat(labeled.size(), is(3));
+//
+//        Assert.assertThat(labeled.get(2), is("crap I-<pc>\n"));
+//    }
+
 
 //    @Test
 //    public void testGetLayoutTokenizationsFromDocAndDocPart1() throws Exception {

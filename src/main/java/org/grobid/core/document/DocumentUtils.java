@@ -10,6 +10,7 @@ import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.core.utilities.KeyGen;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -324,6 +325,19 @@ public class DocumentUtils {
 
 
     }
+
+//    public String reformatPonctuation(String stringWithPc) throws IOException {
+//
+//
+//        List<Integer> pcIndex = new ArrayList<>();
+//
+//        for (int i=0; i < stringWithPc.length(); i++){
+//
+//            stringWithPc.
+//
+//        }
+//
+//    }
 
 
 }
