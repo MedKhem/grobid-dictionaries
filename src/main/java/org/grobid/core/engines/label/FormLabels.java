@@ -19,8 +19,11 @@ public class FormLabels extends TaggingLabels {
     public static final String  DESC_FROM_LABEL= "<desc>";
     public static final String  NOTE_FROM_LABEL= "<note>";
     public static final String  USG_FROM_LABEL= "<usg>";
+    public static final String INFLECTED_FORM_LABEL = "<inflected>";
+    public static final String ENDING_FORM_LABEL = "<ending>";
     public static final String DICTSCRAP_FORM_LABEL = "<dictScrap>";
     public static final String PC_FORM_LABEL = "<pc>";
+
     public static final TaggingLabel FORM_ORTHOGRAPHY = new TaggingLabelImpl(DictionaryModels.FORM, ORTHOGRAPHY_FORM_LABEL);
     public static final TaggingLabel FORM_PRONUNCIATION = new TaggingLabelImpl(DictionaryModels.FORM, PRONUNCIATION_FORM_LABEL);
     public static final TaggingLabel FORM_GRAMMATICAL_GROUP = new TaggingLabelImpl(DictionaryModels.FORM, GRAMMATICAL_GROUP_FORM_LABEL);
@@ -29,6 +32,8 @@ public class FormLabels extends TaggingLabels {
     public static final TaggingLabel FORM_NOTE = new TaggingLabelImpl(DictionaryModels.FORM, DESC_FROM_LABEL);
     public static final TaggingLabel FORM_USG = new TaggingLabelImpl(DictionaryModels.FORM, NOTE_FROM_LABEL);
     public static final TaggingLabel FORM_DESC = new TaggingLabelImpl(DictionaryModels.FORM, USG_FROM_LABEL);
+    public static final TaggingLabel FORM_INFLECTED = new TaggingLabelImpl(DictionaryModels.FORM, INFLECTED_FORM_LABEL);
+    public static final TaggingLabel FORM_ENDING = new TaggingLabelImpl(DictionaryModels.FORM, ENDING_FORM_LABEL);
     public static final TaggingLabel FORM_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.FORM, DICTSCRAP_FORM_LABEL);
     public static final TaggingLabel FORM_PUNCTUATION = new TaggingLabelImpl(DictionaryModels.FORM, PC_FORM_LABEL);
 
@@ -43,6 +48,8 @@ public class FormLabels extends TaggingLabels {
         register(FORM_DESC);
         register(FORM_NOTE);
         register(FORM_USG);
+        register(FORM_INFLECTED);
+        register(FORM_ENDING);
     }
     
 }

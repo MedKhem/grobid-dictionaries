@@ -18,7 +18,8 @@ public class SubSenseLabels extends TaggingLabels {
     public static final String SUB_SENSE_RE_LABEL = "<re>";
     public static final String SUB_SENSE_ETYM_LABEL = "<etym>";
     public static final String SUB_SENSE_XR_LABEL = "<xr>";
-    public static final String SUB_SENSE_LBL_LABEL = "<lbl>";
+    public static final String SUB_SENSE_GRAMGRP_LABEL = "<gramGrp>";
+    public static final String SUB_SENSE_NUM_LABEL = "<num>";
     public static final String SUB_SENSE_DICTSCRAP_LABEL = "<dictScrap>";
     public static final String SUB_SENSE_PC_LABEL = "<pc>";
 
@@ -28,8 +29,9 @@ public class SubSenseLabels extends TaggingLabels {
     public static final TaggingLabel SUB_SENSE_USAGE = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_USAGE_LABEL);
     public static final TaggingLabel SUB_SENSE_RE = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_RE_LABEL);
     public static final TaggingLabel SUB_SENSE_ETYM = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_ETYM_LABEL);
+    public static final TaggingLabel SUB_SENSE_GRAMGRP = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_GRAMGRP_LABEL);
     public static final TaggingLabel SUB_SENSE_XR = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_XR_LABEL);
-    public static final TaggingLabel SUB_SENSE_LBL = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_LBL_LABEL);
+    public static final TaggingLabel SUB_SENSE_NUM = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_NUM_LABEL);
     public static final TaggingLabel SUB_SENSE_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_DICTSCRAP_LABEL);
     public static final TaggingLabel SUB_SENSE_PC = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_PC_LABEL);
 
@@ -42,7 +44,8 @@ public class SubSenseLabels extends TaggingLabels {
         register(SUB_SENSE_RE);
         register(SUB_SENSE_ETYM);
         register(SUB_SENSE_XR);
-        register(SUB_SENSE_LBL);
+        register(SUB_SENSE_GRAMGRP);
+        register(SUB_SENSE_NUM);
         register(SUB_SENSE_DICTSCRAP);
         register(SUB_SENSE_PC);
 

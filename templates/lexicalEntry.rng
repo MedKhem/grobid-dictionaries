@@ -160,28 +160,6 @@
             </oneOrMore>
         </element>
     </define>
-    <define name="inflected">
-        <element name="inflected">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
-    <define name="ending">
-        <element name="ending">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
     <define name="entry">
         <element name="entry">
             <oneOrMore>
@@ -189,8 +167,6 @@
                     <text/>
                     <ref name="pc"/>
                     <ref name="lb"/>
-                    <ref name="inflected"/>
-                    <ref name="ending"/>
                     <ref name="form"/>
                     <ref name="etym"/>
                     <ref name="sense"/>

@@ -63,7 +63,14 @@ usg {
 	background-color: SkyBlue;
 
 }
-
+inflected {
+	display: inline;
+	background-color: #35b1eb;
+}
+ending {
+	display: inline;
+	background-color: #a94deb;
+}
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

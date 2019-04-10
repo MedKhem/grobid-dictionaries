@@ -64,14 +64,20 @@ public class FormParser extends AbstractParser {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<form type=\"lemma\">").append("\n");
+//        sb.append("<form type=\"lemma\">").append("\n");
         StringBuilder gramGrp = new StringBuilder();
         for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
             String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getLeft());
             String labelForm = entryForm.getRight();
 
             String content = DocumentUtils.escapeHTMLCharac(tokenForm);
-            if (labelForm.equals("<gramGrp>")) {
+            if (labelForm.equals("<form>")) {
+                formatter.produceXmlNode(sb, tokenForm, "<form>", "type-lemma");
+            } else if (labelForm.equals("<inflected>")) {
+                formatter.produceXmlNode(sb, tokenForm, "<form>", "type-inflected");
+            } else if (labelForm.equals("<ending>")) {
+                formatter.produceXmlNode(sb, tokenForm, "<form>", "type-ending");
+            } else if (labelForm.equals("<gramGrp>")) {
                 gramGrp.append("<gramGrp>");
                 gramGrp.append(formatter.createMyXMLString("pos", null, content));
                 gramGrp.append("</gramGrp>").append("\n");
@@ -99,7 +105,7 @@ public class FormParser extends AbstractParser {
             }
         }
 
-        sb.append("</form>").append("\n");
+//        sb.append("</form>").append("\n");
         if (gramGrp.length() > 0) {
             sb.append(gramGrp.toString()).append("\n");
         }

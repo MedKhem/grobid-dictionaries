@@ -44,7 +44,11 @@ xr {
 	display: inline;
 	background-color: #2dffc4;
 }
-lbl {
+gramGrp {
+	display: inline;
+	background-color: #ffab65;
+}
+num {
 	display: inline;
 	background-color: #860a34;
 }

@@ -149,13 +149,7 @@ public class LexicalEntryParser extends AbstractParser {
         String label = entry.getRight();
 
 
-        if (label.equals("<form>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-lemma");
-        } else if (label.equals("<inflected>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-inflected");
-        } else if (label.equals("<ending>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-ending");
-        } else if (label.equals("<subEntry>")) {
+        if (label.equals("<subEntry>")) {
             formatter.produceXmlNode(sb, componentText, "entry", null);
         } else {
 

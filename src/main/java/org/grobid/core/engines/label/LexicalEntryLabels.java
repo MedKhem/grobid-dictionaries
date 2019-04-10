@@ -15,8 +15,6 @@ public class LexicalEntryLabels extends TaggingLabels {
     }
 
     public static final String LEXICAL_ENTRY_FORM_LABEL = "<form>";
-    public static final String LEXICAL_ENTRY_INFLECTED_LABEL = "<inflected>";
-    public static final String LEXICAL_ENTRY_ENDING_LABEL = "<ending>";
     public static final String LEXICAL_ENTRY_ETYM_LABEL = "<etym>";
     public static final String LEXICAL_ENTRY_SENSE_LABEL = "<sense>";
     public static final String LEXICAL_ENTRY_RE_LABEL = "<re>";
@@ -29,8 +27,6 @@ public class LexicalEntryLabels extends TaggingLabels {
 
 
     public static final TaggingLabel LEXICAL_ENTRY_FORM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_FORM_LABEL);
-    public static final TaggingLabel LEXICAL_ENTRY_INFLECTED = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_INFLECTED_LABEL);
-    public static final TaggingLabel LEXICAL_ENTRY_ENDING = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_ENDING_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_ETYM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_ETYM_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_SENSE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SENSE_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_RE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_RE_LABEL);
@@ -43,8 +39,6 @@ public class LexicalEntryLabels extends TaggingLabels {
 
     static {
         register(LEXICAL_ENTRY_FORM);
-        register(LEXICAL_ENTRY_INFLECTED);
-        register(LEXICAL_ENTRY_ENDING);
         register(LEXICAL_ENTRY_ETYM);
         register(LEXICAL_ENTRY_SENSE);
         register(LEXICAL_ENTRY_RE);
