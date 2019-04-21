@@ -325,6 +325,10 @@ public class DocumentUtils {
 
 
     }
+    public void produceXmlNodeForAnnotation(StringBuilder buffer, String clusterContent, String tagLabel, String attributes) {
+        buffer.append(createMyXMLString(tagLabel, attributes, clusterContent));
+
+    }
 
 //    public String reformatPonctuation(String stringWithPc) throws IOException {
 //

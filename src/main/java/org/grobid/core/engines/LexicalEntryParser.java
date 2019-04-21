@@ -232,7 +232,7 @@ public class LexicalEntryParser extends AbstractParser {
             String tagLabel = clusterLabel.getLabel();
 
 
-            formatter.produceXmlNode(buffer, clusterContent, tagLabel, null);
+            formatter.produceXmlNodeForAnnotation(buffer, clusterContent, tagLabel, null);
         }
 
         return buffer;
