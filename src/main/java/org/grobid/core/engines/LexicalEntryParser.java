@@ -217,22 +217,24 @@ public class LexicalEntryParser extends AbstractParser {
             Engine.getCntManager().i((TaggingLabel) clusterLabel);
 
             List<LayoutToken> list1 = cluster.concatTokens();
-
+            String tagLabel = clusterLabel.getLabel();
             String clusterContent = LayoutTokensUtil.toText(list1);
             if (isTrainingData) {
 
                 clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
                 clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
                 clusterContent = DocumentUtils.replaceLinebreaksWithTags(clusterContent);
+                formatter.produceXmlNodeForAnnotation(buffer, clusterContent, tagLabel, null);
 
             } else {
                 clusterContent = LayoutTokensUtil.normalizeText(clusterContent);
+                formatter.produceXmlNode(buffer, clusterContent, tagLabel,null);
             }
 
-            String tagLabel = clusterLabel.getLabel();
 
 
-            formatter.produceXmlNodeForAnnotation(buffer, clusterContent, tagLabel, null);
+
+
         }
 
         return buffer;
