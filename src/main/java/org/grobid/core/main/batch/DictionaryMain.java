@@ -1,4 +1,5 @@
 package org.grobid.core.main.batch;
+
 import org.grobid.core.main.GrobidHomeFinder;
 import org.grobid.core.engines.*;
 import org.grobid.core.main.LibraryLoader;
@@ -33,6 +34,16 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_ETYMQUOTE = "createAnnotatedTrainingEtymQuote";
     private static final String CREATE_TRAINING_ETYM = "createTrainingEtym";
     private static final String CREATE_ANNOTATED_TRAINING_ETYM = "createAnnotatedTrainingEtym";
+    private static final String CREATE_TRAINING_CROSSREF = "createTrainingCrossRef";
+    private static final String CREATE_ANNOTATED_TRAINING_CROSSREF = "createAnnotatedTrainingCrossRef";
+    private static final String CREATE_TRAINING_SENSE_CROSSREF = "createTrainingSenseCrossRef";
+    private static final String CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF = "createAnnotatedTrainingSenseCrossRef";
+    private static final String CREATE_TRAINING_FORM_GRAMGRP = "createTrainingFormGramGrp";
+    private static final String CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP = "createAnnotatedTrainingFormGramGrp";
+    private static final String CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP = "createTrainingGramGrp";
+    private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP = "createAnnotatedTrainingGramGrp";
+    private static final String CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP = "createTrainingSenseGramGrp";
+    private static final String CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP = "createAnnotatedTrainingSenseGramGrp";
 
     private static List<String> availableCommands = Arrays.asList(
             CREATE_TRAINING_DICTIONARY_SEGMENTATION,
@@ -50,7 +61,17 @@ public class DictionaryMain {
             CREATE_ANNOTATED_TRAINING_SENSE,
             CREATE_ANNOTATED_TRAINING_SUB_SENSE,
             CREATE_ANNOTATED_TRAINING_ETYMQUOTE,
-            CREATE_ANNOTATED_TRAINING_ETYM);
+            CREATE_ANNOTATED_TRAINING_ETYM,
+            CREATE_TRAINING_CROSSREF,
+            CREATE_ANNOTATED_TRAINING_CROSSREF,
+            CREATE_TRAINING_SENSE_CROSSREF,
+            CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF,
+            CREATE_TRAINING_FORM_GRAMGRP,
+            CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP,
+            CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP,
+            CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP,
+            CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP,
+            CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP);
 
     /**
      * Arguments of the batch.
@@ -69,6 +90,7 @@ public class DictionaryMain {
 
     /**
      * Init process with the provided grobid-home
+     *
      * @param grobidHome
      */
     protected static void initProcess(String grobidHome) {
@@ -201,7 +223,7 @@ public class DictionaryMain {
             } else {
                 initProcess();
             }
-            
+
             int nb = 0;
 
 
@@ -287,8 +309,61 @@ public class DictionaryMain {
                 nb = etymParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_CROSSREF)) {
+                CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
+                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_CROSSREF)) {
+                CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
+                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SENSE_CROSSREF)) {
+                CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
+                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF)) {
+                CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
+                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_FORM_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP)) {
+                GramGrpParser gramGrpParser = GramGrpParser.getInstance();
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+
 
         }
     }
+
 
 }

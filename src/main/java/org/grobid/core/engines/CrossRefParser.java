@@ -27,7 +27,11 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SUB_ENTRY_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL;
+import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
+import static org.grobid.core.engines.label.SubSenseLabels.SUB_SENSE_XR_LABEL;
 
 /**
  * Created by Med on 26.04.19.
@@ -161,7 +165,7 @@ public class CrossRefParser extends AbstractParser {
         String features = featureMatrix.toString();
         String output = label(features);
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.CROSS_REF,
                 output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -184,8 +188,8 @@ public class CrossRefParser extends AbstractParser {
 
     }
 
-    public StringBuilder toTEIForm(String bodyContentFeatured, List<LayoutToken> layoutTokens,
-                                   boolean isTrainingData) {
+    public StringBuilder toTEICrossRef(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+                                       boolean isTrainingData) {
         StringBuilder buffer = new StringBuilder();
 
         TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.CROSS_REF,
@@ -229,7 +233,7 @@ public class CrossRefParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -246,12 +250,12 @@ public class CrossRefParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, false);
+                    createTrainingCrossRef(fileEntry, outputDirectory, false, calledBy);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, false);
+                createTrainingCrossRef(path, outputDirectory, false, calledBy);
                 n++;
 
             }
@@ -265,7 +269,7 @@ public class CrossRefParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -282,12 +286,12 @@ public class CrossRefParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, true);
+                    createTrainingCrossRef(fileEntry, outputDirectory, true, calledBy);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, true);
+                createTrainingCrossRef(path, outputDirectory, true, calledBy);
                 n++;
 
             }
@@ -300,29 +304,35 @@ public class CrossRefParser extends AbstractParser {
         }
     }
 
-    public void createTrainingCrossRef(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingCrossRef(File path, String outputDirectory, Boolean isAnnotated, String calledBy) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";
+        String featuresFile="";
+        if(calledBy.equals("lexical entry")){
+            featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.crossRef";
+        }else if(calledBy.equals("sense")){
+            featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.crossRef";
+        }
+
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/form.rng");
-        File newRngFile = new File(outputDirectory + "/" + "form.rng");
+        File existingRngFile = new File("templates/crossRef.rng");
+        File newRngFile = new File(outputDirectory + "/" + "crossRef.rng");
         copyFileUsingStream(existingRngFile, newRngFile);
 
-        File existingCssFile = new File("templates/form.css");
-        File newCssFile = new File(outputDirectory + "/" + "form.css");
+        File existingCssFile = new File("templates/crossRef.css");
+        File newCssFile = new File(outputDirectory + "/" + "crossRef.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile, newCssFile);
 
 
         StringBuffer rawtxt = new StringBuffer();
 
-        StringBuffer forms = new StringBuffer();
+        StringBuffer crossRefs = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
@@ -330,12 +340,12 @@ public class CrossRefParser extends AbstractParser {
                 LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_XR_LABEL) && calledBy.equals("lexical entry")) {
                         //Write raw text
                         for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
                             rawtxt.append(txtline.getText());
                         }
-                        forms.append("<form>");
+                        crossRefs.append("<xr>");
                         LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
                         String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                         featureWriter.write(featSeg + "\n");
@@ -348,14 +358,60 @@ public class CrossRefParser extends AbstractParser {
 
 
                                 labeledFeatures = label(featSeg);
-                                forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                crossRefs.append(toTEICrossRef(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
                         } else {
-                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
+                            crossRefs.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
 
                         }
 
-                        forms.append("</form>");
+                        crossRefs.append("</xr>");
+                    }
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && calledBy.equals("sense")) {
+                        SenseParser senseParser = new SenseParser();
+
+                        LabeledLexicalInformation senseComponents = senseParser.process(lexicalEntryComponent.getLeft());
+                        for (Pair<List<LayoutToken>, String> senseComponent : senseComponents.getLabels()) {
+                            if(senseComponent.getRight().equals(SUBSENSE_SENSE_LABEL)){
+                                SubSenseParser subSenseParser = new SubSenseParser();
+                                LabeledLexicalInformation subSenseComponents = subSenseParser.process(senseComponent.getLeft());
+                                for (Pair<List<LayoutToken>, String> subSenseComponent : subSenseComponents.getLabels()) {
+                                    if (subSenseComponent.getRight().equals(SUB_SENSE_XR_LABEL)) {
+                                        for (LayoutToken txtline : subSenseComponent.getLeft()) {
+                                            rawtxt.append(txtline.getText());
+                                        }
+                                        crossRefs.append("<xr>");
+                                        LayoutTokenization layoutTokenization = new LayoutTokenization(subSenseComponent.getLeft());
+                                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                        featureWriter.write(featSeg + "\n");
+                                        if (isAnnotated) {
+
+                                            String labeledFeatures = null;
+                                            // if featSeg is null, it usually means that no body segment is found in the
+
+                                            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+
+
+                                                labeledFeatures = label(featSeg);
+                                                crossRefs.append(toTEICrossRef(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                            }
+                                        } else {
+                                            crossRefs.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(subSenseComponent.getLeft()))));
+
+                                        }
+
+                                        crossRefs.append("</xr>");
+
+
+                                    }
+
+                                }
+
+                            }
+
+
+                        }
+
                     }
                 }
 
@@ -366,19 +422,30 @@ public class CrossRefParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.rawtxt";
-        FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
+        String outPathRawtext="";
+        if(calledBy.equals("lexical entry")){
+            outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.crossRef.rawtxt";
+        }else if(calledBy.equals("sense")){
+            outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.crossRef.rawtxt";
+        }
+         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.tei.xml";
+        String outTei="";
+        if(calledBy.equals("lexical entry")){
+            outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.crossRef.tei.xml";
+        }else if(calledBy.equals("sense")){
+            outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.crossRef.tei.xml";
+        }
+
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"form.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"form.css\"?>\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"crossRef.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"crossRef.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(forms.toString().replaceAll("&","&amp;"));
+        teiWriter.write(crossRefs.toString().replaceAll("&","&amp;"));
         teiWriter.write("</body>");
         teiWriter.write("\n\t</text>\n</tei>\n");
 

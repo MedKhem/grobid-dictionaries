@@ -17,6 +17,7 @@ public class GrammaticalGroupLabels extends TaggingLabels {
     public static final String NUMBER_GRMGROUP_LABEL = "<number>";
     public static final String SUBC_GRMGROUP_LABEL = "<subc>";
     public static final String NOTE_GRMGROUP_LABEL = "<note>";
+    public static final String OREF_GRMGROUP_LABEL = "<oRef>";
     public static final String PC_GRMGROUP_LABEL = "<pc>";
     public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
     public static final TaggingLabel GRAMMATICAL_GROUP_POS= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, POS_GRMGROUP_LABEL);
@@ -26,6 +27,7 @@ public class GrammaticalGroupLabels extends TaggingLabels {
     public static final TaggingLabel GRAMMATICAL_GROUP_NUMBER= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, NUMBER_GRMGROUP_LABEL);
     public static final TaggingLabel GRAMMATICAL_GROUP_SUBC= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, SUBC_GRMGROUP_LABEL);
     public static final TaggingLabel GRAMMATICAL_GROUP_NOTE= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, NOTE_GRMGROUP_LABEL);
+    public static final TaggingLabel GRAMMATICAL_GROUP_OREF= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, OREF_GRMGROUP_LABEL);
     public static final TaggingLabel GRAMMATICAL_GROUP_PC= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, PC_GRMGROUP_LABEL);
 
     static {
@@ -36,6 +38,7 @@ public class GrammaticalGroupLabels extends TaggingLabels {
         register(GRAMMATICAL_GROUP_NUMBER);
         register(GRAMMATICAL_GROUP_SUBC);
         register(GRAMMATICAL_GROUP_NOTE);
+        register(GRAMMATICAL_GROUP_OREF);
         register(GRAMMATICAL_GROUP_PC);
     }
 }

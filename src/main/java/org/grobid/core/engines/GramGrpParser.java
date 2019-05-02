@@ -27,7 +27,11 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
+import static org.grobid.core.engines.label.FormLabels.GRAMMATICAL_GROUP_FORM_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+import static org.grobid.core.engines.label.SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL;
+import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
+import static org.grobid.core.engines.label.SubSenseLabels.SUB_SENSE_XR_LABEL;
 
 /**
  * Created by Med on 30.04.19.
@@ -161,7 +165,7 @@ public class GramGrpParser extends AbstractParser {
         String features = featureMatrix.toString();
         String output = label(features);
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.GRAMMATICAL_GROUP,
                 output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -184,11 +188,11 @@ public class GramGrpParser extends AbstractParser {
 
     }
 
-    public StringBuilder toTEIForm(String bodyContentFeatured, List<LayoutToken> layoutTokens,
-                                   boolean isTrainingData) {
+    public StringBuilder toTEIGramGrp(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+                                      boolean isTrainingData) {
         StringBuilder buffer = new StringBuilder();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.CROSS_REF,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.GRAMMATICAL_GROUP,
                 bodyContentFeatured, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -224,7 +228,7 @@ public class GramGrpParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -241,12 +245,12 @@ public class GramGrpParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, false);
+                    createTrainingGramGrp(fileEntry, outputDirectory, false, calledBy);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, false);
+                createTrainingGramGrp(path, outputDirectory, false, calledBy);
                 n++;
 
             }
@@ -260,7 +264,7 @@ public class GramGrpParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -277,12 +281,12 @@ public class GramGrpParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, true);
+                    createTrainingGramGrp(fileEntry, outputDirectory, true, calledBy);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, true);
+                createTrainingGramGrp(path, outputDirectory, true, calledBy);
                 n++;
 
             }
@@ -295,29 +299,37 @@ public class GramGrpParser extends AbstractParser {
         }
     }
 
-    public void createTrainingCrossRef(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingGramGrp(File path, String outputDirectory, Boolean isAnnotated, String calledBy) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";
-        Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+        String featuresFile="";
+        if(calledBy.equals("lexical entry")){
+            featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.gramGrp";
+        }else if(calledBy.equals("sense")){
+            featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.gramGrp";
+        }else if(calledBy.equals("form")){
+            featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-form.training.gramGrp";
+        }
+
+         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/form.rng");
-        File newRngFile = new File(outputDirectory + "/" + "form.rng");
+        File existingRngFile = new File("templates/gramGrp.rng");
+        File newRngFile = new File(outputDirectory + "/" + "gramGrp.rng");
         copyFileUsingStream(existingRngFile, newRngFile);
 
-        File existingCssFile = new File("templates/form.css");
-        File newCssFile = new File(outputDirectory + "/" + "form.css");
+        File existingCssFile = new File("templates/gramGrp.css");
+        File newCssFile = new File(outputDirectory + "/" + "gramGrp.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile, newCssFile);
 
 
         StringBuffer rawtxt = new StringBuffer();
 
-        StringBuffer forms = new StringBuffer();
+        StringBuffer gramGrps = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
 
@@ -325,12 +337,12 @@ public class GramGrpParser extends AbstractParser {
                 LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL)) {
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_GRAMGRP_LABEL) && calledBy.equals("lexical entry")) {
                         //Write raw text
                         for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
                             rawtxt.append(txtline.getText());
                         }
-                        forms.append("<form>");
+                        gramGrps.append("<gramGrp>");
                         LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
                         String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
                         featureWriter.write(featSeg + "\n");
@@ -343,14 +355,96 @@ public class GramGrpParser extends AbstractParser {
 
 
                                 labeledFeatures = label(featSeg);
-                                forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                gramGrps.append(toTEIGramGrp(labeledFeatures, layoutTokenization.getTokenization(), true));
                             }
                         } else {
-                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
+                            gramGrps.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
 
                         }
 
-                        forms.append("</form>");
+                        gramGrps.append("</gramGrp>");
+                    }
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL) && calledBy.equals("form")) {
+                        FormParser formParser = new FormParser();
+
+                        LabeledLexicalInformation formComponents = formParser.process(lexicalEntryComponent.getLeft());
+                        for (Pair<List<LayoutToken>, String> formComponent : formComponents.getLabels()) {
+                            if (formComponent.getRight().equals(GRAMMATICAL_GROUP_FORM_LABEL)) {
+
+
+                                for (LayoutToken txtline : formComponent.getLeft()) {
+                                    rawtxt.append(txtline.getText());
+                                }
+                                gramGrps.append("<gramGrp>");
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(formComponent.getLeft());
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
+                                if (isAnnotated) {
+
+                                    String labeledFeatures = null;
+                                    // if featSeg is null, it usually means that no body segment is found in the
+
+                                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+
+
+                                        labeledFeatures = label(featSeg);
+                                        gramGrps.append(toTEIGramGrp(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                    }
+                                } else {
+                                    gramGrps.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(formComponent.getLeft()))));
+
+                                }
+
+                                gramGrps.append("</gramGrp>");
+
+
+                            }
+
+
+                        }
+
+
+                    }
+                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && calledBy.equals("sense")) {
+                        SenseParser senseParser = new SenseParser();
+
+                        LabeledLexicalInformation senseComponents = senseParser.process(lexicalEntryComponent.getLeft());
+                        for (Pair<List<LayoutToken>, String> senseComponent : senseComponents.getLabels()) {
+                            if (senseComponent.getRight().equals(GRAMMATICAL_GROUP_SENSE_LABEL)) {
+
+
+                                for (LayoutToken txtline : senseComponent.getLeft()) {
+                                    rawtxt.append(txtline.getText());
+                                }
+                                gramGrps.append("<gramGrp>");
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(senseComponent.getLeft());
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
+                                if (isAnnotated) {
+
+                                    String labeledFeatures = null;
+                                    // if featSeg is null, it usually means that no body segment is found in the
+
+                                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+
+
+                                        labeledFeatures = label(featSeg);
+                                        gramGrps.append(toTEIGramGrp(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                    }
+                                } else {
+                                    gramGrps.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(senseComponent.getLeft()))));
+
+                                }
+
+                                gramGrps.append("</gramGrp>");
+
+
+                            }
+
+
+                        }
+
+
                     }
                 }
 
@@ -361,19 +455,35 @@ public class GramGrpParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.rawtxt";
+
+        String outPathRawtext="";
+        if(calledBy.equals("lexical entry")){
+            outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.gramGrp.rawtxt";
+        }else if(calledBy.equals("sense")){
+            outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.gramGrp.rawtxt";
+        }else if(calledBy.equals("form")){
+            outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-form.training.gramGrp.rawtxt";
+        }
+
+
+
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.tei.xml";
+        String outTei="";
+        if(calledBy.equals("lexical entry")){
+            outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-LE.training.gramGrp.tei.xml";}else if(calledBy.equals("sense")){
+            outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-sense.training.gramGrp.tei.xml";}else if(calledBy.equals("form")){
+            outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + "-form.training.gramGrp.tei.xml";
+        }
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"form.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"form.css\"?>\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"gramGrp.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"gramGrp.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(forms.toString().replaceAll("&", "&amp;"));
+        teiWriter.write(gramGrps.toString().replaceAll("&", "&amp;"));
         teiWriter.write("</body>");
         teiWriter.write("\n\t</text>\n</tei>\n");
 

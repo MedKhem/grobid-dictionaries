@@ -23,19 +23,19 @@ public class CrossRefParserTest extends EngineMockTest {
         target = new CrossRefParser();
     }
 
-    @Test
-    public void testProcessToTEI() throws Exception {
-//        File input = new File(this.getClass().getResource("close.pdf").toURI());
-        List<LayoutToken> formEntry = new ArrayList<LayoutToken>();
-        String token1 = "hi";
-        String token2 = "SYN";
-        formEntry.add(new LayoutToken(token1));
-        formEntry.add(new LayoutToken(token2));
+//    @Test
+//    public void testProcessToTEI() throws Exception {
+////        File input = new File(this.getClass().getResource("close.pdf").toURI());
+//        List<LayoutToken> formEntry = new ArrayList<LayoutToken>();
+//        String token1 = "hi";
+//        String token2 = "SYN";
+//        formEntry.add(new LayoutToken(token1));
+//        formEntry.add(new LayoutToken(token2));
 
 //        System.out.println("nextToand " + body.charAt(5824));
 //        assertThat(formEntry, notNullValue());
 
-    }
+//    }
 
 
 }
