@@ -71,7 +71,7 @@ public class TEIDictionaryFormatter {
             if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
                 buffer.append(formatter.createMyXMLString("entry", null, clusterContent));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
-                buffer.append(clusterContent);
+                buffer.append(formatter.createMyXMLString("dictScrap", null, clusterContent));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                 buffer.append(clusterContent);
             } else {
