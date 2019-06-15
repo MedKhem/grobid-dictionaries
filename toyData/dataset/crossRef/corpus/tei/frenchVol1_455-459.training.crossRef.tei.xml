@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="crossRef.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"
+?>
+<?xml-stylesheet type="text/css" href="crossRef.css"?>
+<tei xml:space="preserve">
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text>
+		<body><xr><lbl>Voy.</lbl> <ref>KAÏMAC</ref></xr><xr><lbl>VOy.</lbl>:.<ref>QUÉ-<lb/>MANDER</ref></xr><xr><lbl>Voy.</lbl> <ref>QUÉMANDEUR</ref></xr><xr><lbl>Voy.</lbl> <ref>CACHOTTE</ref></xr><xr><lbl>Voy.</lbl> <ref>CALA-<lb/>MINE</ref></xr><xr><relation>SYN</relation>. <ref>CALCULER</ref>, <ref>COMPTER</ref>, <ref>SUPPUTER</ref>. <note>Calculer, <lb/>c'est faire une opération d'arithmétique ou d'algè-<lb/>bre. Compter, c'est nombrer : compter un, deux, <lb/>trois ; c'est aussi faire l'évaluation, en parlant d'af-<lb/>faires d'intérêt, d'administration, de finance, etc. <lb/>supputer, c'est se servir de nombres ou autres do-<lb/>cuments pour arriver à un résultat: en comptantles <lb/>briques, supputer la hauteur d'un mur. Le calcul <lb/>est une opération abstraite qui a pour but de faire <lb/>connaître le rapport qui existe entre des quantités. <lb/>Le compte est une opération concrète qui nous ap-<lb/>prend quelle est la somme. La supputation est une <lb/>combinaison par laquelle, des données que nous <lb/>avons, nous tirons une certaine conclusion</note></xr><xr><relation>SYN</relation>. <ref>CALENDRIER</ref>, <ref>ALHANACH</ref>. <note>L'indication des <lb/>mois, des jours, des fêles, voilà l'objet du calen-<lb/>drier. L'aimanach y ajoute des observations astrono-<lb/>miques, des pronostics sur les diverses conditions <lb/>de l'air, cies prédictions, etc</note></xr></body>
+	</text>
+</tei>

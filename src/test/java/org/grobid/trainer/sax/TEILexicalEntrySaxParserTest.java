@@ -1,5 +1,6 @@
 package org.grobid.trainer.sax;
 
+import org.grobid.core.data.SimpleLabeled;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,10 +33,10 @@ public class TEILexicalEntrySaxParserTest {
         SAXParser p = spf.newSAXParser();
         p.parse(input, target);
 
-        List<String> labeled = target.getLabeledResult();
+        List<SimpleLabeled> labeled = target.getLabeledResult();
 
         assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(93));
+        assertThat(labeled.size(), is(1));
 
         assertThat(labeled.get(92), is("work <sense>\n"));
     }

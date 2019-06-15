@@ -2,10 +2,12 @@ package org.grobid.trainer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.utilities.GrobidProperties;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
+import org.grobid.trainer.sax.TEISenseSaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -95,71 +97,80 @@ public class LexicalEntryTrainer extends AbstractTrainer {
             os2 = new FileOutputStream(outputPath);
             writer2 = new OutputStreamWriter(os2, "UTF8");
 
-            // get a factory for SAX parser
             SAXParserFactory spf = SAXParserFactory.newInstance();
 
             for (File tf : refFiles) {
                 String name = tf.getName();
-                System.out.println(name);
+                System.out.println("Processing: " + name);
 
                 TEILexicalEntrySaxParser parser2 = new TEILexicalEntrySaxParser();
-                //parser2.setMode(TEILexicalEntrySaxParser.FULLTEXT);
+            //get a new instance of parser
+            SAXParser p = spf.newSAXParser();
+            p.parse(tf, parser2);
 
-                //get a new instance of parser
-                SAXParser p = spf.newSAXParser();
-                p.parse(tf, parser2);
+            List<SimpleLabeled> labeled = parser2.getLabeledResult();
 
-                List<String> labeled = parser2.getLabeledResult();
 
-                // we can now add the features
-                // we open the featured file
-                BufferedReader featuresFile = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
-                                                                          name.replace(".tei.xml", "")), "UTF8"));
-                int q = 0;
-                StringBuilder trainingDataLineBuilder = new StringBuilder();
+            // we open the featured file
+            BufferedReader featuresFile = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
+                            name.replace(".tei.xml", "")), "UTF8"));
+            //Index to iterate through a list of LabeledForm
+            int indexLabeledList = 0;
+            //Index to iterate through the LabeledFormLabels
+            int indexLabeledForm = 0;
+            StringBuilder trainingDataLineBuilder = new StringBuilder();
 
-                String line;
-                while ((line = featuresFile.readLine()) != null) {
+            String line;
+            while ((line = featuresFile.readLine()) != null) {
 
-                    //A new line in the feature file separate the new training example
-                    if(StringUtils.isBlank(line)) {
-                        trainingDataLineBuilder.append("\n");
-                    }
-                    int ii = line.indexOf(' ');
-                    String token = null;
-                    if (ii != -1)
-                        token = line.substring(0, ii);
-                    // we get the label in the labelled data file for the same token
-                    for (int pp = q; pp < labeled.size(); pp++) {
-                        String localLine = labeled.get(pp);
-                        StringTokenizer st = new StringTokenizer(localLine, " ");
-                        if (st.hasMoreTokens()) {
-                            String localToken = st.nextToken();
-                            if (localToken.equals(token)) {
-                                String label = st.nextToken();
-                                trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(label);
-                                q = pp + 1;
-                                pp = q + 10;
+                String tokenFromFeatures = extractToken(line);
+
+                // we get the label in the labelled data file for the same token
+                outer:
+                for (int pp = indexLabeledList; pp < labeled.size(); pp++) {
+                    SimpleLabeled simpleLabeled = labeled.get(pp);
+
+                    for (int qq = indexLabeledForm; qq < simpleLabeled.getLabels().size(); qq++) {
+
+                        final String labelToken = simpleLabeled.getLabels().get(qq).getRight();
+                        final String tokenFromLabels = simpleLabeled.getLabels().get(qq).getLeft();
+                        if (StringUtils.equals(tokenFromLabels, tokenFromFeatures)) {
+                            trainingDataLineBuilder.append(line)
+                                    .append(" ").append(labelToken).append("\n");
+                            indexLabeledForm = qq + 1;
+                            if (simpleLabeled.getLabels().size() == indexLabeledForm) {
+                                pp++;
+                                indexLabeledForm = 0;
+                                trainingDataLineBuilder.append("\n");
                             }
-                        }
-                        if (pp - q > 5) {
-                            break;
+                            indexLabeledList = pp;
+
+                            break outer;
                         }
                     }
                 }
-                featuresFile.close();
-                writer2.write(trainingDataLineBuilder.toString() + "");
             }
-
-        } catch (Exception e) {
-            throw new GrobidException("An exception occurred while running Grobid.", e);
-        } finally {
-            IOUtils.closeQuietly(writer2);
-            IOUtils.closeQuietly(os2);
+            IOUtils.closeQuietly(featuresFile);
+            writer2.write(trainingDataLineBuilder.toString() + "");
         }
-        return totalExamples;
+
+    } catch (Exception e) {
+        throw new GrobidException("An exception occurred while running Grobid.", e);
+    } finally {
+        IOUtils.closeQuietly(writer2, os2);
     }
+        return totalExamples;
+}
+
+    private String extractToken(String line) {
+        int ii = line.indexOf(' ');
+        String token = null;
+        if (ii != -1)
+            token = line.substring(0, ii);
+        return token;
+    }
+
 
 
 }

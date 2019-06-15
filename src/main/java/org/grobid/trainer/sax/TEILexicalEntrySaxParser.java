@@ -9,6 +9,8 @@ package org.grobid.trainer.sax;
  * @author Patrice Lopez, Mohamed Khemakhem
  */
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -20,17 +22,19 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 
 
 public class TEILexicalEntrySaxParser extends DefaultHandler {
 
-    private StringBuffer accumulator = null; // current accumulated text
-
+    private StringBuffer accumulator = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
-    private List<String> labeled = null; // store line by line the labeled data
-    private String parentTag = DICTIONARY_ENTRY_LABEL;
+
+
+    private SimpleLabeled currentSense = null;
+    private List<SimpleLabeled> labeled = null;
+
+
 
     public TEILexicalEntrySaxParser() {
         labeled = new ArrayList<>();
@@ -38,12 +42,11 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         accumulator = new StringBuffer();
     }
 
-    //Store the text of an element
+    @Override
     public void characters(char[] buffer, int start, int length) {
         accumulator.append(buffer, start, length);
     }
 
-    //Get the text of the document
     public String getText() {
         if (accumulator != null) {
             return accumulator.toString().trim();
@@ -51,43 +54,45 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
             return null;
         }
     }
-
-    public List<String> getLabeledResult() {
+    public List<SimpleLabeled> getLabeledResult() {
         return labeled;
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        if ((!qName.equals("lb")) && (!qName.equals("pb"))) {
-            writeData(qName, true);
-            if (!currentTags.empty()) {
-                currentTag = currentTags.peek();
+        if (isRelevantTag(qName)) {
+            writeData();
+            if (!currentTags.isEmpty()) {
+                currentTag = currentTags.pop();
             }
+        }
+        else if ("entry".equals(qName)) {
+            labeled.add(currentSense);
         }
 
     }
-
-    @Override
-    public void startElement(String namespaceURI, String localName,
-                             String qName, Attributes atts)
+    public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
             throws SAXException {
 
+
         if (qName.equals("lb")) {
-            accumulator.append(" +L+ ");
+//            accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
-            accumulator.append(" +PAGE+ ");
+//            accumulator.append(" +PAGE+ ");
         } else if (qName.equals("space")) {
-            accumulator.append(" ");
+//            accumulator.append(" ");
         } else {
-            if (qName.equals("entry") || qName.equals("re")) {
-                parentTag = "<" + qName + ">";
+            if (isEntryTag(qName) ) {
+
+                currentSense = new SimpleLabeled();
+
             }
 
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (isNotBlank(text)) {
                 currentTag = "<pc>";
-                writeData(qName, false);
+                writeData();
 
             }
             accumulator.setLength(0);
@@ -96,58 +101,72 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
             currentTag = "<" + qName + ">";
 
         }
-
     }
 
-    private void writeData(String qName, boolean pop) {
+
+
+
+
+
+
+    private void writeData() {
+        if (currentTag == null) {
+            return;
+        }
+//
+//        if (pop) {
+//            if (!currentTags.empty()) {
+//                currentTags.pop();
+//            }
+//        }
+//        if (qName.equals("sense")) {
+//            currentTag = "<pc>";
+//        }
+
+        String text = getText();
+        // we segment the text
+        StringTokenizer st = new StringTokenizer(text, " \n\t" + TextUtilities.fullPunctuations, true);
+        boolean begin = true;
+        while (st.hasMoreTokens()) {
+            String tok = st.nextToken().trim();
+            if (tok.length() == 0)
+                continue;
+
+            String content = tok;
+
+            if (content.length() > 0) {
+                if (begin) {
+                    currentSense.addLabel(Pair.of(content, "I-" + currentTag));
+
+                    begin = false;
+                } else {
+                    currentSense.addLabel(Pair.of(content,   currentTag));
+                }
+            }
+
+            begin = false;
+        }
+        accumulator.setLength(0);
+    }
+
+    private boolean isRelevantTag(String qName) {
         if ((qName.equals("lemma")) || (qName.equals("inflected"))  || (qName.equals("variant")) || (qName.equals("ending"))
                 || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
                 (qName.equals("formGramGrp")) || (qName.equals("senseGramGrp")) ||
                 (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap"))
                 || (qName.equals("xr")) ) {
-            if (currentTag == null) {
-                return;
-            }
-
-            if (pop) {
-                if (!currentTags.empty()) {
-                    currentTags.pop();
-                }
-            }
-            if (qName.equals("entry")) {
-                currentTag = "<pc>";
-            }
-
-            String text = getText();
-            // we segment the text
-            StringTokenizer st = new StringTokenizer(text, " \n\t" + TextUtilities.fullPunctuations, true);
-            boolean begin = true;
-            while (st.hasMoreTokens()) {
-                String tok = st.nextToken().trim();
-                if (tok.length() == 0)
-                    continue;
-
-                if (tok.equals("+L+")) {
-                    //labeled.add("@newline\n");
-                } else if (tok.equals("+PAGE+")) {
-                    // page break should be a distinct feature
-                    //labeled.add("@newpage\n");
-                } else {
-                    String content = tok;
-                    int i = 0;
-                    if (content.length() > 0) {
-                        if (begin) {
-                            labeled.add(content + " I-" + currentTag + "\n");
-                            begin = false;
-                        } else {
-                            labeled.add(content + " " + currentTag + "\n");
-                        }
-                    }
-                }
-                begin = false;
-            }
-            accumulator.setLength(0);
+            return true;
         }
+        return false;
+    }
+
+
+
+    private boolean isEntryTag(String qName) {
+        if ("entry".equals(qName)) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -1,0 +1,11 @@
+S s S S S S S S S S 10.0 false false ALLCAPS NOPUNCT LINESTART NEWFONT 
+' ' ' ' ' ' ' ' ' ' 10.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+ABAISSER abaisser A AB ABA ABAI R ER SER SSER 10.0 false false ALLCAPS NOPUNCT LINEIN SAMEFONT 
+, , , , , , , , , , 10.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+- - - - - - - - - - 10.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+! ! ! ! ! ! ! ! ! ! 10.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+) ) ) ) ) ) ) ) ) ) 10.0 false false ALLCAPS ENDBRACKET LINEIN SAMEFONT 
+, , , , , , , , , , 10.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+réfl réfl r ré réf réfl l fl éfl réfl 13.0 false false NOCAPS NOPUNCT LINEIN SAMEFONT 
+. . . . . . . . . . 13.0 false false ALLCAPS PUNCT LINEIN SAMEFONT 
+
