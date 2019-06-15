@@ -34,7 +34,7 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_ETYMQUOTE = "createAnnotatedTrainingEtymQuote";
     private static final String CREATE_TRAINING_ETYM = "createTrainingEtym";
     private static final String CREATE_ANNOTATED_TRAINING_ETYM = "createAnnotatedTrainingEtym";
-    private static final String CREATE_TRAINING_CROSSREF = "createTrainingCrossRef";
+    private static final String CREATE_TRAINING_CROSSREF = "createTrainingMorphoGram";
     private static final String CREATE_ANNOTATED_TRAINING_CROSSREF = "createAnnotatedTrainingCrossRef";
     private static final String CREATE_TRAINING_SENSE_CROSSREF = "createTrainingSenseCrossRef";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF = "createAnnotatedTrainingSenseCrossRef";
@@ -44,6 +44,8 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP = "createAnnotatedTrainingGramGrp";
     private static final String CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP = "createTrainingSenseGramGrp";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP = "createAnnotatedTrainingSenseGramGrp";
+
+
 
     private static List<String> availableCommands = Arrays.asList(
             CREATE_TRAINING_DICTIONARY_SEGMENTATION,
@@ -71,7 +73,7 @@ public class DictionaryMain {
             CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP,
             CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP,
             CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP,
-            CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP);
+            CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP );
 
     /**
      * Arguments of the batch.
@@ -360,6 +362,7 @@ public class DictionaryMain {
                 nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
+
 
 
         }

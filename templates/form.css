@@ -71,6 +71,10 @@ ending {
 	display: inline;
 	background-color: #a94deb;
 }
+part {
+	display: inline;
+	background-color: #ebd3ac;
+}
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

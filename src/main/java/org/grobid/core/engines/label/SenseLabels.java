@@ -12,6 +12,7 @@ public class SenseLabels extends TaggingLabels {
     }
     public static final String SUBSENSE_SENSE_LABEL = "<subSense>";
     public static final String NOTE_SENSE_LABEL = "<note>";
+    public static final String NUM_SENSE_LABEL = "<num>";
     public static final String GRAMMATICAL_GROUP_SENSE_LABEL = "<gramGrp>";
     public static final String DICTSCRAP_SENSE_LABEL = "<dictScrap>";
     public static final String PC_SENSE_LABEL = "<pc>";
@@ -21,6 +22,7 @@ public class SenseLabels extends TaggingLabels {
     public static final TaggingLabel SENSE_NOTE = new TaggingLabelImpl(DictionaryModels.SENSE, NOTE_SENSE_LABEL);
 
     public static final TaggingLabel SENSE_GRAMMATICAL_GROUP = new TaggingLabelImpl(DictionaryModels.SENSE, GRAMMATICAL_GROUP_SENSE_LABEL);
+    public static final TaggingLabel NUM_GRAMMATICAL_GROUP = new TaggingLabelImpl(DictionaryModels.SENSE, NUM_SENSE_LABEL);
     public static final TaggingLabel SENSE_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.SENSE, DICTSCRAP_SENSE_LABEL);
     public static final TaggingLabel SENSE_PC = new TaggingLabelImpl(DictionaryModels.SENSE, PC_SENSE_LABEL);
 
@@ -30,8 +32,8 @@ public class SenseLabels extends TaggingLabels {
         register(SENSE_SENSE);
 
         register(SENSE_NOTE);
-
         register(SENSE_GRAMMATICAL_GROUP);
+        register(NUM_GRAMMATICAL_GROUP);
         register(SENSE_DICTSCRAP);
         register(SENSE_PC);
     }

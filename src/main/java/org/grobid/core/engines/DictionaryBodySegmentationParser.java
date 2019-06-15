@@ -29,10 +29,10 @@ import java.util.*;
 
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ETYM_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_FORM_LABEL;
-import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL;
+import static org.grobid.core.engines.label.FormLabels.GRAMMATICAL_GROUP_FORM_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+import static org.grobid.core.engines.label.SenseLabels.PC_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 import static org.grobid.service.DictionaryPaths.*;
 
@@ -1886,10 +1886,16 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         EtymParser etymParser = new EtymParser();
 
 
-        if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL) && parsingModels[0].equals("form")) {
-            clusterContent.append(formParser.processToTEI(segmentedEntryComponent.getLeft()).toString());
+        if ((segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)
+                || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)
+                || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)
+                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) ){
+
+                clusterContent.append(formParser.processToTEI(segmentedEntryComponent,parsingModels));
+
 
         } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && parsingModels[1].equals("sense")) {
+
 
             clusterContent.append(senseParser.processToTEI(segmentedEntryComponent.getLeft()).toString());
         } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && parsingModels[1].equals("subSense")) {
@@ -1898,8 +1904,11 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             for (Pair<List<LayoutToken>, String> segmentedSense : parsedSense.getLabels()) {
                 if (segmentedSense.getRight().equals(SUBSENSE_SENSE_LABEL)) {
                     clusterContent.append(subSenseParser.processToTEI(segmentedSense.getLeft()).toString());
-                } else {
+                } else if (!segmentedSense.getRight().equals(PC_SENSE_LABEL)){
                     clusterContent.append(senseParser.processToTEI(segmentedSense.getLeft()).toString());
+                }else{
+                    String tokenSense = LayoutTokensUtil.normalizeText(segmentedSense.getLeft());
+                    clusterContent.append(formatter.createMyXMLString("pc", null, DocumentUtils.escapeHTMLCharac(tokenSense)));
                 }
             }
 

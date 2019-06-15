@@ -130,7 +130,28 @@
 			</oneOrMore>
 		</element>
 	</define>
-
+	<define name="gram">
+		<element name="gram">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="lbl">
+		<element name="lbl">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
 	
 	<define name="gramGrp">
 		<element name="gramGrp">
@@ -144,6 +165,8 @@
 					<ref name="number"/>
 					<ref name="subc"/>
 					<ref name="note"/>
+					<ref name="gram"/>
+					<ref name="lbl"/>
 					<ref name="oRef"/>
 					<ref name="pc"/>
 					<ref name="dictScrap"/>

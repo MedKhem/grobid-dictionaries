@@ -141,7 +141,7 @@ public class TEISenseSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if (("subSense".equals(qName)) || "gramGrp".equals(qName)
+        if (("subSense".equals(qName)) || "gramGrp".equals(qName) || "num".equals(qName)
                 || "note".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
             return true;
         }

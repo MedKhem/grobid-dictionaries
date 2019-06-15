@@ -13,11 +13,30 @@ entry {
 etym { display: inline;
     background-color: seagreen;}
 
-form {
+lemma {
     display: inline;
     background-color: Khaki;
 }
-
+inflected {
+    display: inline;
+    background-color: #b7d91b;
+}
+ending {
+    display: inline;
+    background-color: #647cfe;
+}
+variant {
+    display: inline;
+    background-color: #39f0dd;
+}
+formGramGrp {
+    display: inline;
+    background-color: #2253f0;
+}
+senseGramGrp {
+    display: inline;
+    background-color: #d790f0;
+}
 /* things to mark-up on any level */
 
 pc {

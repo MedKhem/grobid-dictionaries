@@ -183,6 +183,17 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="part">
+		<element name="part">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
 	<define name="form">
 		<element name="form">
 			<oneOrMore>
@@ -191,6 +202,7 @@
 					<ref name="pc"/>
 					<ref name="lb"/>
 					<ref name="orth"/>
+					<ref name="part"/>
 					<ref name="pron"/>
 					<ref name="gramGrp"/>
 					<ref name="lang"/>

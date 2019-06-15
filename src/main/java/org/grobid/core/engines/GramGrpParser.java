@@ -57,40 +57,28 @@ public class GramGrpParser extends AbstractParser {
         instance = new GramGrpParser();
     }
 
-    public StringBuilder processToTEI(List<LayoutToken> formEntry) {
+    public StringBuilder processToTEI(List<LayoutToken> aGramGrp) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
 
-        LabeledLexicalInformation labeledForm = process(formEntry);
+        LabeledLexicalInformation gramGrpComponents = process(aGramGrp);
 
         StringBuilder sb = new StringBuilder();
-        StringBuilder ref = new StringBuilder();
-        boolean relationshipSpecified = false;
-        String relation = "";
 
 
-        for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
-            String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getLeft());
-            String labelForm = entryForm.getRight();
+        sb.append("<gramGrp>").append("\n");
+        for (Pair<List<LayoutToken>, String> gramGrpComponent : gramGrpComponents.getLabels()) {
+            String gramGrpComponentText = LayoutTokensUtil.normalizeText(gramGrpComponent.getLeft());
+            String gramGrpComponentLabel = gramGrpComponent.getRight();
 
-            String content = DocumentUtils.escapeHTMLCharac(tokenForm);
-            if (labelForm.equals("<relation>") && !relationshipSpecified) {
-                relation = content;
-                relationshipSpecified = true;
+            String content = DocumentUtils.escapeHTMLCharac(gramGrpComponentText);
 
-            } else {
-                ref.append(formatter.createMyXMLString(labelForm, null, content));
-            }
-        }
-        String attributes = "";
-        if (relationshipSpecified) {
-            attributes = "type-" + relation;
-            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
-        } else {
-            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
+                sb.append(formatter.createMyXMLString(gramGrpComponentLabel, null, content));
+
         }
 
-//        ref.append("</form>").append("\n");
+
+        sb.append("</gramGrp>").append("\n");
 //        if (ref.length() > 0) {
 //            sb.append(ref.toString()).append("\n");
 //        }
@@ -337,7 +325,8 @@ public class GramGrpParser extends AbstractParser {
                 LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                 for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_GRAMGRP_LABEL) && calledBy.equals("lexical entry")) {
+                    if ((lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FROM_GRAMGRP_LABEL) ||
+                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FROM_GRAMGRP_LABEL) ) && calledBy.equals("lexical entry")) {
                         //Write raw text
                         for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
                             rawtxt.append(txtline.getText());
@@ -364,7 +353,10 @@ public class GramGrpParser extends AbstractParser {
 
                         gramGrps.append("</gramGrp>");
                     }
-                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL) && calledBy.equals("form")) {
+                    if ((lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL) ||
+                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL) ||
+                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL) ||
+                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) && calledBy.equals("form")) {
                         FormParser formParser = new FormParser();
 
                         LabeledLexicalInformation formComponents = formParser.process(lexicalEntryComponent.getLeft());

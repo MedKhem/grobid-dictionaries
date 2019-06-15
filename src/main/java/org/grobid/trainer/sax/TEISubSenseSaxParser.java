@@ -141,9 +141,9 @@ public class TEISubSenseSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if (("def".equals(qName)) || "example".equals(qName) || "translation".equals(qName) || "usg".equals(qName)
-                || "re".equals(qName) || "etym".equals(qName) || "xr".equals(qName) || "num".equals(qName) || "gramGrp".equals(qName)
-                || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+        if (("def".equals(qName)) || "example".equals(qName) || "translation".equals(qName)
+                || "usg".equals(qName) || "re".equals(qName) || "etym".equals(qName) || "xr".equals(qName)
+                || "num".equals(qName) || "gramGrp".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
             return true;
         }
         return false;

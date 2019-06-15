@@ -31,10 +31,10 @@ import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SEN
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 
 /**
- * Created by lfoppiano on 05/05/2017.
+ * Created by med on 05/05/2019.
  */
 public class SubSenseParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SenseParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubSenseParser.class);
     private static volatile SubSenseParser instance;
     private DocumentUtils formatter = new DocumentUtils();
 
@@ -328,11 +328,12 @@ public class SubSenseParser extends AbstractParser {
                                     rawtxt.append(txtline.getText());
                                 }
                                 senses.append("<subSense>");
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(senseComponent.getLeft());
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
 
                                 if(isAnnotated){
-                                    LayoutTokenization layoutTokenization = new LayoutTokenization(senseComponent.getLeft());
-                                    String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                                    featureWriter.write(featSeg + "\n");
+
                                     String labeledFeatures = null;
                                     // if featSeg is null, it usually means that no body segment is found in the
 

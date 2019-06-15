@@ -70,8 +70,29 @@ public class LexicalEntryParser extends AbstractParser {
 
         if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
             //In the simple case, just return segmentation of the LE
+            Boolean nestedSenseOpen = false;
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
-                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+                if (entryComponent.getRight().equals("<senseGramGrp>")){
+                    nestedSenseOpen = true;
+                    bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+                    continue;
+
+                }
+                if (nestedSenseOpen){
+                    if (entryComponent.getRight().equals("<sense>")){
+                        bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+
+                    }else{
+                        bodyWithSegmentedLexicalEntries.append("</sense>");
+                        nestedSenseOpen = false;
+                        bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+
+                    }
+                } else{
+                    bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+
+                }
+
             }
         } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)) {
             EngineParsers engineParsers = new EngineParsers();
@@ -81,14 +102,15 @@ public class LexicalEntryParser extends AbstractParser {
             bodyWithSegmentedLexicalEntries.append(segmentedCitation.toTEI(-1));
 
 
-        } else {
-            //In the complete case, parse the component of the LE
-            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
-                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
-            }
-
-
         }
+//        else {
+//            //In the complete case, parse the component of the LE
+//            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
+//                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
+//            }
+//
+//
+//        }
 
         return bodyWithSegmentedLexicalEntries.toString();
     }
@@ -149,9 +171,23 @@ public class LexicalEntryParser extends AbstractParser {
         String label = entry.getRight();
 
 
-        if (label.equals("<subEntry>")) {
-            formatter.produceXmlNode(sb, componentText, "entry", null);
-        } else {
+        if (label.equals("<lemma>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-lemma");
+        } else if (label.equals("<inflected>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-inflected");
+        } else if (label.equals("<ending>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-ending");
+        }else if (label.equals("<variant>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-variant");
+        }else if (label.equals("<subEntry>")) {
+            formatter.produceXmlNode(sb, componentText, "<entry>", null);
+        }else if(label.equals("<formGramGrp>")) {
+            formatter.produceXmlNode(sb, componentText, "<gramGrp>", null);
+        }else if(label.equals("<senseGramGrp>")) {
+            sb.append("<sense>");
+            formatter.produceXmlNode(sb, componentText, "<gramGrp>", null);
+
+        } else{
 
             sb.append(formatter.createMyXMLString(label, null, componentText)).append("\n");
         }
@@ -161,43 +197,43 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
 
-    public String toTEILexicalEntryAndBeyond(Pair<List<LayoutToken>, String> entryComponent) {
-        final StringBuilder sb = new StringBuilder();
-        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getLeft()));
-        String label = entryComponent.getRight();
-
-        if (label.equals("<form>")) {
-            sb.append(new FormParser().processToTEI(entryComponent.getLeft()));
-
-
-        } else if (label.equals("<sense>")) {
-            sb.append(new SenseParser().processToTEI(entryComponent.getLeft()));
-
-//            } else if (label.equals("<re>")) {
-//                //I apply the same model recursively on the relative entry
-//                sb.append("<re>").append("\n");
-//                //I apply the form also to the sense to recognise the grammatical group, if any!
-//                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getLeft(), LEXICAL_ENTRY_RE_LABEL);
-//                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
-//                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getLeft()));
-//                    String labelForm = lexicalEntry.getRight();
+//    public String toTEILexicalEntryAndBeyond(Pair<List<LayoutToken>, String> entryComponent) {
+//        final StringBuilder sb = new StringBuilder();
+//        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getLeft()));
+//        String label = entryComponent.getRight();
 //
-//                    String content = TextUtilities.HTMLEncode(tokenForm);
-//                    content = content.replace("&lt;lb/&gt;", "<lb/>");
-//                    if (!labelForm.equals("<dictScrap>")) {
-//                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-//                    } else {
-//                        sb.append(content);
-//                    }
-//                }
-//                sb.append("</re>").append("\n");
-
-        } else {
-            formatter.produceXmlNode(sb, token, label, null);
-        }
-
-        return sb.toString();
-    }
+//        if (label.equals("<form>")) {
+//            sb.append(new FormParser().processToTEI(entryComponent));
+//
+//
+//        } else if (label.equals("<sense>")) {
+//            sb.append(new SenseParser().processToTEI(entryComponent.getLeft()));
+//
+////            } else if (label.equals("<re>")) {
+////                //I apply the same model recursively on the relative entry
+////                sb.append("<re>").append("\n");
+////                //I apply the form also to the sense to recognise the grammatical group, if any!
+////                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getLeft(), LEXICAL_ENTRY_RE_LABEL);
+////                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
+////                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getLeft()));
+////                    String labelForm = lexicalEntry.getRight();
+////
+////                    String content = TextUtilities.HTMLEncode(tokenForm);
+////                    content = content.replace("&lt;lb/&gt;", "<lb/>");
+////                    if (!labelForm.equals("<dictScrap>")) {
+////                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
+////                    } else {
+////                        sb.append(content);
+////                    }
+////                }
+////                sb.append("</re>").append("\n");
+//
+//        } else {
+//            formatter.produceXmlNode(sb, token, label, null);
+//        }
+//
+//        return sb.toString();
+//    }
 
 
     public StringBuilder toTEILexicalEntry(String bodyContentFeatured, List<LayoutToken> layoutTokens,

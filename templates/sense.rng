@@ -80,6 +80,18 @@
 		</element>
 	</define>
 
+	<define name="num">
+		<element name="num">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
 	<define name="note">
 		<element name="note">
 			<oneOrMore>
@@ -103,6 +115,7 @@
 					<ref name="gramGrp"/>
 					<ref name="note"/>
 					<ref name="dictScrap"/>
+					<ref name="num"/>
 				</choice>
 			</oneOrMore>
 		</element>

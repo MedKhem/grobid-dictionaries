@@ -74,7 +74,7 @@ public class TEIGramGrpSaxParser extends DefaultHandler {
         } else if (qName.equals("space")) {
             accumulator.append(" ");
         } else {
-            if (isCrossRefTag(qName) ) {
+            if (isGramGrpTag(qName) ) {
 
                 currentCrossRef = new SimpleLabeled();
 
@@ -142,8 +142,9 @@ public class TEIGramGrpSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if (("pos".equals(qName)) || "tns".equals(qName) || "gen".equals(qName) || "number".equals(qName) || "subc".equals(qName)
-                || "note".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+        if (("pos".equals(qName)) || "gram".equals(qName) || "tns".equals(qName) || "gen".equals(qName)
+                || "number".equals(qName) || "subc".equals(qName) || "lbl".equals(qName)
+                || "note".equals(qName) || "oRef".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
             return true;
         }
         return false;
@@ -151,7 +152,7 @@ public class TEIGramGrpSaxParser extends DefaultHandler {
 
 
 
-    private boolean isCrossRefTag(String qName) {
+    private boolean isGramGrpTag(String qName) {
         if ("gramGrp".equals(qName)) {
             return true;
         }

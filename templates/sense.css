@@ -36,9 +36,12 @@ note {
 
 subSense {
 	display: inline;
-	background-color: #b92c28;
+	background-color: #ff5b54;
 }
-
+num {
+	display: inline;
+	background-color: #fffa5e;
+}
 
 
 

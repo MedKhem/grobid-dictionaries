@@ -100,9 +100,11 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("form")) || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
+        if ((qName.equals("lemma")) || (qName.equals("inflected"))  || (qName.equals("variant")) || (qName.equals("ending"))
+                || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
+                (qName.equals("formGramGrp")) || (qName.equals("senseGramGrp")) ||
                 (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap"))
-                || (qName.equals("xr")) || (qName.equals("gramGrp"))) {
+                || (qName.equals("xr")) ) {
             if (currentTag == null) {
                 return;
             }

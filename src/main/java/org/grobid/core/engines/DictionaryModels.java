@@ -13,6 +13,7 @@ public class DictionaryModels {
 
     public static final GrobidModel FORM = GrobidModels.modelFor("form");
     public static final GrobidModel SENSE = GrobidModels.modelFor("sense");
+//    public static final GrobidModel MORPHO_GRAMMATICAL = GrobidModels.modelFor("morph-gram");
     public static final GrobidModel SUB_SENSE = GrobidModels.modelFor("sub-sense");
     public static final GrobidModel GRAMMATICAL_GROUP = GrobidModels.modelFor("gramGrp");
     public static final GrobidModel ETYM_QUOTE = GrobidModels.modelFor("etymQuote");
