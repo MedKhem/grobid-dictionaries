@@ -69,11 +69,11 @@ public class TEICrossRefSaxParser extends DefaultHandler {
 
 
         if (qName.equals("lb")) {
-            accumulator.append(" +L+ ");
+//            accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
-            accumulator.append(" +PAGE+ ");
+//            accumulator.append(" +PAGE+ ");
         } else if (qName.equals("space")) {
-            accumulator.append(" ");
+//            accumulator.append(" ");
         } else {
             if (isCrossRefTag(qName) ) {
 

@@ -39,11 +39,11 @@ public class TEIFormSaxParser extends DefaultHandler {
             throws SAXException {
 
         if (qName.equals("lb")) {
-            accumulator.append(" +L+ ");
+//            accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
-            accumulator.append(" +PAGE+ ");
+//            accumulator.append(" +PAGE+ ");
         } else if (qName.equals("space")) {
-            accumulator.append(" ");
+//            accumulator.append(" ");
         } else {
             if (isFormTag(qName)) {
                 currentForm = new SimpleLabeled();

@@ -44,6 +44,8 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP = "createAnnotatedTrainingGramGrp";
     private static final String CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP = "createTrainingSenseGramGrp";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP = "createAnnotatedTrainingSenseGramGrp";
+    private static final String CREATE_TRAINING_SUB_SENSE_GRAMGRP = "createAnnotatedTrainingSubSenseGramGrp";
+    private static final String CREATE_ANNOTATED__TRAINING_SUB_SENSE_GRAMGRP = "createAnnotatedTrainingSubSenseGramGrp";
 
 
 

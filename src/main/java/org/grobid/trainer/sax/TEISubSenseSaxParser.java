@@ -57,7 +57,8 @@ public class TEISubSenseSaxParser extends DefaultHandler {
             if (!currentTags.isEmpty()) {
                 currentTag = currentTags.pop();
             }
-        }else if ("subSense".equals(qName)) {
+        }
+        else if ("subSense".equals(qName)) {
             labeled.add(currentSense);
         }
 
@@ -67,11 +68,11 @@ public class TEISubSenseSaxParser extends DefaultHandler {
 
 
         if (qName.equals("lb")) {
-            accumulator.append(" +L+ ");
+//            accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
-            accumulator.append(" +PAGE+ ");
+//            accumulator.append(" +PAGE+ ");
         } else if (qName.equals("space")) {
-            accumulator.append(" ");
+//            accumulator.append(" ");
         } else {
             if (isSubSenseTag(qName) ) {
 
@@ -143,7 +144,7 @@ public class TEISubSenseSaxParser extends DefaultHandler {
     private boolean isRelevantTag(String qName) {
         if (("def".equals(qName)) || "example".equals(qName) || "translation".equals(qName)
                 || "usg".equals(qName) || "re".equals(qName) || "etym".equals(qName) || "xr".equals(qName)
-                || "num".equals(qName) || "gramGrp".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+                || "num".equals(qName) || "gramGrp".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName)   ) {
             return true;
         }
         return false;

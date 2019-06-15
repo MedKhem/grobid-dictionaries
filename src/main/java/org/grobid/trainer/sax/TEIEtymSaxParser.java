@@ -65,16 +65,16 @@ public class TEIEtymSaxParser extends DefaultHandler {
             throws SAXException {
 
         if (qName.equals("lb")) {
-            accumulator.append(" +L+ ");
+//            accumulator.append(" +L+ ");
         } else if (qName.equals("pb")) {
-            accumulator.append(" +PAGE+ ");
+//            accumulator.append(" +PAGE+ ");
         } else if (qName.equals("space")) {
-            accumulator.append(" ");
+//            accumulator.append(" ");
         } else {
             if (qName.equals("etym")) {
                 parentTag = "<" + qName + ">";
             }
-
+ //TODO: Fix according to other sax parsers
             // we have to write first what has been accumulated yet with the upper-level tag
             String text = getText();
             if (isNotBlank(text)) {

@@ -1903,7 +1903,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             LabeledLexicalInformation parsedSense = senseParser.process(segmentedEntryComponent.getLeft());
             for (Pair<List<LayoutToken>, String> segmentedSense : parsedSense.getLabels()) {
                 if (segmentedSense.getRight().equals(SUBSENSE_SENSE_LABEL)) {
-                    clusterContent.append(subSenseParser.processToTEI(segmentedSense.getLeft()).toString());
+                    clusterContent.append(subSenseParser.processToTEI(segmentedSense.getLeft(),parsingModels));
                 } else if (!segmentedSense.getRight().equals(PC_SENSE_LABEL)){
                     clusterContent.append(senseParser.processToTEI(segmentedSense.getLeft()).toString());
                 }else{
