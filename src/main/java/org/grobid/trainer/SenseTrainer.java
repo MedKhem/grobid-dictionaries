@@ -24,9 +24,10 @@ public class SenseTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        final SenseTrainer trainer = new SenseTrainer();
-        AbstractTrainer.runTraining(trainer);
-        AbstractTrainer.runEvaluation(trainer);
+        Trainer trainer = new SenseTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

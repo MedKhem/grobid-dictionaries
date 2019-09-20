@@ -24,8 +24,10 @@ public class CrossRefTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new CrossRefTrainer());
-        AbstractTrainer.runEvaluation(new CrossRefTrainer());
+        Trainer trainer = new CrossRefTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

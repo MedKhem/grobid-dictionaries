@@ -25,8 +25,10 @@ public class GrammaticalGroupTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new GrammaticalGroupTrainer());
-        AbstractTrainer.runEvaluation(new GrammaticalGroupTrainer());
+        Trainer trainer = new GrammaticalGroupTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

@@ -32,8 +32,11 @@ public class LexicalEntryTrainer extends AbstractTrainer {
      */
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new LexicalEntryTrainer());
-        AbstractTrainer.runEvaluation(new LexicalEntryTrainer());
+
+        Trainer trainer = new LexicalEntryTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

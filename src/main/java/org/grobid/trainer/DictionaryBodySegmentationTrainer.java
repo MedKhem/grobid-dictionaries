@@ -29,8 +29,10 @@ public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
      */
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new DictionaryBodySegmentationTrainer());
-        AbstractTrainer.runEvaluation(new DictionaryBodySegmentationTrainer());
+        Trainer trainer = new DictionaryBodySegmentationTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

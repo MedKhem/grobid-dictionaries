@@ -236,6 +236,7 @@
                     <ref name="re"/>
                     <ref name="xr"/>
                     <ref name="num"/>
+                    <ref name="etym"/>
                     <ref name="subEntry"/>
                     <ref name="note"/>
                     <ref name="formGramGrp"/>

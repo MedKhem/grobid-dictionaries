@@ -24,8 +24,12 @@ public class FormTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new FormTrainer());
-        AbstractTrainer.runEvaluation(new FormTrainer());
+
+        Trainer trainer = new FormTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+
     }
 
     @Override

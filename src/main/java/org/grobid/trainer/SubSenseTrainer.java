@@ -24,9 +24,10 @@ public class SubSenseTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        final SubSenseTrainer trainer = new SubSenseTrainer();
-        AbstractTrainer.runTraining(trainer);
-        AbstractTrainer.runEvaluation(trainer);
+        Trainer trainer = new SubSenseTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override

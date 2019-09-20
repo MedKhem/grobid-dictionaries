@@ -230,8 +230,9 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
      */
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new DictionarySegmentationTrainer());
-        AbstractTrainer.runEvaluation(new DictionarySegmentationTrainer());
+        Trainer trainer = new DictionarySegmentationTrainer();
+        AbstractTrainer.runTraining( trainer);
+        System.out.println( AbstractTrainer.runEvaluation(trainer, false));
     }
 
 }

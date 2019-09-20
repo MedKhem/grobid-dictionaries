@@ -30,8 +30,10 @@ public class EtymTrainer extends AbstractTrainer {
      */
     public static void main(String[] args) throws Exception {
         GrobidProperties.getInstance();
-        AbstractTrainer.runTraining(new EtymTrainer());
-        AbstractTrainer.runEvaluation(new EtymTrainer());
+        Trainer trainer = new EtymTrainer();
+        AbstractTrainer.runTraining( trainer);
+
+        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
     }
 
     @Override
