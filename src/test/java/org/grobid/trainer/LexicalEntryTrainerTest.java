@@ -1,7 +1,9 @@
 package org.grobid.trainer;
 
 import org.grobid.core.EngineMockTest;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -14,9 +16,15 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by lfoppiano on 31/08/16.
  */
-public class LexicalEntryTrainerTest extends EngineMockTest {
+public class LexicalEntryTrainerTest  {
 
     LexicalEntryTrainer target;
+
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+
+        AbstractEngineFactory.init();
+    }
 
     @Before
     public void setUp() throws Exception {

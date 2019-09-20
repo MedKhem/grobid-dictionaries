@@ -3,6 +3,7 @@ package org.grobid.core.document;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.grobid.core.main.LibraryLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
@@ -37,8 +38,9 @@ public class DocumentUtilsTest {
 
 
     @BeforeClass
-    public static void beforeClass() throws Exception {
-        LibraryLoader.load();
+    public static void setInitialContext() throws Exception {
+//        MockContext.setInitialContext();
+        AbstractEngineFactory.init();
     }
 
     @Test

@@ -2,8 +2,10 @@ package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
 import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.xml.parsers.SAXParser;
@@ -19,8 +21,14 @@ import static org.hamcrest.core.IsNull.notNullValue;
 /**
  * Created by med on 07.12.16.
  */
-public class DictionaryBodySegmentationTest extends EngineMockTest{
+public class DictionaryBodySegmentationTest {
     DictionaryBodySegmentationParser target;
+
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+
+        AbstractEngineFactory.init();
+    }
 
     @Before
     public void setUp() throws Exception {

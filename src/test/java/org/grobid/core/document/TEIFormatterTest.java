@@ -1,15 +1,23 @@
 package org.grobid.core.document;
 
 import org.grobid.core.EngineMockTest;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 /**
  * Created by med on 05.10.16.
  */
-public class TEIFormatterTest extends EngineMockTest {
+public class TEIFormatterTest  {
 
     TEIDictionaryFormatter target;
     DictionaryDocument doc;
+
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+
+        AbstractEngineFactory.init();
+    }
 
     @Before
     public void setUp() throws Exception {

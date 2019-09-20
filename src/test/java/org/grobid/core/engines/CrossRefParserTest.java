@@ -1,8 +1,10 @@
 package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.grobid.core.layout.LayoutToken;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,9 +17,14 @@ import static org.hamcrest.core.IsNull.notNullValue;
 /**
  * Created by Med on 30.04.19.
  */
-public class CrossRefParserTest extends EngineMockTest {
+public class CrossRefParserTest  {
     CrossRefParser target;
 
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+
+        AbstractEngineFactory.init();
+    }
     @Before
     public void setUp() throws Exception {
         target = new CrossRefParser();

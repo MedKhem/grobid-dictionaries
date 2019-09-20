@@ -1,6 +1,7 @@
 package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.grobid.core.main.LibraryLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -11,10 +12,15 @@ import java.io.File;
 /**
  * Created by lfoppiano on 11/08/16.
  */
-public class LexicalEntryParserIntegrationTest extends EngineMockTest{
+public class LexicalEntryParserIntegrationTest {
 
     LexicalEntryParser target;
 
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+
+        AbstractEngineFactory.init();
+    }
     @Before
     public void setUp() throws Exception {
         target = new LexicalEntryParser();

@@ -6,6 +6,7 @@ import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.main.LibraryLoader;
@@ -31,8 +32,9 @@ public class FeatureVectorLexicalEntryTest {
     DocumentUtils target2;
 
     @BeforeClass
-    public static void beforeClass() throws Exception {
-        LibraryLoader.load();
+    public static void setInitialContext() throws Exception {
+//        MockContext.setInitialContext();
+        AbstractEngineFactory.init();
     }
 
     @Before

@@ -5,7 +5,9 @@ import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
+import org.grobid.core.factory.AbstractEngineFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,8 +18,14 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by med on 16.11.16.
  */
-public class DictionarySegmentationTest extends EngineMockTest {
+public class DictionarySegmentationTest  {
     DictionarySegmentationParser target;
+
+    @BeforeClass
+    public static void setInitialContext() throws Exception {
+        AbstractEngineFactory.init();
+    }
+
 
     @Before
     public void setUp() throws Exception {
