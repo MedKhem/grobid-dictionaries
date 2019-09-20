@@ -22,7 +22,9 @@ RUN \
 
 #To clone from fork
  RUN \
-  git clone https://github.com/MedKhem/grobid && \
+ # Use original grobid repo for now
+#  git clone https://github.com/MedKhem/grobid && \
+   git clone  https://github.com/kermitt2/grobid && \
   cd grobid && \
   ./gradlew clean install
 
