@@ -32,6 +32,10 @@ quote {
 dictScrap { /* what's that for? */
 	display: inline;
 }
+usg {
+	display: inline;
+	background-color: #86d5af;
+}
 
 
 

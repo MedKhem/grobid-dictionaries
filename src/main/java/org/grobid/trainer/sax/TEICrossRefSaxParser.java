@@ -144,7 +144,7 @@ public class TEICrossRefSaxParser extends DefaultHandler {
 
     private boolean isRelevantTag(String qName) {
         if (("ref".equals(qName)) || "lbl".equals(qName) || "relation".equals(qName) || "bibl".equals(qName)
-                || "note".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+                || "note".equals(qName) || "usg".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
             return true;
         }
         return false;

@@ -101,6 +101,17 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="usg">
+		<element name="usg">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
 	<define name="seg">
 		<element name="seg">
 			<oneOrMore>
@@ -111,6 +122,7 @@
 					<ref name="bibl"/>
 					<ref name="lang"/>
 					<ref name="def"/>
+					<ref name="usg"/>
 					<ref name="mentioned"/>
 					<ref name="seg"/>
 					<ref name="dictScrap"></ref>

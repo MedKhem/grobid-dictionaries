@@ -17,6 +17,7 @@ public class EtymLabels extends TaggingLabels {
     public static final String LANG_ETYM_LABEL = "<lang>";
     public static final String SEG_ETYM_LABEL = "<seg>";
     public static final String DEF_ETYM_LABEL = "<def>";
+    public static final String DEF_USG_LABEL = "<usg>";
     //public static final String QUOTE_ETYM_LABEL = "<quote>";
     public static final String BIBL_ETYM_LABEL = "<bibl>";
     public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
@@ -27,6 +28,7 @@ public class EtymLabels extends TaggingLabels {
     public static final TaggingLabel ETYM_DEF = new TaggingLabelImpl(DictionaryModels.ETYM, DEF_ETYM_LABEL);
    // public static final TaggingLabel ETYM_CIT = new TaggingLabelImpl(DictionaryModels.ETYM, CIT_ETYM_LABEL);
     //public static final TaggingLabel ETYM_QUOTE = new TaggingLabelImpl(DictionaryModels.ETYM, QUOTE_ETYM_LABEL);
+    public static final TaggingLabel ETYM_USG = new TaggingLabelImpl(DictionaryModels.ETYM, DEF_USG_LABEL);
     public static final TaggingLabel ETYM_BIBL = new TaggingLabelImpl(DictionaryModels.ETYM, BIBL_ETYM_LABEL);
     public static final TaggingLabel FORM_OTHER = new TaggingLabelImpl(DictionaryModels.ETYM, DICTIONARY_DICTSCRAP_LABEL);
     public static final TaggingLabel FORM_PUNCTUATION = new TaggingLabelImpl(DictionaryModels.ETYM, PUNCTUATION_LABEL);
@@ -39,6 +41,7 @@ public class EtymLabels extends TaggingLabels {
        // register(ETYM_CIT);
         //register(ETYM_QUOTE);
         register(ETYM_BIBL);
+        register(ETYM_USG);
         register(FORM_PUNCTUATION);
         register(FORM_OTHER);
     }

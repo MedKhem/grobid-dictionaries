@@ -20,6 +20,7 @@ public class SubSenseLabels extends TaggingLabels {
     public static final String SUB_SENSE_XR_LABEL = "<xr>";
     public static final String SUB_SENSE_GRAMGRP_LABEL = "<gramGrp>";
     public static final String SUB_SENSE_NUM_LABEL = "<num>";
+    public static final String SUB_SENSE_FORM_LABEL = "<form>";
     public static final String SUB_SENSE_DICTSCRAP_LABEL = "<dictScrap>";
     public static final String SUB_SENSE_PC_LABEL = "<pc>";
 
@@ -34,6 +35,7 @@ public class SubSenseLabels extends TaggingLabels {
     public static final TaggingLabel SUB_SENSE_NUM = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_NUM_LABEL);
     public static final TaggingLabel SUB_SENSE_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_DICTSCRAP_LABEL);
     public static final TaggingLabel SUB_SENSE_PC = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_PC_LABEL);
+    public static final TaggingLabel SUB_SENSE_FORM = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_FORM_LABEL);
 
 
     static {
@@ -48,6 +50,7 @@ public class SubSenseLabels extends TaggingLabels {
         register(SUB_SENSE_NUM);
         register(SUB_SENSE_DICTSCRAP);
         register(SUB_SENSE_PC);
+        register(SUB_SENSE_FORM);
 
     }
 }

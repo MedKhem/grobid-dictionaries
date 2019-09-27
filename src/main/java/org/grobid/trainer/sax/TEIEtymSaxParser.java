@@ -92,7 +92,8 @@ public class TEIEtymSaxParser extends DefaultHandler {
     }
 
     private void writeData(String qName, boolean pop) {
-        if ((qName.equals("mentioned")) || (qName.equals("lang")) || (qName.equals("bibl")) || (qName.equals("def")) || (qName.equals("dictScrap"))) {
+        if ((qName.equals("mentioned")) || (qName.equals("lang")) || (qName.equals("bibl"))
+                || "usg".equals(qName) || (qName.equals("def")) || (qName.equals("dictScrap"))) {
             if (currentTag == null) {
                 return;
             }

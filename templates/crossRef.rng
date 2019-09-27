@@ -113,6 +113,18 @@
 		</element>
 	</define>
 
+	<define name="usg">
+		<element name="usg">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
 	
 	<define name="xr">
 		<element name="xr">
@@ -125,6 +137,7 @@
 					<ref name="lbl"/>
 					<ref name="relation"/>
 					<ref name="bibl"/>
+					<ref name="usg"/>
 					<ref name="note"/>
 					<ref name="dictScrap"/>
 
