@@ -306,7 +306,7 @@ public class DocumentUtils {
         }
 
         xmlStringElement.append(">");
-        xmlStringElement.append(elementContent);
+        xmlStringElement.append(escapeHTMLCharac(elementContent));
         xmlStringElement.append("</");
         xmlStringElement.append(elementName);
         xmlStringElement.append(">");

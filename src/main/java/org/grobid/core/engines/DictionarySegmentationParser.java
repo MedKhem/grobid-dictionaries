@@ -1361,7 +1361,7 @@ public class DictionarySegmentationParser extends AbstractParser {
                 outField = outField.substring(0, outField.length() - 1) + " type=\"footer\">";
                 buffer.append(outField).append(line);
             } else if (field.equals("<body>")) {
-                outField = outField.substring(0, outField.length() - 1) + " type=\"page\">";
+                outField = outField.substring(0, outField.length() - 1) + ">";
                 buffer.append(outField).append(line);
             } else if (lastTag0 == null) {
                 buffer.append(outField).append(line);

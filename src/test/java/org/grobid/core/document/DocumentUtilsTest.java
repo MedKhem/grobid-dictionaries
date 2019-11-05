@@ -57,18 +57,23 @@ public class DocumentUtilsTest {
 
     }
 
-//    @Test
-//    public void testPutPcInside() throws Exception {
-//
-//        String ss =  target.reformatPonctuation("<entry>...</entry><pc>.(</pc> <entry>.bla..</entry><pc>;</pc>");
-//
-//        List<String> labeled = target;
-//
-//        Assert.assertThat(labeled.size(), greaterThan(0));
-//        Assert.assertThat(labeled.size(), is(3));
-//
-//        Assert.assertThat(labeled.get(2), is("crap I-<pc>\n"));
-//    }
+
+
+    @Test
+    public void testEscapeHtml() throws Exception {
+
+        String ss =  DocumentUtils.escapeHTMLCharac("<χήρ ");
+
+     System.out.print(ss);
+    }
+
+    @Test
+    public void testCreateXml() throws Exception {
+
+        String ss =  target.createMyXMLString("<element>",null,"<χήρ ");
+
+        System.out.print(ss);
+    }
 
 
 //    @Test
