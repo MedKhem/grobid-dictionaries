@@ -2,6 +2,8 @@ FROM openjdk:8
 
 MAINTAINER Mohamed Khemakhem <mohamed.khemakhem@inria.fr>
 
+ARG GROBID_VERSION=0.5.6-SNAPSHOT
+
 RUN \
   export DEBIAN_FRONTEND=noninteractive && \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
@@ -46,8 +48,8 @@ RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/
 RUN \
   cd /grobid/grobid-dictionaries && \
   mv toyData resources && \
-mvn install:install-file -Dfile=grobidDependencies/grobid-core-0.5.4-SNAPSHOT.jar -DgroupId=org.grobid -DartifactId=grobid-core -Dversion=0.5.4-SNAPSHOT -Dpackaging=jar && \
-mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-0.5.4-SNAPSHOT.jar -DgroupId=org.grobid -DartifactId=grobid-trainer -Dversion=0.5.4-SNAPSHOT -Dpackaging=jar && \
+mvn install:install-file -Dfile=grobidDependencies/grobid-core-$GROBID_VERSION.jar -DgroupId=org.grobid -DartifactId=grobid-core -Dversion=$GROBID_VERSION -Dpackaging=jar && \
+mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-$GROBID_VERSION.jar -DgroupId=org.grobid -DartifactId=grobid-trainer -Dversion=$GROBID_VERSION -Dpackaging=jar && \
  mvn -Dmaven.test.skip=true clean install && \
  mvn generate-resources -P train_dictionary_segmentation -e && \
  mvn generate-resources -P train_dictionary_body_segmentation -e && \
