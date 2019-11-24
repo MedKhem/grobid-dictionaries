@@ -23,25 +23,24 @@ RUN \
 #To clone from fork
 RUN \
  # Use original grobid repo for now
-  git clone https://github.com/MedKhem/grobid && \
+  git clone https://github.com/MedKhem/grobid
 
 # To copy from a local directory
 #COPY grobid-master.zip grobid-master.zip
 #COPY ../grobid /grobid
 #RUN unzip grobid-master.zip && mv grobid-master grobid && rm grobid-master.zip && cd #grobid && ./gradlew clean install
 
-RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/models/*  &&\
- rm -r /grobid/grobid-home/models/*  && rm -r /grobid/grobid-core/*
+RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/models/*  && rm -r /grobid/grobid-core/*
 
 #To clone from fork
 RUN \
   cd /grobid && \
   git clone https://github.com/MedKhem/grobid-dictionaries
-#
+
 ## To copy from a local directory
 ##COPY grobid-dictionaries /grobid/grobid-dictionaries
-#
-#
+
+
 RUN \
   cd /grobid/grobid-dictionaries && \
   mv toyData resources && \
