@@ -27,6 +27,7 @@ public class LexicalEntryLabels extends TaggingLabels {
     public static final String LEXICAL_ENTRY_NOTE_LABEL = "<note>";
     public static final String LEXICAL_ENTRY_FROM_GRAMGRP_LABEL = "<formGramGrp>";
     public static final String LEXICAL_ENTRY_SENSE_GRAMGRP_LABEL = "<senseGramGrp>";
+    public static final String LEXICAL_ENTRY_PRON_LABEL = "<pron>";
     public static final String LEXICAL_ENTRY_PC_LABEL = "<pc>";
     public static final String LEXICAL_ENTRY_OTHER_LABEL = "<dictScrap>";
 
@@ -44,6 +45,7 @@ public class LexicalEntryLabels extends TaggingLabels {
     public static final TaggingLabel LEXICAL_ENTRY_NOTE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_NOTE_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_FROM_GRAMGRP = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_FROM_GRAMGRP_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_SENSE_GRAMGRP = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SENSE_GRAMGRP_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_PRON = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_PRON_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_PC = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_PC_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_OTHER = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_OTHER_LABEL);
 
@@ -61,6 +63,7 @@ public class LexicalEntryLabels extends TaggingLabels {
         register(LEXICAL_ENTRY_NOTE);
         register(LEXICAL_ENTRY_FROM_GRAMGRP);
         register(LEXICAL_ENTRY_SENSE_GRAMGRP);
+        register(LEXICAL_ENTRY_PRON);
         register(LEXICAL_ENTRY_PC);
         register(LEXICAL_ENTRY_OTHER);
     }
