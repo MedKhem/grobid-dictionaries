@@ -60,6 +60,9 @@ public class LexicalEntryParser extends AbstractParser {
 
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
+        StringBuilder sbForm = new StringBuilder();
+        sbForm.append("<form type=\"meta\">").append("\n");
+        StringBuilder sbNonForm = new StringBuilder();
 
 
         // Get the clustors of token in the LE
@@ -71,6 +74,7 @@ public class LexicalEntryParser extends AbstractParser {
         if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
             //In the simple case, just return segmentation of the LE
             Boolean nestedSenseOpen = false;
+
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
                 if (entryComponent.getRight().equals("<senseGramGrp>")){
                     nestedSenseOpen = true;
@@ -89,11 +93,23 @@ public class LexicalEntryParser extends AbstractParser {
 
                     }
                 } else{
-                    bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
+                    if (entryComponent.getRight().equals("<lemma>") || entryComponent.getRight().equals("<variant>") ||
+                            entryComponent.getRight().equals("<inflected>") ||
+                            entryComponent.getRight().equals("<ending>") ||
+                            entryComponent.getRight().equals("<formGramGrp>") || entryComponent.getRight().equals("<form>") || entryComponent.getRight().equals("<usg>")
+                            || entryComponent.getRight().equals("<pron>") || entryComponent.getRight().equals("<lbl>")){
+                        sbForm.append(toTEILexicalEntry(entryComponent));
+                    }else{
+                        sbNonForm.append(toTEILexicalEntry(entryComponent));
+                    }
+
 
                 }
 
+
             }
+            bodyWithSegmentedLexicalEntries.append(sbForm).append("</form>").append("\n").append(sbNonForm);
+
         } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)) {
             EngineParsers engineParsers = new EngineParsers();
             CitationParser citationParser = engineParsers.getCitationParser();

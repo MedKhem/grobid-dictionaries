@@ -153,7 +153,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         if ((qName.equals("lemma")) || (qName.equals("inflected"))  || (qName.equals("variant")) || (qName.equals("ending"))
                 || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
                 (qName.equals("formGramGrp")) || (qName.equals("senseGramGrp")) ||
-                (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap"))
+                (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap")) || (qName.equals("pron") )
                 || (qName.equals("xr")) ) {
             return true;
         }

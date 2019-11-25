@@ -72,6 +72,10 @@ note {
     background-color: #eb1844;
 }
 
+pron {
+    display: inline;
+    background-color: #5b2dba;
+}
 
 dictScrap { /* what's that for? */
     display: inline;
