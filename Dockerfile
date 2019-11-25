@@ -15,36 +15,32 @@ RUN \
     && unzip gradle-3.3-bin.zip -d /opt \
     && rm gradle-3.3-bin.zip
 
-ENV GRADLE_HOME /opt/gradle-3.3
-ENV PATH $PATH:/opt/gradle-3.3/bin
 
 RUN \
   apt-get install -y --no-install-recommends software-properties-common && \
   apt-get install -y vim wget curl git maven
 
 #To clone from fork
- RUN \
+RUN \
  # Use original grobid repo for now
-  git clone https://github.com/MedKhem/grobid && \
-#   git clone  https://github.com/kermitt2/grobid && \
-  cd grobid && \
-  ./gradlew clean install
+  git clone https://github.com/MedKhem/grobid
 
 # To copy from a local directory
 #COPY grobid-master.zip grobid-master.zip
+#COPY ../grobid /grobid
 #RUN unzip grobid-master.zip && mv grobid-master grobid && rm grobid-master.zip && cd #grobid && ./gradlew clean install
 
-RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/
+RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && rm -r /grobid/grobid-home/models/*  && rm -r /grobid/grobid-core/*
 
 #To clone from fork
- RUN \
+RUN \
   cd /grobid && \
   git clone https://github.com/MedKhem/grobid-dictionaries
-#
+
 ## To copy from a local directory
 ##COPY grobid-dictionaries /grobid/grobid-dictionaries
-#
-#
+
+
 RUN \
   cd /grobid/grobid-dictionaries && \
   mv toyData resources && \
