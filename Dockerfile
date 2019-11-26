@@ -34,8 +34,7 @@ RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && 
 
 #To clone from fork
 RUN \
-  cd /grobid && \
-  git clone -b basNum --single-branch https://github.com/MedKhem/grobid-dictionaries
+  cd /grobid && git clone -b basNum --single-branch https://github.com/MedKhem/grobid-dictionaries
 
 ## To copy from a local directory
 ##COPY grobid-dictionaries /grobid/grobid-dictionaries
