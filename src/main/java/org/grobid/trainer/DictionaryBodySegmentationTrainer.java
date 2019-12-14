@@ -33,7 +33,7 @@ public class DictionaryBodySegmentationTrainer extends AbstractDictionaryTrainer
         AbstractDictionaryTrainer trainer = new DictionaryBodySegmentationTrainer();
         AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
 
     @Override

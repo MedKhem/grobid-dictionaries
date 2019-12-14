@@ -1,6 +1,7 @@
 package org.grobid.trainer;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.grobid.core.GrobidModel;
@@ -550,7 +551,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         return evalDataPath;
     }
 
-    public static String runEvaluation(final Trainer trainer, boolean includeRawResults) {
+    public static String runEvaluation(final AbstractDictionaryTrainer trainer, boolean includeRawResults) {
         long start = System.currentTimeMillis();
         String report = "";
         try {
@@ -561,14 +562,53 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         long end = System.currentTimeMillis();
         report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
 
+
         return report;
     }
 
-    public static String runEvaluation(final Trainer trainer) {
+    public static String runEvaluation(final AbstractDictionaryTrainer trainer, boolean includeRawResults, String[] variables) throws IOException {
+        long start = System.currentTimeMillis();
+        String report = "";
+        StringBuffer trainingParameters = new StringBuffer();
+        try {
+            report = trainer.evaluate(includeRawResults);
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while evaluating Grobid.", e);
+        }
+        long end = System.currentTimeMillis();
+        report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
+        try {
+            if (variables.length>0) {
+
+                trainingParameters.append("Dict+");
+                trainingParameters.append(variables[0] + "+");
+                trainingParameters.append("Model+");
+                trainingParameters.append(trainer.getModel() + "+");
+                trainingParameters.append("Feature+");
+                trainingParameters.append(variables[1] + "+");
+                trainingParameters.append("DataLevel+");
+                trainingParameters.append(variables[2]);
+
+                String outPathRawtext ="resources" + "/" + "evalCRF" + "/"  + variables[0] +  "/"+  trainer.getModel() +  "/"+ "Feature" + variables[1]  + "DataLevel" + variables[2] + ".txt";
+
+
+                report = trainingParameters.toString() + report;
+                FileUtils.writeStringToFile(new File(outPathRawtext), report.toString(), "UTF-8");
+            }
+        }catch (final Exception exp) {
+            throw new GrobidException("An exception occurred while rendering evaluation.", exp);
+        }
+
+
+        return report;
+    }
+
+
+    public static String runEvaluation(final AbstractDictionaryTrainer trainer) {
         return trainer.evaluate(false);
     }
 
-    public static String runSplitTrainingEvaluation(final Trainer trainer, Double split) {
+    public static String runSplitTrainingEvaluation(final AbstractDictionaryTrainer trainer, Double split) {
         long start = System.currentTimeMillis();
         String report = "";
         try {
@@ -583,11 +623,11 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         return report;
     }
 
-    public static void runNFoldEvaluation(final Trainer trainer, int numFolds, Path outputFile) {
+    public static void runNFoldEvaluation(final AbstractDictionaryTrainer trainer, int numFolds, Path outputFile) {
         runNFoldEvaluation(trainer, numFolds, outputFile, false);
     }
 
-    public static void runNFoldEvaluation(final Trainer trainer, int numFolds, Path outputFile, boolean includeRawResults) {
+    public static void runNFoldEvaluation(final AbstractDictionaryTrainer trainer, int numFolds, Path outputFile, boolean includeRawResults) {
 
         String report = runNFoldEvaluation(trainer, numFolds, includeRawResults);
 
@@ -600,11 +640,11 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
 
     }
 
-    public static String runNFoldEvaluation(final Trainer trainer, int numFolds) {
+    public static String runNFoldEvaluation(final AbstractDictionaryTrainer trainer, int numFolds) {
         return runNFoldEvaluation(trainer, numFolds, false);
     }
 
-    public static String runNFoldEvaluation(final Trainer trainer, int numFolds, boolean includeRawResults) {
+    public static String runNFoldEvaluation(final AbstractDictionaryTrainer trainer, int numFolds, boolean includeRawResults) {
         long start = System.currentTimeMillis();
         String report = "";
         try {

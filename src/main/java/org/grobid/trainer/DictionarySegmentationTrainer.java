@@ -235,7 +235,7 @@ public class DictionarySegmentationTrainer extends  AbstractDictionaryTrainer {
         LOGGER.warn("Trainer Path" +  trainer.getModel().getModelPath());
 
 
-        System.out.println( AbstractDictionaryTrainer.runEvaluation(trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation(trainer, false, args));
     }
 
 }

@@ -31,10 +31,10 @@ public class LexicalEntryTrainer extends AbstractDictionaryTrainer {
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
 
-        Trainer trainer = new LexicalEntryTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new LexicalEntryTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
 
     @Override

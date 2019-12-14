@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by med on 19.08.16.
  */
-public class SenseTrainer extends AbstractTrainer {
+public class SenseTrainer extends AbstractDictionaryTrainer {
 
     public SenseTrainer() {
         super(DictionaryModels.SENSE);
@@ -24,10 +24,10 @@ public class SenseTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
-        Trainer trainer = new SenseTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new SenseTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
 
     @Override

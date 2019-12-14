@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by med on 19.08.16.
  */
-public class FormTrainer extends AbstractTrainer {
+public class FormTrainer extends AbstractDictionaryTrainer {
 
     public FormTrainer() {
         super(DictionaryModels.FORM);
@@ -25,10 +25,10 @@ public class FormTrainer extends AbstractTrainer {
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
 
-        Trainer trainer = new FormTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new FormTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
 
     }
 

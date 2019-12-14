@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by med on 11.03.19.
  */
-public class SubSenseTrainer extends AbstractTrainer {
+public class SubSenseTrainer extends AbstractDictionaryTrainer {
 
     public SubSenseTrainer() {
         super(DictionaryModels.SUB_SENSE);
@@ -24,10 +24,10 @@ public class SubSenseTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
-        Trainer trainer = new SubSenseTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new SubSenseTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
 
     @Override

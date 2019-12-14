@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Med on 30.04.19.
  */
-public class GrammaticalGroupTrainer extends AbstractTrainer {
+public class GrammaticalGroupTrainer extends AbstractDictionaryTrainer {
 
     public GrammaticalGroupTrainer() {
         super(DictionaryModels.GRAMMATICAL_GROUP);
@@ -24,10 +24,10 @@ public class GrammaticalGroupTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
-        Trainer trainer = new GrammaticalGroupTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new GrammaticalGroupTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false,args));
     }
 
     @Override

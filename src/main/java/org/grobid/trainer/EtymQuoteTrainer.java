@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 /**
  * Created by Med on 06.10.17.
  */
-public class EtymQuoteTrainer extends AbstractTrainer {
+public class EtymQuoteTrainer extends AbstractDictionaryTrainer {
 
     public EtymQuoteTrainer() {
         super(DictionaryModels.ETYM_QUOTE);
@@ -30,10 +30,10 @@ public class EtymQuoteTrainer extends AbstractTrainer {
      */
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
-        Trainer trainer = new EtymQuoteTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new EtymQuoteTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
 
     @Override

@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Med on 26.04.19.
  */
-public class CrossRefTrainer extends AbstractTrainer {
+public class CrossRefTrainer extends AbstractDictionaryTrainer {
 
     public CrossRefTrainer() {
         super(DictionaryModels.CROSS_REF);
@@ -24,10 +24,10 @@ public class CrossRefTrainer extends AbstractTrainer {
 
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
-        Trainer trainer = new CrossRefTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new CrossRefTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false));
     }
 
     @Override
