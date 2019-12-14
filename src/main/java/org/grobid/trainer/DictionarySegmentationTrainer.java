@@ -2,7 +2,7 @@ package org.grobid.trainer;
 
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEIDictionarySegmentationSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 /**
  * Created by med on 08.11.16.
  */
-public class DictionarySegmentationTrainer extends AbstractTrainer {
+public class DictionarySegmentationTrainer extends  AbstractDictionaryTrainer {
 
     public DictionarySegmentationTrainer() {
         super(DictionaryModels.DICTIONARY_SEGMENTATION);
@@ -229,10 +229,13 @@ public class DictionarySegmentationTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
-        Trainer trainer = new DictionarySegmentationTrainer();
-        AbstractTrainer.runTraining( trainer);
-        System.out.println( AbstractTrainer.runEvaluation(trainer, false));
+        GrobidDictionaryProperties.getInstance();
+        AbstractDictionaryTrainer trainer = new DictionarySegmentationTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
+        LOGGER.warn("Trainer Path" +  trainer.getModel().getModelPath());
+
+
+        System.out.println( AbstractDictionaryTrainer.runEvaluation(trainer, false));
     }
 
 }

@@ -1,7 +1,7 @@
 package org.grobid.trainer;
 
 import org.grobid.core.EngineMockTest;
-import org.grobid.core.factory.AbstractEngineFactory;
+import org.grobid.core.factory.AbstractDictionaryEngineFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class LexicalEntryTrainerTest  {
     @BeforeClass
     public static void setInitialContext() throws Exception {
 
-        AbstractEngineFactory.init();
+        AbstractDictionaryEngineFactory.init();
     }
 
     @Before

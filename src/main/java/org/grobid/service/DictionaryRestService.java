@@ -3,7 +3,7 @@ package org.grobid.service;
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.spi.resource.Singleton;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public class DictionaryRestService implements DictionaryPaths {
         LOGGER.info("Initiating Servlet DictionaryRestService");
         try {
             LibraryLoader.load();
-            GrobidProperties.getInstance();
+            GrobidDictionaryProperties.getInstance();
         } catch (final Exception exp) {
             LOGGER.error("GROBID Dictionaries initialisation failed: " + exp);
         }

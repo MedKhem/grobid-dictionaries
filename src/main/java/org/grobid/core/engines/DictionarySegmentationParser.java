@@ -5,12 +5,10 @@ import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import eugfc.imageio.plugins.PNMRegistry;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.io.IOUtils;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
-import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.engines.tagging.GenericTaggerUtils;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.exceptions.GrobidExceptionStatus;
@@ -32,12 +30,11 @@ import java.util.regex.Matcher;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.trim;
-import static org.grobid.core.engines.label.DictionarySegmentationLabels.DICTIONARY_HEADNOTE_LABEL;
 
 /**
  * Created by med on 02.08.16.
  */
-public class DictionarySegmentationParser extends AbstractParser {
+public class DictionarySegmentationParser extends AbstractDictionaryParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     // default bins for relative position
     private static final int NBBINS_POSITION = 12;
@@ -52,7 +49,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     private FeatureFactory featureFactory = FeatureFactory.getInstance();
 
     public DictionarySegmentationParser() {
-        super(DictionaryModels.DICTIONARY_SEGMENTATION);
+        super(DictionaryModels.DICTIONARY_SEGMENTATION, "CRF");
     }
 
     public static DictionarySegmentationParser getInstance() {
@@ -381,8 +378,8 @@ public class DictionarySegmentationParser extends AbstractParser {
 
         //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
         List<LayoutToken> tokenizations = doc.getTokenizations();
-//        if (tokenizations.size() > GrobidProperties.getPdfTokensMax()) {
-//            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidProperties.getPdfTokensMax(),
+//        if (tokenizations.size() > GrobidDictionaryProperties.getPdfTokensMax()) {
+//            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidDictionaryProperties.getPdfTokensMax(),
 //                    GrobidExceptionStatus.TOO_MANY_TOKENS);
 //        }
 
@@ -474,7 +471,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
 
         //guaranteeing quality of service. Otherwise, there are some PDF that may contain 300k blocks and thousands of extracted "images" that ruins the performance
-        if (blocks.size() > GrobidProperties.getPdfBlocksMax()) {
+        if (blocks.size() > GrobidDictionaryProperties.getPdfBlocksMax()) {
             throw new GrobidException("Postprocessed document is too big, contains: " + blocks.size(), GrobidExceptionStatus.TOO_MANY_BLOCKS);
         }
 
@@ -1494,27 +1491,27 @@ public class DictionarySegmentationParser extends AbstractParser {
         }
         if (schemaDeclaration != null) {
             if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
-                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
+                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidDictionaryProperties.get_GROBID_HOME_PATH()
                         + "/schemas/dtd/Grobid.dtd" + "\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
                 // XML schema
                 tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         //"\n xsi:noNamespaceSchemaLocation=\"" +
-                        //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
+                        //GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
                         "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
                         "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
 //				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
                 // standard RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
                         "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
                 // compact RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
                         "\" type=\"application/relax-ng-compact-syntax\"?>\n");
             }
 
@@ -1541,7 +1538,7 @@ public class DictionarySegmentationParser extends AbstractParser {
         df.setTimeZone(tz);
         String dateISOString = df.format(new java.util.Date());
 
-        tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
+        tei.append("\t\t\t\t<application version=\"" + GrobidDictionaryProperties.getVersion() +
                 "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
         tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");

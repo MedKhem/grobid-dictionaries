@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEIEtymSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -29,7 +29,7 @@ public class EtymTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
+        GrobidDictionaryProperties.getInstance();
         Trainer trainer = new EtymTrainer();
         AbstractTrainer.runTraining( trainer);
 

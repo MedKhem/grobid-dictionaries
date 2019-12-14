@@ -1,25 +1,20 @@
 package org.grobid.core.document;
 
-import com.google.common.collect.Iterables;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.engines.Engine;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
-import org.grobid.core.layout.Page;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.TimeZone;
 
 
@@ -135,27 +130,27 @@ public class TEIDictionaryFormatter {
         }
         if (schemaDeclaration != null) {
             if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
-                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
+                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidDictionaryProperties.get_GROBID_HOME_PATH()
                         + "/schemas/dtd/Grobid.dtd" + "\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
                 // XML schema
                 tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         //"\n xsi:noNamespaceSchemaLocation=\"" +
-                        //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
+                        //GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
                         "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
                         "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
 //				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
                 // standard RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
                         "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
                 // compact RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                        GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
+                        GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
                         "\" type=\"application/relax-ng-compact-syntax\"?>\n");
             }
 
@@ -182,7 +177,7 @@ public class TEIDictionaryFormatter {
         df.setTimeZone(tz);
         String dateISOString = df.format(new java.util.Date());
 
-        tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
+        tei.append("\t\t\t\t<application version=\"" + GrobidDictionaryProperties.getVersion() +
                 "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
         tei.append("\t\t\t\t\t<ref target=\"https://github.com/MedKhem/grobid-dictionaries\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");

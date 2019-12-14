@@ -1,7 +1,7 @@
 package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
-import org.grobid.core.factory.AbstractEngineFactory;
+import org.grobid.core.factory.AbstractDictionaryEngineFactory;
 import org.grobid.core.main.LibraryLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,7 +19,7 @@ public class LexicalEntryParserIntegrationTest {
     @BeforeClass
     public static void setInitialContext() throws Exception {
 
-        AbstractEngineFactory.init();
+        AbstractDictionaryEngineFactory.init();
     }
     @Before
     public void setUp() throws Exception {

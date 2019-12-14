@@ -5,20 +5,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
-import org.grobid.trainer.sax.TEISenseSaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Created by med on 19.08.16.
  */
-public class LexicalEntryTrainer extends AbstractTrainer {
+public class LexicalEntryTrainer extends AbstractDictionaryTrainer {
 
     public LexicalEntryTrainer() {
         super(DictionaryModels.LEXICAL_ENTRY);
@@ -31,7 +29,7 @@ public class LexicalEntryTrainer extends AbstractTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
+        GrobidDictionaryProperties.getInstance();
 
         Trainer trainer = new LexicalEntryTrainer();
         AbstractTrainer.runTraining( trainer);

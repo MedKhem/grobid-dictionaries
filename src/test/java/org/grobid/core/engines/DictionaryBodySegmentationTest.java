@@ -2,7 +2,7 @@ package org.grobid.core.engines;
 
 import org.grobid.core.EngineMockTest;
 import org.grobid.core.document.DictionaryDocument;
-import org.grobid.core.factory.AbstractEngineFactory;
+import org.grobid.core.factory.AbstractDictionaryEngineFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,7 +27,7 @@ public class DictionaryBodySegmentationTest {
     @BeforeClass
     public static void setInitialContext() throws Exception {
 
-        AbstractEngineFactory.init();
+        AbstractDictionaryEngineFactory.init();
     }
 
     @Before

@@ -1,7 +1,7 @@
 package org.grobid.core.document;
 
 import org.grobid.core.EngineMockTest;
-import org.grobid.core.factory.AbstractEngineFactory;
+import org.grobid.core.factory.AbstractDictionaryEngineFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -16,7 +16,7 @@ public class TEIFormatterTest  {
     @BeforeClass
     public static void setInitialContext() throws Exception {
 
-        AbstractEngineFactory.init();
+        AbstractDictionaryEngineFactory.init();
     }
 
     @Before
@@ -31,7 +31,7 @@ public class TEIFormatterTest  {
 //    @Test
 //    public void toTEIFormatLexicalEntry() throws Exception {
 //        for (LexicalEntryLabels tags : LexicalEntryLabels.values()) {
-//            TaggingLabel.labelFor(GrobidModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
+//            TaggingLabel.labelFor(GrobidDictionaryModels.DICTIONARIES_LEXICAL_ENTRIES, tags.toString());
 //        }
 //
 //    }
