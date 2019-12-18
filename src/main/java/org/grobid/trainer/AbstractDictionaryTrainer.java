@@ -577,28 +577,48 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         }
         long end = System.currentTimeMillis();
         report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
-        try {
-            if (variables.length>0) {
+        if (variables.length > 0) {
+
+            try {
 
                 trainingParameters.append("Dict+");
                 trainingParameters.append(variables[0] + "+");
                 trainingParameters.append("Model+");
                 trainingParameters.append(trainer.getModel() + "+");
-                trainingParameters.append("Feature+");
-                trainingParameters.append(variables[1] + "+");
-                trainingParameters.append("DataLevel+");
-                trainingParameters.append(variables[2]);
-
-                String outPathRawtext ="resources" + "/" + "evalCRF" + "/"  + variables[0] +  "/"+  trainer.getModel() +  "/"+ "Feature" + variables[1]  + "DataLevel" + variables[2] + ".txt";
 
 
+                if (variables.length > 1) {
+                    trainingParameters.append("Feature+");
+                    trainingParameters.append(variables[1] + "+");
+                }
+                if (variables.length > 2) {
+                    trainingParameters.append("DataLevel+");
+                    trainingParameters.append(variables[2]);
+                }
+
+
+                String modelType = GrobidDictionaryProperties.getGrobidCRFEngine().toString();
+
+
+
+
+                String outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + variables[0] + "/" + trainer.getModel() ;
+                File file = new File(outPathRawtext);
+                if (!file.exists()) {
+                    if (file.mkdir()) {
+                        System.out.println("Directory is created!");
+                    } else {
+                        System.out.println("Failed to create directory!");
+                    }
+                }
                 report = trainingParameters.toString() + report;
-                FileUtils.writeStringToFile(new File(outPathRawtext), report.toString(), "UTF-8");
-            }
-        }catch (final Exception exp) {
-            throw new GrobidException("An exception occurred while rendering evaluation.", exp);
-        }
+                FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[1] + "DataLevel" + variables[2] + ".txt"), report, "UTF-8");
 
+            } catch (final Exception exp) {
+                throw new GrobidException("An exception occurred while rendering evaluation.", exp);
+            }
+
+        }
 
         return report;
     }
