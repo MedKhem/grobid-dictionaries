@@ -1,8 +1,6 @@
 #!/usr/local/bin/bash
-#first argument $1 contains the grobidCommandName
-#called this way: sh testBash.sh dictionary-segmentation
-
-#second argument $2 contains the feature (unigram/bigram/engineered)
+#run in the terminal sh evaluate.sh set -e
+#for now, working only for the first model
 
 #initiate an array with all possible grobidCommandName
 
@@ -49,8 +47,7 @@ do
        #first, clean the tei repo
        rm ${dstdir}/*
    ##Feature aspects experiment
-#echo " directory assigned $srcdir"
-#echo " directory assigned ${dstdir}"
+
    #copy all batches for training
    for batch in {1..4}
    do
