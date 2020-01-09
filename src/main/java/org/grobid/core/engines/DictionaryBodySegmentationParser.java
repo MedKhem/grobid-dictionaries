@@ -908,7 +908,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                             List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                             String clusterContent;
                             String tagLabel = bodyComponent.getRight();
-                            if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                            if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                                 clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                             } else {
                                 clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
@@ -937,7 +937,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                     String clusterContent;
                     String tagLabel = bodyComponent.getRight();
-                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                         clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                     } else {
                         clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
@@ -1078,7 +1078,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                         List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                         String clusterContent;
                         String tagLabel = bodyComponent.getRight();
-                        if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                        if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                             clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                         } else {
                             clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
@@ -1110,7 +1110,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                     String clusterContent;
                     String tagLabel = bodyComponent.getRight();
-                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                         clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                     } else {
                         clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);
@@ -1709,7 +1709,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             } else if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
 
-                if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                     clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
 
                 } else {
