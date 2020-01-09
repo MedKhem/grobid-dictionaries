@@ -13,22 +13,11 @@ entry {
 etym { display: inline;
     background-color: seagreen;}
 
-lemma {
+lemmaGrp {
     display: inline;
     background-color: Khaki;
 }
-inflected {
-    display: inline;
-    background-color: #b7d91b;
-}
-ending {
-    display: inline;
-    background-color: #647cfe;
-}
-variant {
-    display: inline;
-    background-color: #39f0dd;
-}
+
 formGramGrp {
     display: inline;
     background-color: #2253f0;
@@ -59,10 +48,7 @@ xr {
     display: inline;
     background-color: greenyellow ;
 }
-num {
-    display: inline;
-    background-color:  SkyBlue;
-}
+
 subEntry {
     display: inline;
     background-color: #1fba5d;
@@ -72,10 +58,6 @@ note {
     background-color: #eb1844;
 }
 
-pron {
-    display: inline;
-    background-color: #5b2dba;
-}
 
 dictScrap { /* what's that for? */
     display: inline;

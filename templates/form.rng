@@ -194,6 +194,29 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="variant">
+		<element name="variant">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="mentioned">
+		<element name="mentioned">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+
 	<define name="form">
 		<element name="form">
 			<oneOrMore>
@@ -211,6 +234,8 @@
 					<ref name="note"/>
 					<ref name="ending"/>
 					<ref name="inflected"/>
+					<ref name="variant"/>
+					<ref name="mentioned"/>
 					<ref name="xr"/>
 					<ref name="dictScrap"/>
 

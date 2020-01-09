@@ -150,7 +150,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if ((qName.equals("lemma")) || (qName.equals("inflected"))  || (qName.equals("variant")) || (qName.equals("ending"))
+        if ((qName.equals("lemmaGrp"))
                 || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
                 (qName.equals("formGramGrp")) || (qName.equals("senseGramGrp")) ||
                 (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap")) || (qName.equals("pron") )

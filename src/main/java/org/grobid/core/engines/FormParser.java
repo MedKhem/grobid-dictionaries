@@ -66,19 +66,19 @@ public class FormParser extends AbstractParser {
         StringBuilder sb = new StringBuilder();
 
 //        sb.append("<form type=\"lemma\">").append("\n");
-       if (entryForm.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)){
-            sb.append("<form type=\"lemma\">").append("\n");
-
-        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)){
-            sb.append("<form type=\"inflected\">").append("\n");
-
-        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)){
-            sb.append("<form type=\"ending\">").append("\n");
-
-        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)){
-            sb.append("<form type=\"variant\">").append("\n");
-
-        }
+       if (entryForm.getRight().equals("<lemmaGrp>")) {
+           sb.append("<form type=\"lemmaGrp\">").append("\n");
+       }
+//        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)){
+//            sb.append("<form type=\"inflected\">").append("\n");
+//
+//        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)){
+//            sb.append("<form type=\"ending\">").append("\n");
+//
+//        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)){
+//            sb.append("<form type=\"variant\">").append("\n");
+//
+//        }
 
 
 

@@ -61,7 +61,7 @@ public class LexicalEntryParser extends AbstractParser {
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
         StringBuilder bodyWithSegmentedLexicalEntries = new StringBuilder();
         StringBuilder sbForm = new StringBuilder();
-        sbForm.append("<form type=\"meta\">").append("\n");
+//        sbForm.append("<form type=\"meta\">").append("\n");
         StringBuilder sbNonForm = new StringBuilder();
 
 
@@ -93,11 +93,7 @@ public class LexicalEntryParser extends AbstractParser {
 
                     }
                 } else{
-                    if (entryComponent.getRight().equals("<lemma>") || entryComponent.getRight().equals("<variant>") ||
-                            entryComponent.getRight().equals("<inflected>") ||
-                            entryComponent.getRight().equals("<ending>") ||
-                            entryComponent.getRight().equals("<formGramGrp>") || entryComponent.getRight().equals("<form>") || entryComponent.getRight().equals("<usg>")
-                            || entryComponent.getRight().equals("<pron>") || entryComponent.getRight().equals("<lbl>")){
+                    if (entryComponent.getRight().equals("<lemmaGrp>") || entryComponent.getRight().equals("<formGramGrp>")){
                         sbForm.append(toTEILexicalEntry(entryComponent));
                     }else{
                         sbNonForm.append(toTEILexicalEntry(entryComponent));
@@ -108,7 +104,7 @@ public class LexicalEntryParser extends AbstractParser {
 
 
             }
-            bodyWithSegmentedLexicalEntries.append(sbForm).append("</form>").append("\n").append(sbNonForm);
+            bodyWithSegmentedLexicalEntries.append(sbForm).append("\n").append(sbNonForm);
 
         } else if (modelToRun.equals(PATH_BIBLIOGRAPHY_ENTRY)) {
             EngineParsers engineParsers = new EngineParsers();
@@ -187,8 +183,8 @@ public class LexicalEntryParser extends AbstractParser {
         String label = entry.getRight();
 
 
-        if (label.equals("<lemma>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-lemma");
+        if (label.equals("<lemmaGrp>")) {
+            formatter.produceXmlNode(sb, componentText, "<form>", "type-lemmaGrp");
         } else if (label.equals("<inflected>")) {
             formatter.produceXmlNode(sb, componentText, "<form>", "type-inflected");
         } else if (label.equals("<ending>")) {

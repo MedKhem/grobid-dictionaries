@@ -27,7 +27,7 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-import static org.grobid.core.engines.label.FormLabels.GRAMMATICAL_GROUP_FORM_LABEL;
+import static org.grobid.core.engines.label.FormLabels.*;
 import static org.grobid.core.engines.label.LexicalEntryLabels.*;
 import static org.grobid.core.engines.label.SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;

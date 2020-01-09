@@ -32,6 +32,7 @@ import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DIC
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL;
 import static org.grobid.core.engines.label.FormLabels.GRAMMATICAL_GROUP_FORM_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+import static org.grobid.core.engines.label.FormLabels.*;
 import static org.grobid.core.engines.label.SenseLabels.PC_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 import static org.grobid.service.DictionaryPaths.*;
@@ -938,7 +939,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                     String clusterContent;
                     String tagLabel = bodyComponent.getRight();
-                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
+                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
                         clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                     } else {
                         clusterContent = lexicalEntryParser.processToTei(allTokensOfaLE, modelToRun);

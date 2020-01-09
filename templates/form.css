@@ -13,12 +13,10 @@ form {
 
 
 
-pc {
+mentioned {
 	display: inline;
 	background-color: #465eaf;
 }
-
-
 
 gramGrp {
 	display: inline;
@@ -74,6 +72,15 @@ ending {
 part {
 	display: inline;
 	background-color: #ebd3ac;
+}
+variant {
+	display: inline;
+	background-color: #b7d91b;
+}
+
+xr {
+	display: inline;
+	background-color: #39f0dd;
 }
 
 /* special whitespace handling for minimally better readability */

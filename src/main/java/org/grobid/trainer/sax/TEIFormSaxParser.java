@@ -122,7 +122,8 @@ public class TEIFormSaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if ("orth".equals(qName) || "part".equals(qName) || "pron".equals(qName)
+        if ("orth".equals(qName) || "part".equals(qName) || "pron".equals(qName) || (qName.equals("inflected"))
+                || (qName.equals("variant")) || (qName.equals("ending")) || (qName.equals("xr"))  || (qName.equals("mentioned"))
                 || "gramGrp".equals(qName) || "dictScrap".equals(qName) ||  (qName.equals("lang"))
                 || "name".equals(qName) || "desc".equals(qName) || "note".equals(qName) || "usg".equals(qName)
                 || "lbl".equals(qName) || "pc".equals(qName)) {

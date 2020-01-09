@@ -76,11 +76,8 @@
         </element>
     </define>
     
-    
-    
-    
-    <define name="lemma">
-        <element name="lemma">
+    <define name="lemmaGrp">
+        <element name="lemmaGrp">
             <oneOrMore>
                 <choice>
                     <text/>
@@ -91,42 +88,7 @@
             </oneOrMore>
         </element>
     </define>
-    <define name="inflected">
-    <element name="inflected">
-        <oneOrMore>
-            <choice>
-                <text/>
-                <ref name="pc"/>
-                <ref name="lb"/>
 
-            </choice>
-        </oneOrMore>
-    </element>
-    </define>
-    <define name="ending">
-        <element name="ending">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
-    <define name="variant">
-        <element name="variant">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
     <define name="formGramGrp">
         <element name="formGramGrp">
             <oneOrMore>
@@ -188,17 +150,7 @@
             </oneOrMore>
         </element>
     </define>
-    <define name="num">
-        <element name="num">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
+
     <define name="subEntry">
         <element name="subEntry">
             <oneOrMore>
@@ -221,38 +173,22 @@
             </oneOrMore>
         </element>
     </define>
-    <define name="pron">
-        <element name="pron">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
+
     <define name="entry">
         <element name="entry">
             <oneOrMore>
                 <choice>
                     <text/>
-
                     <ref name="lb"/>
-                    <ref name="lemma"/>
-                    <ref name="inflected"/>
-                    <ref name="ending"/>
-                    <ref name="variant"/>
+                    <ref name="lemmaGrp"/>
                     <ref name="sense"/>
                     <ref name="re"/>
                     <ref name="xr"/>
-                    <ref name="num"/>
                     <ref name="etym"/>
                     <ref name="subEntry"/>
                     <ref name="note"/>
                     <ref name="formGramGrp"/>
                     <ref name="senseGramGrp"/>
-                    <ref name="pron"/>
                     <ref name="pc"/>
                     <ref name="dictScrap"/>
                 </choice>
