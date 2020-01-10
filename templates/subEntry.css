@@ -10,45 +10,35 @@ entry {
     border: 2px dotted black;
 }
 
-
-
-synonym {
+subEntry {
     display: inline;
-    background-color: Khaki;
+    background-color: #f0b709;
 }
-
-antonym {
+xr {
+    display: inline;
+    background-color: #b7d91b;
+}
+note {
     display: inline;
     background-color: #647cfe;
 }
+pc {
+    display: inline;
+    background-color: #69ff50;
+}
+
+dictScrap {
+    display: inline;
+    background-color: #d790f0;
+}
 num {
     display: inline;
-    background-color:  SkyBlue;
-}
-gramGrp {
-    display: inline;
-    background-color: Salmon;
+    background-color: #0dd2eb;
 }
 /* things to mark-up on any level */
 
-pc {
-    display: inline;
-    background-color: greenyellow;
-}
-
-/* things to mark-up in etymQuote */
 
 
-note {
-    display: inline;
-    background-color: #eb1844;
-}
-
-
-dictScrap { /* what's that for? */
-    display: inline;
-    background-color: #70695C;
-}
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

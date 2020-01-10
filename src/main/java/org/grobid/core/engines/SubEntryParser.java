@@ -1,17 +1,13 @@
 package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.io.IOUtils;
-import org.grobid.core.data.BiblioItem;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
-
-import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
-import org.grobid.core.engines.label.DictionarySegmentationLabels;
-import org.grobid.core.engines.label.LexicalEntryLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
@@ -20,34 +16,28 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
-import org.apache.commons.lang3.tuple.Pair;
-import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-
 import java.util.List;
 
-
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
-
-import static org.grobid.service.DictionaryPaths.PATH_BIBLIOGRAPHY_ENTRY;
-import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
+import static org.grobid.service.DictionaryPaths.PATH_SUB_ENTRY;
 
 /**
- * Created by med on 18.10.16.
+ * Created by Med 12.12.19
  */
-public class LexicalEntryParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LexicalEntryParser.class);
-    private static volatile LexicalEntryParser instance;
+public class SubEntryParser extends AbstractParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubEntryParser.class);
+    private static volatile SubEntryParser instance;
     private DocumentUtils formatter = new DocumentUtils();
 
-    public LexicalEntryParser() {
-        super(DictionaryModels.LEXICAL_ENTRY);
+    public SubEntryParser() {
+        super(DictionaryModels.SUB_ENTRY);
     }
 
-    public static LexicalEntryParser getInstance() {
+    public static SubEntryParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -55,7 +45,7 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
     private static synchronized void getNewInstance() {
-        instance = new LexicalEntryParser();
+        instance = new SubEntryParser();
     }
 
     public String processToTei(List<LayoutToken> entry, String modelToRun) {
@@ -68,25 +58,18 @@ public class LexicalEntryParser extends AbstractParser {
 
         //According the request, either show the text of the lexical entry or process its components
 
-        if (modelToRun.equals(PATH_LEXICAL_ENTRY)) {
+        if (modelToRun.equals(PATH_SUB_ENTRY)) {
             //In the simple case, just return segmentation of the LE
-
+            Boolean nestedSenseOpen = false;
             for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
 
-                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntry(entryComponent));
-
-
+                bodyWithSegmentedLexicalEntries.append(toTEISubEntry(entryComponent));
 
             }
+
+
         }
-//        else {
-//            //In the complete case, parse the component of the LE
-//            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
-//                bodyWithSegmentedLexicalEntries.append(toTEILexicalEntryAndBeyond(entryComponent));
-//            }
-//
-//
-//        }
+
 
         return bodyWithSegmentedLexicalEntries.toString();
     }
@@ -117,7 +100,7 @@ public class LexicalEntryParser extends AbstractParser {
         if (StringUtils.isNotBlank(featSeg)) {
             // Run the lexical entry model to label the features
             String modelOutput = label(featSeg);
-            TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY, modelOutput, entry);
+            TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SUB_ENTRY, modelOutput, entry);
 
             List<TaggingTokenCluster> clusters = clusteror.cluster();
 
@@ -140,17 +123,17 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
 
-    public String toTEILexicalEntry(Pair<List<LayoutToken>, String> entry) {
+    public String toTEISubEntry(Pair<List<LayoutToken>, String> entry) {
         final StringBuilder sb = new StringBuilder();
 
         String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
         String label = entry.getRight();
 
 
-        if (label.equals("<synonym>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-syn");
-        } else if (label.equals("<antonym>")) {
-            formatter.produceXmlNode(sb, componentText, "<form>", "type-ant");
+        if (label.equals("<xr>")) {
+            formatter.produceXmlNode(sb, componentText, "<xr>", "type-include");
+        } else if (label.equals("<subEntry>")) {
+            formatter.produceXmlNode(sb, componentText, "<entry>", "type-subEntry");
         } else{
 
             sb.append(formatter.createMyXMLString(label, null, componentText)).append("\n");
@@ -161,50 +144,13 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
 
-//    public String toTEILexicalEntryAndBeyond(Pair<List<LayoutToken>, String> entryComponent) {
-//        final StringBuilder sb = new StringBuilder();
-//        String token = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryComponent.getLeft()));
-//        String label = entryComponent.getRight();
-//
-//        if (label.equals("<form>")) {
-//            sb.append(new FormParser().processToTEI(entryComponent));
-//
-//
-//        } else if (label.equals("<sense>")) {
-//            sb.append(new SenseParser().processToTEI(entryComponent.getLeft()));
-//
-////            } else if (label.equals("<re>")) {
-////                //I apply the same model recursively on the relative entry
-////                sb.append("<re>").append("\n");
-////                //I apply the form also to the sense to recognise the grammatical group, if any!
-////                LabeledLexicalEntry labeledEntries = new LexicalEntryParser().process(entry.getLeft(), LEXICAL_ENTRY_RE_LABEL);
-////                for (Pair<List<LayoutToken>, String> lexicalEntry : labeledEntries.getLabels()) {
-////                    String tokenForm = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntry.getLeft()));
-////                    String labelForm = lexicalEntry.getRight();
-////
-////                    String content = TextUtilities.HTMLEncode(tokenForm);
-////                    content = content.replace("&lt;lb/&gt;", "<lb/>");
-////                    if (!labelForm.equals("<dictScrap>")) {
-////                        sb.append(createMyXMLString(labelForm.replaceAll("[<>]", ""), content));
-////                    } else {
-////                        sb.append(content);
-////                    }
-////                }
-////                sb.append("</re>").append("\n");
-//
-//        } else {
-//            formatter.produceXmlNode(sb, token, label, null);
-//        }
-//
-//        return sb.toString();
-//    }
 
 
-    public StringBuilder toTEILexicalEntry(String bodyContentFeatured, List<LayoutToken> layoutTokens,
-                                           boolean isTrainingData) {
+    public StringBuilder toTEISubEntry(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+                                       boolean isTrainingData) {
         StringBuilder buffer = new StringBuilder();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.LEXICAL_ENTRY,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.SUB_ENTRY,
                 bodyContentFeatured, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -316,20 +262,20 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
     public void createTrainingLexicalEntries(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
-        // Calling previous cascading model 
+        // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subEntry";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/lexicalEntry.rng");
-        File newRngFile = new File(outputDirectory + "/" + "lexicalEntry.rng");
+        File existingRngFile = new File("templates/subEntry.rng");
+        File newRngFile = new File(outputDirectory + "/" + "subEntry.rng");
         copyFileUsingStream(existingRngFile, newRngFile);
 
-        File existingCssFile = new File("templates/lexicalEntry.css");
-        File newCssFile = new File(outputDirectory + "/" + "lexicalEntry.css");
+        File existingCssFile = new File("templates/subEntry.css");
+        File newCssFile = new File(outputDirectory + "/" + "subEntry.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile, newCssFile);
 
@@ -354,7 +300,7 @@ public class LexicalEntryParser extends AbstractParser {
 
 
                         labeledFeatures = label(featSeg);
-                        lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                        lexicalEntries.append(toTEISubEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
                     }
                 } else {
                     lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getLeft()))));
@@ -368,15 +314,15 @@ public class LexicalEntryParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.rawtxt";
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subEntry.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry.tei.xml";
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subEntry.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"lexicalEntry.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"lexicalEntry.css\"?>\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"subEntry.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"subEntry.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
 

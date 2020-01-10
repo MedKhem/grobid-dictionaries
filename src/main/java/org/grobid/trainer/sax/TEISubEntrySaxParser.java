@@ -1,14 +1,5 @@
 package org.grobid.trainer.sax;
 
-/**
- * SAX parser for the TEI format for fulltext data encoded for training. Normally all training data should
- * be in this unique format for the fulltext model.
- * The segmentation of tokens must be identical as the one from pdf2xml files so that
- * training and online input tokens are aligned.
- *
- * @author Patrice Lopez, Mohamed Khemakhem
- */
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.utilities.TextUtilities;
@@ -23,8 +14,10 @@ import java.util.StringTokenizer;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-
-public class TEILexicalEntrySaxParser extends DefaultHandler {
+/**
+ * Created by Med on 10.01.20.
+ */
+public class TEISubEntrySaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null;
     private Stack<String> currentTags = null;
@@ -36,7 +29,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
 
 
 
-    public TEILexicalEntrySaxParser() {
+    public TEISubEntrySaxParser() {
         labeled = new ArrayList<>();
         currentTags = new Stack<>();
         accumulator = new StringBuffer();
@@ -104,11 +97,6 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
 
-
-
-
-
-
     private void writeData() {
         if (currentTag == null) {
             return;
@@ -150,8 +138,8 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if ((qName.equals("synonym")) || (qName.equals("antonym"))  || (qName.equals("num")) || (qName.equals("gramGrp"))
-                || (qName.equals("pc")) || (qName.equals("note")) ||  (qName.equals("dictScrap"))) {
+        if ((qName.equals("subEntry")) || (qName.equals("xr"))  || (qName.equals("note")) ||
+                (qName.equals("pc")) || (qName.equals("dictScrap")) || (qName.equals("num"))) {
             return true;
         }
         return false;
@@ -165,5 +153,6 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
         }
         return false;
     }
+
 
 }

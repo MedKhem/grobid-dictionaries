@@ -24,6 +24,8 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION = "createAnnotatedTrainingDictionaryBodySegmentation";
     private static final String CREATE_TRAINING_LEXICAL_ENTRY = "createTrainingLexicalEntry";
     private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY = "createAnnotatedTrainingLexicalEntry";
+    private static final String CREATE_TRAINING_SUB_ENTRY = "createTrainingSubEntry";
+    private static final String CREATE_ANNOTATED_TRAINING_SUB_ENTRY = "createAnnotatedTrainingSubEntry";
     private static final String CREATE_TRAINING_FORM = "createTrainingForm";
     private static final String CREATE_ANNOTATED_TRAINING_FORM = "createAnnotatedTrainingForm";
     private static final String CREATE_TRAINING_SENSE = "createTrainingSense";
@@ -55,12 +57,14 @@ public class DictionaryMain {
             CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION,
             CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION,
             CREATE_TRAINING_LEXICAL_ENTRY,
+            CREATE_TRAINING_SUB_ENTRY,
             CREATE_TRAINING_FORM,
             CREATE_TRAINING_SENSE,
             CREATE_TRAINING_SUB_SENSE,
             CREATE_TRAINING_ETYMQUOTE,
             CREATE_TRAINING_ETYM,
             CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY,
+            CREATE_ANNOTATED_TRAINING_SUB_ENTRY,
             CREATE_ANNOTATED_TRAINING_FORM,
             CREATE_ANNOTATED_TRAINING_SENSE,
             CREATE_ANNOTATED_TRAINING_SUB_SENSE,
@@ -261,6 +265,16 @@ public class DictionaryMain {
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY)) {
                 LexicalEntryParser lexicalEntryParser = LexicalEntryParser.getInstance();
                 nb = lexicalEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SUB_ENTRY)) {
+                SubEntryParser subEntryParser = SubEntryParser.getInstance();
+                nb = subEntryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SUB_ENTRY)) {
+                SubEntryParser subEntryParser = SubEntryParser.getInstance();
+                nb = subEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_FORM)) {

@@ -100,6 +100,40 @@ public class DictionaryProcessFile {
         return response;
     }
 
+    public static Response processSubEntries(final InputStream inputStream, String modelToRun) {
+        LOGGER.debug(methodLogIn());
+        Response response = null;
+        File originFile = null;
+
+        try {
+            LOGGER.debug(">> set raw text for stateless quantity service'...");
+            long start = System.currentTimeMillis();
+
+            // Does GrobidRestUtils need to be imported ?
+            originFile = IOUtilities.writeInputFile(inputStream);
+
+            if (originFile == null) {
+                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            } else {
+                // starts conversion process - single thread! :)
+
+                DictionaryBodySegmentationParser dictionaryBodySegmentationParser = new DictionaryBodySegmentationParser();
+
+                response = Response.ok(dictionaryBodySegmentationParser.processToTEI(originFile, modelToRun)).build();
+            }
+        } catch (NoSuchElementException nseExp) {
+            LOGGER.error("Could not get an engine from the pool within configured time. Sending service unavailable.", nseExp);
+            response = Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        } catch (Exception e) {
+            LOGGER.error("An unexpected exception occurs. ", e);
+            String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
+        } finally {
+            IOUtilities.removeTempFile(originFile);
+        }
+        LOGGER.debug(methodLogOut());
+        return response;
+    }
 
 
     /**
