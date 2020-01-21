@@ -9,7 +9,7 @@
 ```bash
 docker pull medkhem/grobid-dictionaries:onomacz
 ```
-3. You need the 'toyData' directory to create dummy models. You could get it from the [github repository](https://github.com/MedKhem/grobid-dictionaries)
+3. You need the 'toyData' directory from the _**_ononmacz branch_**_ to create dummy models. You should get it from the [github repository](https://github.com/MedKhem/grobid-dictionaries/tree/onomacz/toyData)
  
 
 4. We could now run our image and having the 'toyData' and 'resources' as shared volumes between your machine and the container. Whatever you do in on of these directories, it's applied to both of them

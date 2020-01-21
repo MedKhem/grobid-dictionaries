@@ -1,6 +1,6 @@
 ## Training
 
-Create/train the models with the toyData by running these commands
+* Create/train the models with the toyData by running these commands
 
 For **Dictionary Segmentation** model, run:
 ```bash
@@ -25,13 +25,12 @@ For **Form** model, run:
 
 
 
+*  Annotate your files 
 
-8. Annotate your files 
+*  Move your **tei.xml** files under your _toyData/MODEL_NAME/corpus/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/corpus/raw_ directory  
 
-9. Move your **tei.xml** files under your _toyData/MODEL_NAME/corpus/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/corpus/raw_ directory  
+*  Train the model (step 5)
 
-10. Train the model (step 5)
+*  Don't forget to put the same files under evaluation. **tei.xml** files under your _toyData/MODEL_NAME/evaluation/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/evaluation/raw_ directory. If you have carried out your annotation correctly, you must see 100% in your the evaluation table displayed at the end of the model training  
 
-11. Don't forget to put the same files under evaluation. **tei.xml** files under your _toyData/MODEL_NAME/evaluation/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/evaluation/raw_ directory. If you have carried out your annotation correctly, you must see 100% in your the evaluation table displayed at the end of the model training  
-
-12. Run the web app to see the result 
+*  Run the web app to see the result 
