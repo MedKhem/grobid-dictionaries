@@ -17,64 +17,44 @@ pc {
 	display: inline;
 	background-color: #465eaf;
 }
-
-
-
-gramGrp {
-	display: inline;
-	background-color: Salmon;
-}
-
-orth {
-	display: inline;
-	background-color: yellow;
-}
-
 dictScrap {
 	display: inline;
 	background-color: purple;
 }
 
 
-pron {
+
+lemma {
+	display: inline;
+	background-color: Salmon;
+}
+
+prefix {
+	display: inline;
+	background-color: yellow;
+}
+
+suffix {
 	 display: inline;
 	 background-color: PaleGreen;
  }
-lang {
-	display: inline;
-	background-color: forestgreen;
-}
 
-name {
+def {
 	display: inline;
 	background-color: #0e90d2;
 }
 
-desc {
+gloss {
 	display: inline;
 	background-color: olive;
 }
-note {
-	display: inline;
-	background-color: #9e0d41;
-}
-usg {
+
+xr {
 	display: inline;
 	background-color: SkyBlue;
 
 }
-inflected {
-	display: inline;
-	background-color: #35b1eb;
-}
-ending {
-	display: inline;
-	background-color: #a94deb;
-}
-part {
-	display: inline;
-	background-color: #ebd3ac;
-}
+
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

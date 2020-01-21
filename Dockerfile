@@ -35,7 +35,7 @@ RUN rm -r /grobid/grobid-service/ && rm -r /grobid/grobid-trainer/resources/ && 
 #To clone from fork
 RUN \
   cd /grobid && \
-  git clone https://github.com/MedKhem/grobid-dictionaries
+   git clone -b onomacz --single-branch https://github.com/MedKhem/grobid-dictionaries
 
 ## To copy from a local directory
 ##COPY grobid-dictionaries /grobid/grobid-dictionaries
@@ -49,14 +49,9 @@ mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-$GROBID_VERSIO
  mvn -Dmaven.test.skip=true clean install && \
  mvn generate-resources -P train_dictionary_segmentation -e && \
  mvn generate-resources -P train_dictionary_body_segmentation -e && \
+ mvn generate-resources -P train_subEntries -e && \
  mvn generate-resources -P train_lexicalEntries -e && \
- mvn generate-resources -P train_form -e && \
- mvn generate-resources -P train_sense -e && \
- mvn generate-resources -P train_etymQuote -e && \
- mvn generate-resources -P train_etym -e && \
- mvn generate-resources -P train_sub_sense -e && \
-  mvn generate-resources -P train_gramGrp -e && \
- mvn generate-resources -P train_crossRef -e
+ mvn generate-resources -P train_form -e
 
 # && \
 # mvn -Dmaven.test.skip=true jetty:run-war && \

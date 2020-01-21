@@ -52,60 +52,9 @@
 		</element>
 	</define>
 	
-	<define name="orth">
-		<element name="orth">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-					<ref name="dictScrap"/>
 
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="pos">
-		<element name="pos">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-					<ref name="dictScrap"/>
-
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="pron">
-		<element name="pron">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-					<ref name="dictScrap"/>
-					
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="gramGrp">
-		<element name="gramGrp">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-					<ref name="pos"></ref>
-					<ref name="dictScrap"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="lang">
-		<element name="lang">
+	<define name="lemma">
+		<element name="lemma">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -115,8 +64,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="name">
-		<element name="name">
+	<define name="prefix">
+		<element name="prefix">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -126,10 +75,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-
-
-	<define name="desc">
-		<element name="desc">
+	<define name="suffix">
+		<element name="suffix">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -139,8 +86,19 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="note">
-		<element name="note">
+	<define name="def">
+		<element name="def">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="gloss">
+		<element name="gloss">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -161,57 +119,21 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="ending">
-		<element name="ending">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="inflected">
-		<element name="inflected">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="part">
-		<element name="part">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
+
 	<define name="form">
 		<element name="form">
 			<oneOrMore>
 				<choice>
 					<text/>
+
+					<ref name="lemma"/>
+					<ref name="prefix"/>
+					<ref name="suffix"/>
+					<ref name="def"/>
+					<ref name="gloss"/>
+					<ref name="xr"/>
 					<ref name="pc"/>
 					<ref name="lb"/>
-					<ref name="orth"/>
-					<ref name="part"/>
-					<ref name="pron"/>
-					<ref name="gramGrp"/>
-					<ref name="lang"/>
-					<ref name="name"/>
-					<ref name="desc"/>
-					<ref name="note"/>
-					<ref name="ending"/>
-					<ref name="inflected"/>
-					<ref name="xr"/>
 					<ref name="dictScrap"/>
 
 				</choice>

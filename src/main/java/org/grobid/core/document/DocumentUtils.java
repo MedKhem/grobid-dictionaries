@@ -324,6 +324,16 @@ public class DocumentUtils {
 
 
     }
+    public void produceXmlNodeUnescaped(StringBuilder buffer, String clusterContent, String tagLabel, String attributes) {
+
+        clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+//        clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
+
+
+        buffer.append(createMyXMLString(tagLabel, attributes, clusterContent));
+
+
+    }
     public void produceXmlNodeForAnnotation(StringBuilder buffer, String clusterContent, String tagLabel, String attributes) {
         buffer.append(createMyXMLString(tagLabel, attributes, clusterContent));
 

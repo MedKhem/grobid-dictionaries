@@ -23,6 +23,9 @@ import java.io.*;
 import java.util.List;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_ANTONYM_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SYNONYM_LABEL;
+import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
 import static org.grobid.service.DictionaryPaths.PATH_SUB_ENTRY;
 
 /**
@@ -58,17 +61,17 @@ public class SubEntryParser extends AbstractParser {
 
         //According the request, either show the text of the lexical entry or process its components
 
-        if (modelToRun.equals(PATH_SUB_ENTRY)) {
+//        if (modelToRun.equals(PATH_SUB_ENTRY)) {
             //In the simple case, just return segmentation of the LE
-            Boolean nestedSenseOpen = false;
-            for (Pair<List<LayoutToken>, String> entryComponent : labeledEntry.getLabels()) {
+//            Boolean nestedSenseOpen = false;
+            for (Pair<List<LayoutToken>, String> subEntryComponent : labeledEntry.getLabels()) {
 
-                bodyWithSegmentedLexicalEntries.append(toTEISubEntry(entryComponent));
+                bodyWithSegmentedLexicalEntries.append(toTEISubEntry(subEntryComponent,modelToRun));
 
             }
 
 
-        }
+//        }
 
 
         return bodyWithSegmentedLexicalEntries.toString();
@@ -123,20 +126,45 @@ public class SubEntryParser extends AbstractParser {
     }
 
 
-    public String toTEISubEntry(Pair<List<LayoutToken>, String> entry) {
+    public String toTEISubEntry(Pair<List<LayoutToken>, String> subEntryComponent, String modelToRun) {
         final StringBuilder sb = new StringBuilder();
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+        FormParser formParser = new FormParser();
+        List<LayoutToken> allTokensOfaSubEntry = subEntryComponent.getLeft();
+        String subEntryComponentLabel = subEntryComponent.getRight();
 
-        String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entry.getLeft()));
-        String label = entry.getRight();
-
-
-        if (label.equals("<xr>")) {
+        String componentText = "";
+        componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaSubEntry));
+        if (subEntryComponentLabel.equals("<xr>")) {
             formatter.produceXmlNode(sb, componentText, "<xr>", "type-include");
-        } else if (label.equals("<subEntry>")) {
-            formatter.produceXmlNode(sb, componentText, "<entry>", "type-subEntry");
+        } else if (subEntryComponentLabel.equals("<subEntry>") ) {
+            if (modelToRun.equals(PATH_SUB_ENTRY)){
+
+                formatter.produceXmlNode(sb, componentText, "<entry>", "type-subEntry");
+
+            }else if(modelToRun.equals(PATH_LEXICAL_ENTRY)){
+                componentText = lexicalEntryParser.processToTei(allTokensOfaSubEntry, modelToRun);
+                formatter.produceXmlNodeUnescaped(sb, componentText, "<entry>", "type-subEntry");
+
+            }else if (modelToRun.contains("-")){
+                LabeledLexicalInformation labeledLexicalEntryComponents = lexicalEntryParser.process(allTokensOfaSubEntry, null);
+                componentText ="";
+                for (Pair<List<LayoutToken>, String> labeledLexicalEntryComponent : labeledLexicalEntryComponents.getLabels()) {
+                    if (labeledLexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_SYNONYM_LABEL) || labeledLexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_ANTONYM_LABEL)){
+                        componentText =  componentText + formParser.processToTEI(labeledLexicalEntryComponent).toString();
+                    }else{
+                        componentText =  componentText + formatter.createMyXMLString(labeledLexicalEntryComponent.getRight(), null, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(labeledLexicalEntryComponent.getLeft()))  );
+
+                    }
+
+
+                }
+                formatter.produceXmlNodeUnescaped(sb, componentText, "<entry>", "type-subEntry");
+            }
+
         } else{
 
-            sb.append(formatter.createMyXMLString(label, null, componentText)).append("\n");
+            sb.append(formatter.createMyXMLString(subEntryComponentLabel, null, componentText)).append("\n");
         }
 
 //        sb.append("\n");

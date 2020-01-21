@@ -7,9 +7,22 @@ After running jetty with the following command:
 > mvn -DskipTests jetty:run-war
 ```
 
-the web service would be accessible directly at the navigator (if you run it locally):
-```bash
-> http://localhost:8080/
-```
+You can see the running application in your web browser: 
 
-For the time being, `Process Full Dictionary` corresponds to the cascading execution of all existing models to segment the input file. The rest of the labels corresponds to the execution of the first  segmentation models.   
+* For Windows, your 8080 port should be free to see the web application on the address:
+```http://192.168.99.100:8080```
+
+* For MacOs, the web application is running on the address:   
+```http://localhost:8080```
+
+To shutdown the server, you need to press 
+```ctrl + c```
+
+
+`Process Full Dictionary` corresponds to the cascading execution of all existing models to segment the input file. For the time being, the **Form** model is the only model adapted at this level. So please make sure to keep it the only model activated, as it is by default.  
+
+
+
+
+
+ 

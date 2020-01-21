@@ -1,18 +1,19 @@
-<h1>GROBID-Dictionaries Documentation</h1>
+<h1>GROBID-Dictionaries (OnomaCZ edition) Documentation</h1>
 
 
 <h3>Setup </h3>
 
-* [Install](Install.md)
-
 * [Docker](Docker.md)
 
 <h3>Model Creation </h3>
+
+* [Generation of Training Data](Generation_training_data.md)
+
+* [Models & Labels](modelsAndLabels.md)
+
 * [Training](Training.md)
 
-* [Generation of Training Data](Generation_training_dat.md)
 
-* [Annotation Guildelines](How-to Annotate?.md)
 
 <h3>TEI-compliant dictionaries Generation</h3>
 

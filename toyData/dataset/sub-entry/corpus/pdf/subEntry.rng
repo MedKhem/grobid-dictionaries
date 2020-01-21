@@ -39,17 +39,19 @@
         </element>
     </define>
     
+    
     <define name="body">
         <element name="body">
             <oneOrMore>
                 <choice>
-                    
+
                     <ref name="entry"></ref>
-             
+
                 </choice>
             </oneOrMore>
         </element>
     </define>
+
     <define name="dictScrap">
         <element name="dictScrap">
             <oneOrMore>
@@ -62,8 +64,20 @@
         </element>
     </define>
 
-    <define name="num">
-        <element name="num">
+    <define name="xr">
+        <element name="xr">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="subEntry">
+        <element name="subEntry">
             <oneOrMore>
                 <choice>
                     <text/>
@@ -84,30 +98,8 @@
             </oneOrMore>
         </element>
     </define>
-    <define name="synonym">
-        <element name="synonym">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
-    <define name="antonym">
-        <element name="antonym">
-            <oneOrMore>
-                <choice>
-                    <text/>
-                    <ref name="pc"/>
-                    <ref name="lb"/>
-                </choice>
-            </oneOrMore>
-        </element>
-    </define>
-    <define name="gramGrp">
-        <element name="gramGrp">
+    <define name="num">
+        <element name="num">
             <oneOrMore>
                 <choice>
                     <text/>
@@ -122,13 +114,12 @@
             <oneOrMore>
                 <choice>
                     <text/>
-
-                    <ref name="lb"/>
-                    <ref name="synonym"/>
-                    <ref name="antonym"/>
+                    <ref name="xr"/>
+                    <ref name="subEntry"/>
+                    <ref name="note"/>
                     <ref name="num"/>
-                    <ref name="gramGrp"/>
                     <ref name="pc"/>
+                    <ref name="lb"/>
                     <ref name="dictScrap"/>
                 </choice>
             </oneOrMore>

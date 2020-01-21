@@ -7,6 +7,7 @@ import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEILexicalEntrySaxParser;
+import org.grobid.trainer.sax.TEISubEntrySaxParser;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -104,7 +105,7 @@ public class SubEntryTrainer extends AbstractDictionaryTrainer {
                 String name = tf.getName();
                 System.out.println("Processing: " + name);
 
-                TEILexicalEntrySaxParser parser2 = new TEILexicalEntrySaxParser();
+                TEISubEntrySaxParser parser2 = new TEISubEntrySaxParser();
                 //get a new instance of parser
                 SAXParser p = spf.newSAXParser();
                 p.parse(tf, parser2);

@@ -116,10 +116,10 @@
                     <text/>
                     <ref name="xr"/>
                     <ref name="subEntry"/>
-                    <ref name="note"/>
                     <ref name="num"/>
                     <ref name="pc"/>
                     <ref name="dictScrap"/>
+                    <ref name="lb"/>
                 </choice>
             </oneOrMore>
         </element>

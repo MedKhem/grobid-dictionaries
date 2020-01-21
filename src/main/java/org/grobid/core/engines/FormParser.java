@@ -30,6 +30,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.FormLabels.*;
 import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+import static org.grobid.core.engines.label.SubEntryLabels.SUB_ENTRY_ENTRY_LABEL;
+import static org.grobid.service.DictionaryPaths.PATH_SUB_ENTRY;
 
 
 /**
@@ -56,7 +58,7 @@ public class FormParser extends AbstractParser {
         instance = new FormParser();
     }
 
-    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> entryForm, String[] parsingModels) {
+    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> entryForm) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
         // The possible arguments complete chain form-gramGrp-gramGrpForm-gramGrpSense-gramGrpFormSense
@@ -66,20 +68,13 @@ public class FormParser extends AbstractParser {
         StringBuilder sb = new StringBuilder();
 
 //        sb.append("<form type=\"lemma\">").append("\n");
-       if (entryForm.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)){
-            sb.append("<form type=\"lemma\">").append("\n");
+       if (entryForm.getRight().equals(LEXICAL_ENTRY_SYNONYM_LABEL)){
+            sb.append("<form type=\"syn\">").append("\n");
 
-        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)){
-            sb.append("<form type=\"inflected\">").append("\n");
-
-        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)){
-            sb.append("<form type=\"ending\">").append("\n");
-
-        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)){
-            sb.append("<form type=\"variant\">").append("\n");
+        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_ANTONYM_LABEL)){
+            sb.append("<form type=\"ant\">").append("\n");
 
         }
-
 
 
         StringBuilder gramGrp = new StringBuilder();
@@ -88,39 +83,17 @@ public class FormParser extends AbstractParser {
             String formComponentLabel = formComponent.getRight();
 
             String content = DocumentUtils.escapeHTMLCharac(formComponentText);
-            if (formComponentLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
-                formatter.produceXmlNode(sb, formComponentText, "<orth>", null);
-            } else if (formComponentLabel.equals(PART_FORM_LABEL)) {
-                formatter.produceXmlNode(sb, formComponentText, "<orth>", "extent-part");
-            }
-            else if (formComponentLabel.equals("<gramGrp>") && parsingModels[0].equals("gramGrp")) {
-
-                    GramGrpParser gramGrpParser = new GramGrpParser();
-                    sb.append(gramGrpParser.processToTEI(formComponent.getLeft()).toString());
-
-
-
-            }
-//            else if (labelForm.equals("<name>")){
-//                AuthorParser personNameParser = new AuthorParser();
-//                List<Person> structuredPersons = personNameParser.processing(entryForm.getLeft(),true);
-//
-//                if ( structuredPersons == null){
-//                    sb.append("<dictScrap>");
-//                    sb.append(LayoutTokensUtil.normalizeText(entryForm.getLeft()));
-//                    sb.append("</dictScrap>");
-//                }else{
-//                    for (Person person: structuredPersons ){
-////                        sb.append("<name>");
-//                        sb.append(person.toTEI(false));
-////                        sb.append("</name>");
-//                    }
-//                }
-//
-//
-//            }
-            else {
-                sb.append(formatter.createMyXMLString(formComponentLabel, null, content));
+            if (formComponentLabel.equals(LEMMA_FORM_LABEL)) {
+                formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-lemma");
+            } else if (formComponentLabel.equals(PREFIX_FORM_LABEL)) {
+                formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-prefix");
+            }else if (formComponentLabel.equals(SUFFIX_FORM_LABEL)) {
+                formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-suffix");
+            } else if (formComponentLabel.equals(XR_FORM_LABEL)) {
+                formatter.produceXmlNode(sb, formComponentText, "<xr>", "type-see");
+            } else {
+                formatter.produceXmlNode(sb, formComponentText, formComponentLabel, null);
+//                sb.append(formatter.createMyXMLString(formComponentLabel, null, content));
             }
         }
 
@@ -343,6 +316,7 @@ public class FormParser extends AbstractParser {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
+        SubEntryParser subEntryParser = new SubEntryParser();
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";
@@ -363,43 +337,48 @@ public class FormParser extends AbstractParser {
 
         StringBuffer forms = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
-        for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
+        for (Pair<List<LayoutToken>, String> bodyComponent : doc.getBodyComponents().getLabels()) {
 
-            if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(lexicalEntryLayoutTokens.getLeft(), DICTIONARY_ENTRY_LABEL);
+            if (bodyComponent.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                LabeledLexicalInformation subEntryLevelComponents = subEntryParser.process(bodyComponent.getLeft(), PATH_SUB_ENTRY);
+                for (Pair<List<LayoutToken>, String> subEntryLevelComponent : subEntryLevelComponents.getLabels()) {
+                    if (subEntryLevelComponent.getRight().equals(SUB_ENTRY_ENTRY_LABEL)){
+                        LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(subEntryLevelComponent.getLeft(), DICTIONARY_ENTRY_LABEL);
 
-                for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                    if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL) ||
-                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL) ||
-                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL) ||
-                            lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) {
-                        //Write raw text
-                        for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
-                            rawtxt.append(txtline.getText());
-                        }
-                        forms.append("<form>");
-                        LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
-                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                        featureWriter.write(featSeg + "\n");
-                        if (isAnnotated) {
+                        for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
+                            if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_SYNONYM_LABEL) ||
+                                    lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_ANTONYM_LABEL)) {
+                                //Write raw text
+                                for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
+                                    rawtxt.append(txtline.getText());
+                                }
+                                forms.append("<form>");
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
+                                if (isAnnotated) {
 
-                            String labeledFeatures = null;
-                            // if featSeg is null, it usually means that no body segment is found in the
+                                    String labeledFeatures = null;
+                                    // if featSeg is null, it usually means that no body segment is found in the
 
-                            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
 
 
-                                labeledFeatures = label(featSeg);
-                                forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                        labeledFeatures = label(featSeg);
+                                        forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                    }
+                                } else {
+                                    forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
+
+                                }
+
+                                forms.append("</form>");
                             }
-                        } else {
-                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
-
                         }
-
-                        forms.append("</form>");
                     }
+
                 }
+
 
 
             }

@@ -1,43 +1,37 @@
 ## Training
 
-Training a GROBID model is actually about creating new model trained on the available training data. And generating training data from new PDF documents using GROBID-dictionaries, to be corrected afterwards, needs the existence of a trained model (even slightly trained). We provide [toy data](https://github.com/MedKhem/grobid-dictionaries/tree/master/toyData/) to create first models for each segmentation level. 
+Create/train the models with the toyData by running these commands
 
-For creating, training or re-training the models, the followings commands should be executed.
-
-First rename the training data *toyData* directory to *resources*. 
-
-Make sure that the current directory is grobid-dictionaries: 
-```bash
-> cd PATH-TO-GROBID/grobid/grobid-dictionaries
-```
-For **Dictionary Segmentation** model:
+For **Dictionary Segmentation** model, run:
 ```bash
 > mvn generate-resources -P train_dictionary_segmentation -e
 ```
-For **Dictionary Body Segmentation** model:
+For **Dictionary Body Segmentation** model, run:
 ```bash
 > mvn generate-resources -P train_dictionary_body_segmentation -e
 ```
-For **Lexical Entry** model:
+For **Lexical Entry** model, run:
+```bash
+> mvn generate-resources -P train_subEntries -e
+```
+For **Lexical Entry** model, run:
 ```bash
 > mvn generate-resources -P train_lexicalEntries -e
 ```
-For **Form** model:
+For **Form** model, run:
 ```bash
 > mvn generate-resources -P train_form -e
 ```
-For **Sense** model:
-```bash
-> mvn generate-resources -P train_sense -e
-```
-For the first stage model of processing etymology information (**EtymQuote** model):
-```bash
-> mvn generate-resources -P train_etymQuote -e
-```
-For the second stage model of processing etymology information (**Etym** model):
-```bash
-> mvn generate-resources -P train_etym -e
-```
 
-For the moment, the default training stop criteria are used. So, the training can be stopped manually after 1000 iterations, simply do a "control-C" to stop the training and save the model produced in the latest iteration. 1000 iterations are largely enough. Otherwise, the training will continue beyond several thousand iterations before stopping. 
-The models will be saved respectively under ```grobid/grobid-home/models/MODEL_NAME```
+
+
+
+8. Annotate your files 
+
+9. Move your **tei.xml** files under your _toyData/MODEL_NAME/corpus/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/corpus/raw_ directory  
+
+10. Train the model (step 5)
+
+11. Don't forget to put the same files under evaluation. **tei.xml** files under your _toyData/MODEL_NAME/evaluation/tei_ directory and the rest (except rng and css files) under your _toyData/MODEL_NAME/evaluation/raw_ directory. If you have carried out your annotation correctly, you must see 100% in your the evaluation table displayed at the end of the model training  
+
+12. Run the web app to see the result 

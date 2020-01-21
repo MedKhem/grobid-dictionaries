@@ -32,8 +32,10 @@ import java.util.List;
 
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 
+import static org.grobid.core.engines.label.SubEntryLabels.SUB_ENTRY_ENTRY_LABEL;
 import static org.grobid.service.DictionaryPaths.PATH_BIBLIOGRAPHY_ENTRY;
 import static org.grobid.service.DictionaryPaths.PATH_LEXICAL_ENTRY;
+import static org.grobid.service.DictionaryPaths.PATH_SUB_ENTRY;
 
 /**
  * Created by med on 18.10.16.
@@ -319,6 +321,8 @@ public class LexicalEntryParser extends AbstractParser {
         // Calling previous cascading model 
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
+        SubEntryParser subEntryParser = new SubEntryParser();
+        LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
@@ -336,32 +340,40 @@ public class LexicalEntryParser extends AbstractParser {
         StringBuffer rawtxt = new StringBuffer();
 
         StringBuffer lexicalEntries = new StringBuffer();
-        for (Pair<List<LayoutToken>, String> lexicalEntryLayoutTokens : doc.getBodyComponents().getLabels()) {
+        for (Pair<List<LayoutToken>, String> bodyComponent : doc.getBodyComponents().getLabels()) {
 
-            if (lexicalEntryLayoutTokens.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                for (LayoutToken txtline : lexicalEntryLayoutTokens.getLeft()) {
-                    rawtxt.append(txtline.getText());
-                }
-                lexicalEntries.append("<entry>");
-                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryLayoutTokens.getLeft());
-                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                featureWriter.write(featSeg + "\n");
-                if (isAnnotated) {
-                    String labeledFeatures = null;
-                    // if featSeg is null, it usually means that no body segment is found in the
+            if (bodyComponent.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                LabeledLexicalInformation subEntryLevelComponents = subEntryParser.process(bodyComponent.getLeft(), PATH_SUB_ENTRY);
+                for (Pair<List<LayoutToken>, String> subEntryLevelComponent : subEntryLevelComponents.getLabels()) {
+                    if (subEntryLevelComponent.getRight().equals(SUB_ENTRY_ENTRY_LABEL)){
+                        for (LayoutToken txtline :  subEntryLevelComponent.getLeft()) {
+                            rawtxt.append(txtline.getText());
+                        }
+                        lexicalEntries.append("<entry>");
+                        LayoutTokenization layoutTokenization = new LayoutTokenization(subEntryLevelComponent.getLeft());
+                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                        featureWriter.write(featSeg + "\n");
+                        if (isAnnotated) {
+                            String labeledFeatures = null;
+                            // if featSeg is null, it usually means that no body segment is found in the
 
-                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
 
 
-                        labeledFeatures = label(featSeg);
-                        lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                                labeledFeatures = label(featSeg);
+                                lexicalEntries.append(toTEILexicalEntry(labeledFeatures, layoutTokenization.getTokenization(), true));
+                            }
+                        } else {
+                            lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(subEntryLevelComponent.getLeft()))));
+                        }
+
+
+                        lexicalEntries.append("</entry>");
                     }
-                } else {
-                    lexicalEntries.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryLayoutTokens.getLeft()))));
+
+
                 }
 
-
-                lexicalEntries.append("</entry>");
             }
 
 

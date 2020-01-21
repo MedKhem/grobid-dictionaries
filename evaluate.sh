@@ -7,6 +7,8 @@
 # treat "train_dictionary_segmentation" later
 declare -a arrCommand=( "train_dictionary_segmentation" "train_dictionary_body_segmentation" "train_lexicalEntries"
 "train_form" "train_gramGrp" "train_sense" "train_sub_sense")
+
+declare -a arrCommand=( "train_dictionary_segmentation" "train_dictionary_body_segmentation")
 #
 #declare -a arrFeature=("train_dictionary_segmentation-segmentation" "train_dictionary_body_segmentation" "train_lexicalEntries"
 #"train_form" "train_gramGrp" "train_sense" "train_sub_sense")

@@ -42,6 +42,10 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
+        <url-pattern>/processSubEntry</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>grobid-service</servlet-name>
         <url-pattern>/processLexicalEntry</url-pattern>
     </servlet-mapping>
     <servlet-mapping>

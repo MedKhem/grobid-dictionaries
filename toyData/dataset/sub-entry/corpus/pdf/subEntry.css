@@ -18,7 +18,10 @@ xr {
     display: inline;
     background-color: #b7d91b;
 }
-
+note {
+    display: inline;
+    background-color: #647cfe;
+}
 pc {
     display: inline;
     background-color: #69ff50;

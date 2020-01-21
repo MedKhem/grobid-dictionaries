@@ -439,6 +439,14 @@ function processDictionaryChange()  {
             setBaseUrl('processDictionaryBodySegmentation');
 
     }
+   else if (selectedMacroLevel == 'processSubEntry') {
+
+       createInputFile(selectedMacroLevel);
+       $('#refinedModels').hide();
+
+       setBaseUrl('processSubEntry');
+
+   }
     else if (selectedMacroLevel == 'processLexicalEntry') {
 
             createInputFile(selectedMacroLevel);
