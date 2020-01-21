@@ -17,7 +17,7 @@ All models have two extra labels, in addition tio the labels listed below: **\<p
 
 For _Dictionary Segmentation:_ **\<headnote>**, **\<body>** and **\<footnote>**.
 
-For _Dictionary Body Segmentation:_ **\<entry>**
+For _Dictionary Body Segmentation:_ **\<subEntry>** and **\<num>**
 
 For _Sub-Entry:_ **\<entry>**, **\<xr>** and **\<num>** 
 
