@@ -71,6 +71,10 @@ part {
 	display: inline;
 	background-color: #ebd3ac;
 }
+usg {
+	display: inline;
+	background-color: #eb3915;
+}
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

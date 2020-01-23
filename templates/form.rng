@@ -194,6 +194,17 @@
 			</oneOrMore>
 		</element>
 	</define>
+	<define name="usg">
+		<element name="usg">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
 	<define name="form">
 		<element name="form">
 			<oneOrMore>
@@ -210,6 +221,7 @@
 					<ref name="desc"/>
 					<ref name="note"/>
 					<ref name="ending"/>
+					<ref name="usg"/>
 					<ref name="xr"/>
 					<ref name="dictScrap"/>
 
