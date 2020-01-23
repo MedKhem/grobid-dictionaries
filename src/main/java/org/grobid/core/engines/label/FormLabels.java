@@ -14,6 +14,7 @@ public class FormLabels extends TaggingLabels {
     public static final String ORTHOGRAPHY_FORM_LABEL = "<orth>";
     public static final String PART_FORM_LABEL = "<part>";
     public static final String PRONUNCIATION_FORM_LABEL = "<pron>";
+    public static final String ENDING_FORM_LABEL = "<ending>";
     public static final String GRAMMATICAL_GROUP_FORM_LABEL = "<gramGrp>";
     public static final String LANG_FORM_LABEL = "<lang>";
     public static final String NAME_FROM_LABEL = "<name>";
@@ -26,6 +27,7 @@ public class FormLabels extends TaggingLabels {
 
     public static final TaggingLabel FORM_ORTHOGRAPHY = new TaggingLabelImpl(DictionaryModels.FORM, ORTHOGRAPHY_FORM_LABEL);
     public static final TaggingLabel FORM_PART = new TaggingLabelImpl(DictionaryModels.FORM, PART_FORM_LABEL);
+    public static final TaggingLabel FORM_ENDING = new TaggingLabelImpl(DictionaryModels.FORM, ENDING_FORM_LABEL);
     public static final TaggingLabel FORM_PRONUNCIATION = new TaggingLabelImpl(DictionaryModels.FORM, PRONUNCIATION_FORM_LABEL);
     public static final TaggingLabel FORM_GRAMMATICAL_GROUP = new TaggingLabelImpl(DictionaryModels.FORM, GRAMMATICAL_GROUP_FORM_LABEL);
     public static final TaggingLabel FORM_LANG = new TaggingLabelImpl(DictionaryModels.FORM, LANG_FORM_LABEL);
@@ -50,6 +52,7 @@ public class FormLabels extends TaggingLabels {
         register(FORM_LBL);
         register(FORM_PUNCTUATION);
         register(FORM_DICTSCRAP);
+        register(FORM_ENDING);
     }
     
 }
