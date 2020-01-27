@@ -88,13 +88,14 @@ do
    #run the training
     mvn generate-resources -P ${i} -e -Dexec.args="$dictName Engineered  5"
 
-   #copy all files in the evaluation to the training dataset
-
-    cp -R ${evalTeidir}/*.tei.xml ${dstdir} && echo "evaluation tei files copied " || echo "couldn't copy evaluation tei"
-    cp -R ${evalRawdir}/*.${modelExtension} ${dstRawdir} && echo "evaluation raw files copied " || echo "couldn't copy evaluation raw"
-
-   #run again the training to strengthen the model before passing to the following model (without evaluation reporting)
-   mvn generate-resources -P ${i} -e
+# To activate this when the automation includes generation of training data or parsing but not for traning
+#   #copy all files in the evaluation to the training dataset
+#
+#    cp -R ${evalTeidir}/*.tei.xml ${dstdir} && echo "evaluation tei files copied " || echo "couldn't copy evaluation tei"
+#    cp -R ${evalRawdir}/*.${modelExtension} ${dstRawdir} && echo "evaluation raw files copied " || echo "couldn't copy evaluation raw"
+#
+#   #run again the training to strengthen the model before passing to the following model (without evaluation reporting)
+#   mvn generate-resources -P ${i} -e
 
    ##Learning curve experiment (based on the bigram feature engineered)
     #first, clean the tei repo

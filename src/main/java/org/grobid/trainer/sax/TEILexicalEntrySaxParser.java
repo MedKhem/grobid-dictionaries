@@ -154,7 +154,7 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
                 || (qName.equals("etym")) || (qName.equals("note")) || (qName.equals("subEntry")) ||
                 (qName.equals("formGramGrp")) || (qName.equals("senseGramGrp")) ||
                 (qName.equals("sense")) || (qName.equals("re")) || (qName.equals("num")) || (qName.equals("dictScrap"))
-                || (qName.equals("xr")) ) {
+                || (qName.equals("xr")) || (qName.equals("usg")) ) {
             return true;
         }
         return false;
