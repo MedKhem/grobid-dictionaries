@@ -113,9 +113,19 @@ then
   #copy files from the current batch
        cp -R ${srcdir}/${batch}/*.tei.xml ${dstdir} && echo "files copied from batch $batch" || echo "couldn't copy batches"
 
+  #copy unigram template file and rename it the same as the models
+   if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
+            cp resources/expe/basicUnigram/dictionary-segmentation.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
+       else
+            cp resources/expe/basicUnigram/lexical-entry.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
+   fi
+
+   #run the training
+   mvn generate-resources -P ${i} -e -Dexec.args="$dictName Unigram  $batch"
+
    #copy bigram template file and rename it the same as the models
    if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
-       cp resources/expe/basicUnigram/dictionary-segmentation.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
+       cp resources/expe/basicBigram/dictionary-segmentation.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
        else
    cp resources/expe/basicBigram/lexical-entry.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
    fi
@@ -125,7 +135,7 @@ then
 
    #copy engineered template file and rename it the same as the models
    if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
-       cp resources/expe/basicUnigram/dictionary-segmentation.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
+       cp resources/expe/bigramEngineered/dictionary-segmentation.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
        else
    cp resources/expe/bigramEngineered/lexical-entry.template resources/dataset/${modelName}/crfpp-templates/${modelName}.template
    fi
