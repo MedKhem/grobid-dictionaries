@@ -149,15 +149,15 @@ fi
 
 
    done
-  #copy all files in the evaluation to the training dataset
-
-    cp -R ${evalTeidir}/*.tei.xml ${dstdir} && echo "evaluation tei files copied " || echo "couldn't copy evaluation tei"
-    cp -R ${evalRawdir}/*.${modelExtension} ${dstRawdir} && echo "evaluation raw files copied " || echo "couldn't copy evaluation raw"
-
-
-
- #run again the training to strengthen the model before passing to the following model (without evaluation reporting)
-   mvn generate-resources -P ${i} -e
+#  #copy all files in the evaluation to the training dataset
+#
+#    cp -R ${evalTeidir}/*.tei.xml ${dstdir} && echo "evaluation tei files copied " || echo "couldn't copy evaluation tei"
+#    cp -R ${evalRawdir}/*.${modelExtension} ${dstRawdir} && echo "evaluation raw files copied " || echo "couldn't copy evaluation raw"
+#
+#
+#
+# #run again the training to strengthen the model before passing to the following model (without evaluation reporting)
+#   mvn generate-resources -P ${i} -e
 
 done
 

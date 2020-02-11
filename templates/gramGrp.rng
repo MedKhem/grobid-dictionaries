@@ -167,6 +167,7 @@
 					<ref name="note"/>
 					<ref name="gram"/>
 					<ref name="lbl"/>
+					<ref name="gen"/>
 					<ref name="oRef"/>
 					<ref name="pc"/>
 					<ref name="dictScrap"/>
