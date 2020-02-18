@@ -40,6 +40,7 @@ etym {
 	display: inline;
 	background-color: #89ff31;
 }
+
 xr {
 	display: inline;
 	background-color: #2dffc4;
@@ -62,6 +63,26 @@ dictScrap {
 note {
 	display: inline;
 	background-color: #d58512;
+}
+
+form {
+	display: inline;
+	background-color: #84b4d5;
+}
+
+lbl {
+	display: inline;
+	background-color: #b4d57a;
+}
+
+seg {
+	display: inline;
+	background-color: #f8ff7f;
+}
+
+gloss {
+	display: inline;
+	background-color: #b39ed5;
 }
 
 

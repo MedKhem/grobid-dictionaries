@@ -19,6 +19,7 @@ public class GrammaticalGroupLabels extends TaggingLabels {
     public static final String SUBC_GRMGROUP_LABEL = "<subc>";
     public static final String LBL_GRMGROUP_LABEL = "<lbl>";
     public static final String NOTE_GRMGROUP_LABEL = "<note>";
+    public static final String PER_GRMGROUP_LABEL = "<per>";
     public static final String OREF_GRMGROUP_LABEL = "<oRef>";
     public static final String PC_GRMGROUP_LABEL = "<pc>";
     public static final String DICTIONARY_DICTSCRAP_LABEL = "<dictScrap>";
@@ -33,6 +34,7 @@ public class GrammaticalGroupLabels extends TaggingLabels {
     public static final TaggingLabel GRAMMATICAL_GROUP_NOTE= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, NOTE_GRMGROUP_LABEL);
     public static final TaggingLabel GRAMMATICAL_GROUP_OREF= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, OREF_GRMGROUP_LABEL);
     public static final TaggingLabel GRAMMATICAL_GROUP_PC= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, PC_GRMGROUP_LABEL);
+    public static final TaggingLabel GRAMMATICAL_GROUP_PER= new TaggingLabelImpl(DictionaryModels.GRAMMATICAL_GROUP, PER_GRMGROUP_LABEL);
 
     static {
         register(GRAMMATICAL_GROUP_POS);
@@ -46,5 +48,6 @@ public class GrammaticalGroupLabels extends TaggingLabels {
         register(GRAMMATICAL_GROUP_NOTE);
         register(GRAMMATICAL_GROUP_OREF);
         register(GRAMMATICAL_GROUP_PC);
+        register(GRAMMATICAL_GROUP_PER);
     }
 }

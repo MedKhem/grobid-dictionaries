@@ -21,6 +21,9 @@ public class SubSenseLabels extends TaggingLabels {
     public static final String SUB_SENSE_GRAMGRP_LABEL = "<gramGrp>";
     public static final String SUB_SENSE_NUM_LABEL = "<num>";
     public static final String SUB_SENSE_FORM_LABEL = "<form>";
+    public static final String SUB_SENSE_LBL_LABEL = "<lbl>";
+    public static final String SUB_SENSE_SEG_LABEL = "<seg>";
+    public static final String SUB_SENSE_GLOSS_LABEL = "<gloss>";
     public static final String SUB_SENSE_DICTSCRAP_LABEL = "<dictScrap>";
     public static final String SUB_SENSE_PC_LABEL = "<pc>";
 
@@ -36,6 +39,9 @@ public class SubSenseLabels extends TaggingLabels {
     public static final TaggingLabel SUB_SENSE_DICTSCRAP = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_DICTSCRAP_LABEL);
     public static final TaggingLabel SUB_SENSE_PC = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_PC_LABEL);
     public static final TaggingLabel SUB_SENSE_FORM = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_FORM_LABEL);
+    public static final TaggingLabel SUB_SENSE_LBL = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_LBL_LABEL);
+    public static final TaggingLabel SUB_SENSE_SEG = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_SEG_LABEL);
+    public static final TaggingLabel SUB_SENSE_GLOSS = new TaggingLabelImpl(DictionaryModels.SUB_SENSE, SUB_SENSE_GLOSS_LABEL);
 
 
     static {
@@ -51,6 +57,9 @@ public class SubSenseLabels extends TaggingLabels {
         register(SUB_SENSE_DICTSCRAP);
         register(SUB_SENSE_PC);
         register(SUB_SENSE_FORM);
+        register(SUB_SENSE_LBL);
+        register(SUB_SENSE_SEG);
+        register(SUB_SENSE_GLOSS);
 
     }
 }

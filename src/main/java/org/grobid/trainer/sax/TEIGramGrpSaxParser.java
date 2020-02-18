@@ -144,7 +144,8 @@ public class TEIGramGrpSaxParser extends DefaultHandler {
     private boolean isRelevantTag(String qName) {
         if (("pos".equals(qName)) || "gram".equals(qName) || "tns".equals(qName) || "gen".equals(qName)
                 || "number".equals(qName) || "subc".equals(qName) || "lbl".equals(qName)
-                || "note".equals(qName) || "oRef".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName) ) {
+                || "note".equals(qName) || "oRef".equals(qName) || "dictScrap".equals(qName) || "pc".equals(qName)
+                || "per".equals(qName)) {
             return true;
         }
         return false;
