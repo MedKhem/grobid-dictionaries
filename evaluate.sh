@@ -65,7 +65,7 @@ do
 #   fi
 #
 #   #run the training
-#   mvn generate-resources -P ${i} -e -Dexec.args="$dictName Unigram  5"
+#   mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Unigram  5"
 #
 #
 #   #copy bigram template file and rename it the same as the models
@@ -76,7 +76,7 @@ do
 #   fi
 #
 #   #run the training
-#   mvn generate-resources -P ${i} -e -Dexec.args="$dictName Bigram 5"
+#   mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Bigram 5"
 #
 #   #copy engineered template file and rename it the same as the models
 #   if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
@@ -86,7 +86,7 @@ do
 #   fi
 #
 #   #run the training
-#    mvn generate-resources -P ${i} -e -Dexec.args="$dictName Engineered  5"
+#    mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Engineered  5"
 
 # To activate this when the automation includes generation of training data or parsing but not for traning
 #   #copy all files in the evaluation to the training dataset
@@ -121,7 +121,7 @@ then
    fi
 
    #run the training
-   mvn generate-resources -P ${i} -e -Dexec.args="$dictName Unigram  $batch"
+   mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Unigram $batch"
 
    #copy bigram template file and rename it the same as the models
    if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
@@ -131,7 +131,7 @@ then
    fi
 
    #run the training
-   mvn generate-resources -P ${i} -e -Dexec.args="$dictName Bigram $batch"
+   mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Bigram $batch"
 
    #copy engineered template file and rename it the same as the models
    if [[ "${modelName}" == "dictionary-segmentation" ]] ; then
@@ -141,7 +141,7 @@ then
    fi
 
    #run the training
-    mvn generate-resources -P ${i} -e -Dexec.args="$dictName Engineered $batch"
+    mvn generate-resources -P ${i} -e -Dexec.args="false $dictName Engineered $batch"
 
 
 

@@ -577,23 +577,23 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         }
         long end = System.currentTimeMillis();
         report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
-        if (variables.length > 0) {
+        if (variables.length > 1) {
 
             try {
 
                 trainingParameters.append("Dict+");
-                trainingParameters.append(variables[0] + "+");
+                trainingParameters.append(variables[1] + "+");
                 trainingParameters.append("Model+");
                 trainingParameters.append(trainer.getModel() + "+");
 
 
                 if (variables.length > 1) {
                     trainingParameters.append("Feature+");
-                    trainingParameters.append(variables[1] + "+");
+                    trainingParameters.append(variables[2] + "+");
                 }
                 if (variables.length > 2) {
                     trainingParameters.append("DataLevel+");
-                    trainingParameters.append(variables[2]);
+                    trainingParameters.append(variables[3]);
                 }
 
 
@@ -602,7 +602,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
 
 
 
-                String outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + variables[0] + "/" + trainer.getModel() ;
+                String outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + variables[1] + "/" + trainer.getModel() ;
                 File file = new File(outPathRawtext);
                 if (!file.exists()) {
                     if (file.mkdir()) {
@@ -612,7 +612,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
                     }
                 }
                 report = trainingParameters.toString() + report;
-                FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[1] + "DataLevel" + variables[2] + ".txt"), report, "UTF-8");
+                FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[2] + "DataLevel" + variables[3] + ".txt"), report, "UTF-8");
 
             } catch (final Exception exp) {
                 throw new GrobidException("An exception occurred while rendering evaluation.", exp);

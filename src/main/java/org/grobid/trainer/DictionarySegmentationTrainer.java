@@ -231,8 +231,22 @@ public class DictionarySegmentationTrainer extends  AbstractDictionaryTrainer {
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
         AbstractDictionaryTrainer trainer = new DictionarySegmentationTrainer();
-        AbstractDictionaryTrainer.runTraining( trainer);
-        LOGGER.warn("Trainer Path" +  trainer.getModel().getModelPath());
+        //args[0] is true when evaluation is activated
+        try{
+            if ( args == null){
+                AbstractDictionaryTrainer.runTraining( trainer);
+
+            }else {
+                if (args[0].equals("false")){
+                    AbstractDictionaryTrainer.runTraining( trainer);
+                }else if (!args[0].equals("true")){
+                    throw new GrobidException( "Please verify the training arguments");
+                }
+
+            }
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        }
 
 
         System.out.println( AbstractDictionaryTrainer.runEvaluation(trainer, false, args));

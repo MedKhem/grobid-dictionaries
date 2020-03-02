@@ -25,7 +25,23 @@ public class SenseTrainer extends AbstractDictionaryTrainer {
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
         AbstractDictionaryTrainer trainer = new SenseTrainer();
-        AbstractDictionaryTrainer.runTraining( trainer);
+        String onlyEvaluation = args[0];
+        //args[0] is true when evaluation is activated
+        try{
+            if ( args == null){
+                AbstractDictionaryTrainer.runTraining( trainer);
+
+            }else {
+                if (args[0].equals("false")){
+                    AbstractDictionaryTrainer.runTraining( trainer);
+                }else if (!args[0].equals("true")){
+                    throw new GrobidException( "Please verify the training arguments");
+                }
+
+            }
+        } catch (Exception e) {
+            throw new GrobidException("An exception occurred while running Grobid.", e);
+        }
 
         System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false, args));
     }
