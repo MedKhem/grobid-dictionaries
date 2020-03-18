@@ -10,7 +10,7 @@ For **Dictionary Body Segmentation** model, run:
 ```bash
 > mvn generate-resources -P train_dictionary_body_segmentation -e
 ```
-For **Lexical Entry** model, run:
+For **Sub-Entry** model, run:
 ```bash
 > mvn generate-resources -P train_subEntries -e
 ```
