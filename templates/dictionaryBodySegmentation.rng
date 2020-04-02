@@ -49,6 +49,7 @@
 					<text/>
 					<ref name="entry"></ref>
 					<ref name="dictScrap"></ref>
+					<ref name="section"></ref>
 					<ref name="pc"/>
 					<ref name="lb"/>
 				</choice>
@@ -58,6 +59,17 @@
 	
 	<define name="dictScrap">
 		<element name="dictScrap">
+			<oneOrMore>
+				<choice>
+					<text/>
+					<ref name="pc"/>
+					<ref name="lb"/>
+				</choice>
+			</oneOrMore>
+		</element>
+	</define>
+	<define name="section">
+		<element name="section">
 			<oneOrMore>
 				<choice>
 					<text/>

@@ -161,6 +161,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 list1.addLabel(Pair.of(cluster.concatTokens(), tagLabel));
             } else if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL)) {
                 list1.addLabel(Pair.of(cluster.concatTokens(), tagLabel));
+            } else if (tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_SECTION_LABEL)) {
+                list1.addLabel(Pair.of(cluster.concatTokens(), tagLabel));
             } else {
                 throw new IllegalArgumentException(tagLabel + " is not a valid possible tag");
             }
@@ -940,7 +942,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                     List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
                     String clusterContent;
                     String tagLabel = bodyComponent.getRight();
-                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL)) {
+                    if (tagLabel.equals(DictionaryBodySegmentationLabels.PUNCTUATION_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL) || tagLabel.equals(DictionaryBodySegmentationLabels.DICTIONARY_SECTION_LABEL)) {
                         clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
                     } else {
                         clusterContent = subEntryParser.processToTei(allTokensOfaLE, modelToRun);

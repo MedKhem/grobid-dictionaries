@@ -33,6 +33,11 @@ dictScrap { /* what's that for? */
 	background-color: greenyellow;
 }
 
+section { /* what's that for? */
+	display: inline;
+	background-color: #b39ed5;
+}
+
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

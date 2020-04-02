@@ -26,21 +26,21 @@ public class TEIFormSaxParserTest {
         spf = SAXParserFactory.newInstance();
     }
 
-
-    @Test
-    public void testSmallParsing_shouldWork() throws Exception {
-        InputStream input = this.getClass().getResourceAsStream("/form.model.sample.training.data.xml");
-        SAXParser p = spf.newSAXParser();
-        p.parse(input, target);
-
-        List<SimpleLabeled> labeled = target.getLabeledResult();
-
-        assertThat(labeled.size(), greaterThan(0));
-        assertThat(labeled.size(), is(2));
-
-        assertThat(labeled.get(0).getLabels().get(0).getLeft(), is("ally"));
-        assertThat(labeled.get(0).getLabels().get(0).getRight(), is("I-<orth>"));
-    }
+//
+//    @Test
+//    public void testSmallParsing_shouldWork() throws Exception {
+//        InputStream input = this.getClass().getResourceAsStream("/form.model.sample.training.data.xml");
+//        SAXParser p = spf.newSAXParser();
+//        p.parse(input, target);
+//
+//        List<SimpleLabeled> labeled = target.getLabeledResult();
+//
+//        assertThat(labeled.size(), greaterThan(0));
+//        assertThat(labeled.size(), is(2));
+//
+//        assertThat(labeled.get(0).getLabels().get(0).getLeft(), is("ally"));
+//        assertThat(labeled.get(0).getLabels().get(0).getRight(), is("I-<orth>"));
+//    }
 
 
 }
