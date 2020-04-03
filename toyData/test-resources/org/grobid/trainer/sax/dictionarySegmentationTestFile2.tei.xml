@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tei>
+    <teiHeader>
+        <fileDesc/>
+    </teiHeader>
+    <text>
+        <headnote>
+            bonjour
+        </headnote>
+        <body>
+            hi
+        </body>
+        crap
+        <footnote>
+            cia
+        </footnote>
+    </text>
+</tei>

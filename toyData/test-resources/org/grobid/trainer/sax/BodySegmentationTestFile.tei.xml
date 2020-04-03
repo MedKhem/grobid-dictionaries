@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tei>
+    <teiHeader>
+        <fileDesc/>
+    </teiHeader>
+    <text>
+        <body>
+            crap
+            <entry>hello</entry>
+        </body>
+    </text>
+</tei>

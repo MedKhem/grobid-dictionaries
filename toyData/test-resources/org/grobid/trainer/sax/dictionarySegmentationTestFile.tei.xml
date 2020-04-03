@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tei>
+    <teiHeader>
+        <fileDesc/>
+    </teiHeader>
+    <text>
+        crap
+        <headnote>
+            bonjour
+        </headnote>
+        <body>
+            hi
+        </body>
+        <footnote>
+            cia
+        </footnote>
+        <dictScrap>fef</dictScrap>
+    </text>
+</tei>

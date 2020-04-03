@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<tei>
+    <teiHeader>
+        <fileDesc xml:id=""/>
+    </teiHeader>
+    <text xml:lang="en">
+        <body><entry>absorb the paper. Salt <lb/></entry>. <lb/><entry>night <lb/>absorb Salt <lb/></entry></body>
+    </text>
+</tei>

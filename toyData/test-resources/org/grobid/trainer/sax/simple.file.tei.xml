@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tei>
+    <teiHeader>
+        <fileDesc/>
+    </teiHeader>
+    <text>
+        <body>
+            <entry>
+                <form>p [pe] n. m.</form>
+                <sense>Seizième lettre de l&apos;alphabet, et la
+                    <lb/>
+                </sense>
+            </entry>
+        </body>
+    </text>
+</tei>
