@@ -26,7 +26,6 @@ public class FormTrainer extends AbstractDictionaryTrainer {
         GrobidDictionaryProperties.getInstance();
 
         AbstractDictionaryTrainer trainer = new FormTrainer();
-        String onlyEvaluation = args[0];
         //args[0] is true when evaluation is activated
         try{
             if ( args == null){

@@ -32,7 +32,6 @@ public class LexicalEntryTrainer extends AbstractDictionaryTrainer {
         GrobidDictionaryProperties.getInstance();
 
         AbstractDictionaryTrainer trainer = new LexicalEntryTrainer();
-        String onlyEvaluation = args[0];
         //args[0] is true when evaluation is activated
         try{
             if ( args == null){

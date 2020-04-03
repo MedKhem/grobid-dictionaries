@@ -25,7 +25,6 @@ public class SubSenseTrainer extends AbstractDictionaryTrainer {
     public static void main(String[] args) throws Exception {
         GrobidDictionaryProperties.getInstance();
         AbstractDictionaryTrainer trainer = new SubSenseTrainer();
-        String onlyEvaluation = args[0];
         //args[0] is true when evaluation is activated
         try{
             if ( args == null){
