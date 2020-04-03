@@ -577,47 +577,61 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         }
         long end = System.currentTimeMillis();
         report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
-        if (variables.length > 1) {
 
-            try {
+        if (variables.length > 0){
+            String modelType = GrobidDictionaryProperties.getGrobidCRFEngine().toString();
+            String outPathRawtext;
 
-                trainingParameters.append("Dict+");
-                trainingParameters.append(variables[1] + "+");
-                trainingParameters.append("Model+");
-                trainingParameters.append(trainer.getModel() + "+");
+            if(variables.length == 1){
+                if (variables[0].toString().equals("true") ){
 
-
-                if (variables.length > 1) {
-                    trainingParameters.append("Feature+");
-                    trainingParameters.append(variables[2] + "+");
-                }
-                if (variables.length > 2) {
-                    trainingParameters.append("DataLevel+");
-                    trainingParameters.append(variables[3]);
+                    outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + trainer.getModel() + "/evaluationOnly.txt" ;
+                    FileUtils.writeStringToFile(new File(outPathRawtext), report, "UTF-8");
+                    System.out.print("File stored at"+outPathRawtext);
                 }
 
+            } else if (variables.length > 1) {
 
-                String modelType = GrobidDictionaryProperties.getGrobidCRFEngine().toString();
+                try {
+
+                    trainingParameters.append("Dict+");
+                    trainingParameters.append(variables[1] + "+");
+                    trainingParameters.append("Model+");
+                    trainingParameters.append(trainer.getModel() + "+");
 
 
-
-
-                String outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + variables[1] + "/" + trainer.getModel() ;
-                File file = new File(outPathRawtext);
-                if (!file.exists()) {
-                    if (file.mkdir()) {
-                        System.out.println("Directory is created!");
-                    } else {
-                        System.out.println("Failed to create directory!");
+                    if (variables.length > 1) {
+                        trainingParameters.append("Feature+");
+                        trainingParameters.append(variables[2] + "+");
                     }
+                    if (variables.length > 2) {
+                        trainingParameters.append("DataLevel+");
+                        trainingParameters.append(variables[3]);
+                    }
+
+
+                    String dictName= variables[1];
+
+
+
+
+                    outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + dictName + "/" + trainer.getModel() ;
+                    File file = new File(outPathRawtext);
+                    if (!file.exists()) {
+                        if (file.mkdir()) {
+                            System.out.println("Directory is created!");
+                        } else {
+                            System.out.println("Failed to create directory!");
+                        }
+                    }
+                    report = trainingParameters.toString() + report;
+                    FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[2] + "DataLevel" + variables[3] + ".txt"), report, "UTF-8");
+
+                } catch (final Exception exp) {
+                    throw new GrobidException("An exception occurred while rendering evaluation.", exp);
                 }
-                report = trainingParameters.toString() + report;
-                FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[2] + "DataLevel" + variables[3] + ".txt"), report, "UTF-8");
 
-            } catch (final Exception exp) {
-                throw new GrobidException("An exception occurred while rendering evaluation.", exp);
             }
-
         }
 
         return report;
