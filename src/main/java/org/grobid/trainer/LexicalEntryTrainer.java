@@ -38,13 +38,15 @@ public class LexicalEntryTrainer extends AbstractDictionaryTrainer {
             if ( args == null){
                 AbstractDictionaryTrainer.runTraining( trainer);
 
-            }else {
+            }else if (args.length > 0) {
                 if (args[0].equals("false")){
                     AbstractDictionaryTrainer.runTraining( trainer);
                 }else if (!args[0].equals("true")){
                     throw new GrobidException( "Please verify the training arguments");
                 }
 
+            }else{
+                AbstractDictionaryTrainer.runTraining( trainer);
             }
         } catch (Exception e) {
             throw new GrobidException("An exception occurred while running Grobid.", e);
