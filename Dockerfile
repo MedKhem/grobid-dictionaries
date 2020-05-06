@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM benyoo/alpine:3.9.20190527
 
 MAINTAINER Mohamed Khemakhem <mohamed.khemakhem@inria.fr>
 
