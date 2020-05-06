@@ -2,6 +2,7 @@ package org.grobid.trainer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.utilities.GrobidProperties;
@@ -111,47 +112,50 @@ public class EtymQuoteTrainer extends AbstractTrainer {
                 SAXParser p = spf.newSAXParser();
                 p.parse(tf, parser2);
 
-                List<String> labeled = parser2.getLabeledResult();
+                List<SimpleLabeled> labeled = parser2.getLabeledResult();
 
-                // we can now add the features
+
                 // we open the featured file
-                BufferedReader bis = new BufferedReader(
+                BufferedReader featuresFile = new BufferedReader(
                         new InputStreamReader(new FileInputStream(sourceLexicalEntriesPathFeatures + File.separator +
                                 name.replace(".tei.xml", "")), "UTF8"));
-                int q = 0;
+                //Index to iterate through a list of LabeledForm
+                int indexLabeledList = 0;
+                //Index to iterate through the LabeledFormLabels
+                int indexLabeledForm = 0;
                 StringBuilder trainingDataLineBuilder = new StringBuilder();
 
                 String line;
-                while ((line = bis.readLine()) != null) {
+                while ((line = featuresFile.readLine()) != null) {
 
-                    //A new line in the feature file separate the new training example
-                    if(StringUtils.isBlank(line)) {
-                        trainingDataLineBuilder.append("\n");
-                    }
-                    int ii = line.indexOf(' ');
-                    String token = null;
-                    if (ii != -1)
-                        token = line.substring(0, ii);
+                    String tokenFromFeatures = extractToken(line);
+
                     // we get the label in the labelled data file for the same token
-                    for (int pp = q; pp < labeled.size(); pp++) {
-                        String localLine = labeled.get(pp);
-                        StringTokenizer st = new StringTokenizer(localLine, " ");
-                        if (st.hasMoreTokens()) {
-                            String localToken = st.nextToken();
-                            if (localToken.equals(token)) {
-                              String label = st.nextToken();
-                              trainingDataLineBuilder.append(StringUtils.trim(line)).append(" ").append(label);
+                    outer:
+                    for (int pp = indexLabeledList; pp < labeled.size(); pp++) {
+                        SimpleLabeled simpleLabeled = labeled.get(pp);
 
-                                q = pp + 1;
-                                pp = q + 10;
+                        for (int qq = indexLabeledForm; qq < simpleLabeled.getLabels().size(); qq++) {
+
+                            final String labelToken = simpleLabeled.getLabels().get(qq).getRight();
+                            final String tokenFromLabels = simpleLabeled.getLabels().get(qq).getLeft();
+                            if (StringUtils.equals(tokenFromLabels, tokenFromFeatures)) {
+                                trainingDataLineBuilder.append(line)
+                                        .append(" ").append(labelToken).append("\n");
+                                indexLabeledForm = qq + 1;
+                                if (simpleLabeled.getLabels().size() == indexLabeledForm) {
+                                    pp++;
+                                    indexLabeledForm = 0;
+                                    trainingDataLineBuilder.append("\n");
+                                }
+                                indexLabeledList = pp;
+
+                                break outer;
                             }
-                        }
-                        if (pp - q > 5) {
-                            break;
                         }
                     }
                 }
-                bis.close();
+                IOUtils.closeQuietly(featuresFile);
                 writer2.write(trainingDataLineBuilder.toString() + "");
             }
 
@@ -163,6 +167,12 @@ public class EtymQuoteTrainer extends AbstractTrainer {
         }
         return totalExamples;
     }
-
+    private String extractToken(String line) {
+        int ii = line.indexOf(' ');
+        String token = null;
+        if (ii != -1)
+            token = line.substring(0, ii);
+        return token;
+    }
 
 }

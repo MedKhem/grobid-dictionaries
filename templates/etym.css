@@ -19,22 +19,33 @@ pc {
 
 /* things to mark-up in etymQuote */
 
-seg {
+lbl {
 	display: inline;
 	background-color: Salmon;
 }
 
-quote {
+gloss {
 	display: inline;
 	background-color: yellow;
 }
 
-dictScrap { /* what's that for? */
+ref {
 	display: inline;
+	background-color: #8799ff;
 }
-usg {
+lang {
 	display: inline;
 	background-color: #86d5af;
+}
+
+foreign {
+	display: inline;
+	background-color: #d577cd;
+}
+
+dictScrap {
+	display: inline;
+	background-color: #d5b112;
 }
 
 

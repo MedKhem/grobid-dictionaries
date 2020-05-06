@@ -332,7 +332,7 @@
 
     <profiles>
         <profile>
-            <id>train_etymQuote</id>
+            <id>train_etym</id>
             <build>
                 <plugins>
                     <plugin>
@@ -355,7 +355,7 @@
             </build>
         </profile>
         <profile>
-            <id>train_etym</id>
+            <id>train_Oldetym</id>
             <build>
                 <plugins>
                     <plugin>

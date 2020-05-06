@@ -46,15 +46,13 @@
 				<choice>
 					<text/>
 					<ref name="etym"></ref>
-					<ref name="pc"/>
-					<ref name="lb"/>
 				</choice>
 			</oneOrMore>
 		</element>
 	</define>
 	
-	<define name="bibl">
-		<element name="bibl">
+	<define name="foreign">
+		<element name="foreign">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -65,8 +63,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="mentioned">
-		<element name="mentioned">
+	<define name="ref">
+		<element name="ref">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -89,8 +87,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="def">
-		<element name="def">
+	<define name="gloss">
+		<element name="gloss">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -101,8 +99,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="usg">
-		<element name="usg">
+	<define name="lbl">
+		<element name="lbl">
 			<oneOrMore>
 				<choice>
 					<text/>
@@ -112,41 +110,8 @@
 			</oneOrMore>
 		</element>
 	</define>
-	<define name="seg">
-		<element name="seg">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>        
-					<ref name="bibl"/>
-					<ref name="lang"/>
-					<ref name="def"/>
-					<ref name="usg"/>
-					<ref name="mentioned"/>
-					<ref name="seg"/>
-					<ref name="dictScrap"></ref>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
-	<define name="quote">
-		<element name="quote">
-			<oneOrMore>
-				<choice>
-					<text/>
-					<ref name="pc"/>
-					<ref name="lb"/>        
-					<ref name="bibl"/>
-					<ref name="lang"/>
-					<ref name="mentioned"/>
-					<ref name="def"/>
-					<ref name="seg"/>
-					<ref name="dictScrap"/>
-				</choice>
-			</oneOrMore>
-		</element>
-	</define>
+
+
 	<define name="etym">
 		<element name="etym">
 			<oneOrMore>
@@ -154,8 +119,12 @@
 					<text/>
 					<ref name="pc"/>
 					<ref name="lb"/>
-					<ref name="seg"/>
-					<ref name="quote"/>
+					<ref name="lbl"/>
+					<ref name="gloss"/>
+					<ref name="ref"/>
+					<ref name="lang"/>
+					<ref name="foreign"/>
+					<ref name="dictScrap"></ref>
 				</choice>
 			</oneOrMore>
 		</element>

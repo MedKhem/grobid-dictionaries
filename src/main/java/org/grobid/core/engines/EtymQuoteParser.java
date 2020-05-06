@@ -222,16 +222,16 @@ public class EtymQuoteParser extends AbstractParser {
         DictionaryDocument doc = bodySegmentationParser.processing(path);
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etymQuote";
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etym";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/etymQuote.rng");
-        File newRngFile = new File(outputDirectory + "/" + "etymQuote.rng");
+        File existingRngFile = new File("templates/etym.rng");
+        File newRngFile = new File(outputDirectory + "/" + "etym.rng");
         copyFileUsingStream(existingRngFile, newRngFile);
 
-        File existingCssFile = new File("templates/etymQuote.css");
-        File newCssFile = new File(outputDirectory + "/" + "etymQuote.css");
+        File existingCssFile = new File("templates/etym.css");
+        File newCssFile = new File(outputDirectory + "/" + "etym.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile, newCssFile);
 
@@ -281,15 +281,15 @@ public class EtymQuoteParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etymQuote.rawtxt";
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etym.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.c.tei.xml";
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etym.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"etymQuote.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"etymQuote.css\"?>\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"etym.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"etym.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");

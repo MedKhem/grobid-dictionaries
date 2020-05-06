@@ -16,8 +16,8 @@ public class DictionaryModels {
 //    public static final GrobidModel MORPHO_GRAMMATICAL = GrobidModels.modelFor("morph-gram");
     public static final GrobidModel SUB_SENSE = GrobidModels.modelFor("sub-sense");
     public static final GrobidModel GRAMMATICAL_GROUP = GrobidModels.modelFor("gramGrp");
-    public static final GrobidModel ETYM_QUOTE = GrobidModels.modelFor("etymQuote");
-    public static final GrobidModel ETYM = GrobidModels.modelFor("etym");
+    public static final GrobidModel ETYM_QUOTE = GrobidModels.modelFor("etym");
+    public static final GrobidModel ETYM = GrobidModels.modelFor("nothing");
     public static final GrobidModel CROSS_REF = GrobidModels.modelFor("crossRef");
 
 
