@@ -45,16 +45,16 @@ RUN \
   mv toyData resources && \
 mvn install:install-file -Dfile=grobidDependencies/grobid-core-$GROBID_VERSION.jar -DgroupId=org.grobid -DartifactId=grobid-core -Dversion=$GROBID_VERSION -Dpackaging=jar && \
 mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-$GROBID_VERSION.jar -DgroupId=org.grobid -DartifactId=grobid-trainer -Dversion=$GROBID_VERSION -Dpackaging=jar && \
- mvn -Dmaven.test.skip=true clean install && \
- mvn generate-resources -P train_dictionary_segmentation -e && \
- mvn generate-resources -P train_dictionary_body_segmentation -e && \
- mvn generate-resources -P train_lexicalEntries -e && \
- mvn generate-resources -P train_form -e && \
- mvn generate-resources -P train_sense -e && \
- mvn generate-resources -P train_etym -e && \
- mvn generate-resources -P train_sub_sense -e && \
- mvn generate-resources -P train_gramGrp -e && \
- mvn generate-resources -P train_crossRef -e
+ mvn -Dmaven.test.skip=true clean install
+# mvn generate-resources -P train_dictionary_segmentation -e && \
+# mvn generate-resources -P train_dictionary_body_segmentation -e && \
+# mvn generate-resources -P train_lexicalEntries -e && \
+# mvn generate-resources -P train_form -e && \
+# mvn generate-resources -P train_sense -e && \
+# mvn generate-resources -P train_etym -e && \
+# mvn generate-resources -P train_sub_sense -e && \
+# mvn generate-resources -P train_gramGrp -e && \
+# mvn generate-resources -P train_crossRef -e
 
 # && \
 # mvn -Dmaven.test.skip=true jetty:run-war && \
