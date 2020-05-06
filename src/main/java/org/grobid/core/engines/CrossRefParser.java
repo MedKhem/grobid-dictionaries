@@ -57,11 +57,11 @@ public class CrossRefParser extends AbstractParser {
         instance = new CrossRefParser();
     }
 
-    public StringBuilder processToTEI(List<LayoutToken> formEntry) {
+    public StringBuilder processToTEI(List<LayoutToken> crossRefSequence , String modelToRun) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
 
-        LabeledLexicalInformation labeledForm = process(formEntry);
+        LabeledLexicalInformation labeledForm = process(crossRefSequence,modelToRun);
 
         StringBuilder sb = new StringBuilder();
         StringBuilder ref = new StringBuilder();
@@ -100,7 +100,7 @@ public class CrossRefParser extends AbstractParser {
 
     }
 
-    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
+    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens, String model) {
         //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
 
         StringBuilder featureMatrix = new StringBuilder();

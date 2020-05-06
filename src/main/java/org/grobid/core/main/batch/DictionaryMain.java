@@ -34,7 +34,7 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_ETYMQUOTE = "createAnnotatedTrainingEtymQuote";
     private static final String CREATE_TRAINING_ETYM = "createTrainingEtym";
     private static final String CREATE_ANNOTATED_TRAINING_ETYM = "createAnnotatedTrainingEtym";
-    private static final String CREATE_TRAINING_CROSSREF = "createTrainingMorphoGram";
+    private static final String CREATE_TRAINING_CROSSREF = "createTrainingCrossRef";
     private static final String CREATE_ANNOTATED_TRAINING_CROSSREF = "createAnnotatedTrainingCrossRef";
     private static final String CREATE_TRAINING_SENSE_CROSSREF = "createTrainingSenseCrossRef";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF = "createAnnotatedTrainingSenseCrossRef";
