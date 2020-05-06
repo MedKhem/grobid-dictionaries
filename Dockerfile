@@ -51,10 +51,9 @@ mvn install:install-file -Dfile=grobidDependencies/grobid-trainer-$GROBID_VERSIO
  mvn generate-resources -P train_lexicalEntries -e && \
  mvn generate-resources -P train_form -e && \
  mvn generate-resources -P train_sense -e && \
- mvn generate-resources -P train_etymQuote -e && \
  mvn generate-resources -P train_etym -e && \
  mvn generate-resources -P train_sub_sense -e && \
-  mvn generate-resources -P train_gramGrp -e && \
+ mvn generate-resources -P train_gramGrp -e && \
  mvn generate-resources -P train_crossRef -e
 
 # && \
