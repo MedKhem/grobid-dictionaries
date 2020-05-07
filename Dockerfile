@@ -1,4 +1,4 @@
-FROM benyoo/alpine:3.9.20190527
+FROM anapsix/alpine-java:8
 
 MAINTAINER Mohamed Khemakhem <mohamed.khemakhem@inria.fr>
 
