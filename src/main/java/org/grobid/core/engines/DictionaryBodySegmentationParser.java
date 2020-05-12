@@ -1914,7 +1914,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
             }
 
-        } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ETYM_LABEL) && parsingModels[2].equals("etym")) {
+        } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ETYM_LABEL) && parsingModels[1].equals("etym")) {
             // Get the result of the first level Etym parsing
             LabeledLexicalInformation parsedEtymSegOrQuote = etymQuoteParser.process(segmentedEntryComponent.getLeft(), modelToRun);
             // For each <seg> or <quote> segment parse the etym information
@@ -1941,6 +1941,21 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             }
             produceXmlNode(clusterContent, crossRefTEIString, LEXICAL_ENTRY_XR_LABEL, true);
+            //clusterContent.append(clusterContent + etymTEIString);
+
+            //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getLeft()).toString();
+        }else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_RE_LABEL) && parsingModels[1].equals("related-entry")) {
+            // Get the result of the first level Etym parsing
+            LabeledLexicalInformation parsedRelatedEntry = crossRefParser.process(segmentedEntryComponent.getLeft(), modelToRun);
+            // For each <seg> or <quote> segment parse the etym information
+            String relatedEntryTEIString = "";
+            for (Pair<List<LayoutToken>, String> segmentedRelatedEntry : parsedRelatedEntry.getLabels()) {
+
+                relatedEntryTEIString = relatedEntryTEIString + crossRefParser.processToTEI(segmentedRelatedEntry.getLeft(), segmentedRelatedEntry.getRight()).toString();
+
+
+            }
+            produceXmlNode(clusterContent, relatedEntryTEIString, LEXICAL_ENTRY_RE_LABEL, true);
             //clusterContent.append(clusterContent + etymTEIString);
 
             //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getLeft()).toString();

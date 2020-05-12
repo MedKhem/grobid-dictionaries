@@ -59,7 +59,7 @@
 		</element>
 	</define>
 	<define name="bibl">
-		<element name="v">
+		<element name="bibl">
 			<oneOrMore>
 				<choice>
 					<text/>

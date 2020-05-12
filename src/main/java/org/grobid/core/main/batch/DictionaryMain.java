@@ -24,7 +24,7 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION = "createAnnotatedTrainingDictionaryBodySegmentation";
     private static final String CREATE_TRAINING_LEXICAL_ENTRY = "createTrainingLexicalEntry";
     private static final String CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY = "createAnnotatedTrainingLexicalEntry";
-    private static final String CREATE_TRAINING_FORM = "createTrainingForm";
+    private static final String CREATE_TRAINING_FORM = "createTrainingRe";
     private static final String CREATE_ANNOTATED_TRAINING_FORM = "createAnnotatedTrainingForm";
     private static final String CREATE_TRAINING_SENSE = "createTrainingSense";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE = "createAnnotatedTrainingSense";
@@ -38,6 +38,8 @@ public class DictionaryMain {
     private static final String CREATE_ANNOTATED_TRAINING_CROSSREF = "createAnnotatedTrainingCrossRef";
     private static final String CREATE_TRAINING_SENSE_CROSSREF = "createTrainingSenseCrossRef";
     private static final String CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF = "createAnnotatedTrainingSenseCrossRef";
+    private static final String CREATE_TRAINING_RE = "createTrainingRelatedEntry";
+    private static final String CREATE_ANNOTATED_TRAINING_RE = "createAnnotatedTrainingRelatedEntry";
     private static final String CREATE_TRAINING_FORM_GRAMGRP = "createTrainingFormGramGrp";
     private static final String CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP = "createAnnotatedTrainingFormGramGrp";
     private static final String CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP = "createTrainingGramGrp";
@@ -59,6 +61,7 @@ public class DictionaryMain {
             CREATE_TRAINING_SENSE,
             CREATE_TRAINING_SUB_SENSE,
             CREATE_TRAINING_ETYMQUOTE,
+            CREATE_TRAINING_RE,
 //            CREATE_TRAINING_ETYM,
             CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY,
             CREATE_ANNOTATED_TRAINING_FORM,
@@ -70,6 +73,7 @@ public class DictionaryMain {
             CREATE_ANNOTATED_TRAINING_CROSSREF,
             CREATE_TRAINING_SENSE_CROSSREF,
             CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF,
+            CREATE_ANNOTATED_TRAINING_RE,
             CREATE_TRAINING_FORM_GRAMGRP,
             CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP,
             CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP,
@@ -313,11 +317,22 @@ public class DictionaryMain {
 //                nb = etymParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
 //                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
 //            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_RE)) {
+                RelatedEntryParser relatedEntryParser = RelatedEntryParser.getInstance();
+                nb = relatedEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_RE)) {
+                RelatedEntryParser relatedEntryParser = RelatedEntryParser.getInstance();
+                nb = relatedEntryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
                 nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
+
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
                 nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="crossRef.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"
+?>
+<?xml-stylesheet type="text/css" href="crossRef.css"?>
+<tei xml:space="preserve">
+	<teiHeader>
+		<fileDesc xml:id=""/>
+	</teiHeader>
+	<text>
+		<body><re><def>Voy.</def> <ref>KAÏMAC</ref></re><re><usg>VOy.</usg>:.<def>QUÉ-<lb/>MANDER</def></re></body></text>
+</tei>

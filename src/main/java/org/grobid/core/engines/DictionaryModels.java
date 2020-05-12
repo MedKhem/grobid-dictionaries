@@ -19,6 +19,7 @@ public class DictionaryModels {
     public static final GrobidModel ETYM_QUOTE = GrobidModels.modelFor("etym");
     public static final GrobidModel ETYM = GrobidModels.modelFor("nothing");
     public static final GrobidModel CROSS_REF = GrobidModels.modelFor("crossRef");
+    public static final GrobidModel RE = GrobidModels.modelFor("related-entry");
 
 
 }
