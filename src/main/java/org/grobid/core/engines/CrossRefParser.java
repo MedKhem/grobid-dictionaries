@@ -9,7 +9,6 @@ import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.features.FeatureVectorForm;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesUtils;
 import org.grobid.core.features.enums.LineStatus;
@@ -156,7 +155,7 @@ public class CrossRefParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+            FeatureVectorLexicalEntry featureVectorForm = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(token, "",
                     lineStatus, fontStatus);
 
             featureMatrix.append(featureVectorForm.printVector() + "\n");

@@ -25,6 +25,7 @@ var grobid = (function ($) {
         $("#btn_download").hide();
         $("#btn_downloadBib").hide();
         $('#refinedModels').hide();
+        $('#btn_download_lemmas').hide();
 
         createInputFile();
         createInputFileBib();
@@ -57,7 +58,7 @@ var grobid = (function ($) {
 
 
         // bind downloadDictionary buttons with downloadDictionary methods
-        $('#btn_download').bind('click', downloadDictionary);
+        // $('#btn_download').bind('click', downloadDictionary);
         $("#btn_download").hide();
 
         $('#btn_download_lemmas').bind('click', downloadLemma);
@@ -428,15 +429,17 @@ function processDictionaryChange()  {
         // else {
             createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
-            setBaseUrl('processDictionarySegmentation');
+       $('#btn_download_lemmas').hide();
+       setBaseUrl('processDictionarySegmentation');
         // }
     }
     else if (selectedMacroLevel == 'processDictionaryBodySegmentation') {
 
             createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
+       $('#btn_download_lemmas').hide();
 
-            setBaseUrl('processDictionaryBodySegmentation');
+       setBaseUrl('processDictionaryBodySegmentation');
 
     }
     else if (selectedMacroLevel == 'processLexicalEntry') {
@@ -444,7 +447,8 @@ function processDictionaryChange()  {
             createInputFile(selectedMacroLevel);
 
        $('#refinedModels').hide();
-            setBaseUrl('processLexicalEntry');
+       $('#btn_download_lemmas').hide();
+       setBaseUrl('processLexicalEntry');
 
     }
     else if (selectedMacroLevel == 'processFullDictionary' ) {
@@ -460,6 +464,7 @@ function processDictionaryChange()  {
 
         //   createInputFile(selectedMacroLevel);
        $('#refinedModels').show();
+       // $('#btn_download_lemmas').show();
            setBaseUrl(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
 
 

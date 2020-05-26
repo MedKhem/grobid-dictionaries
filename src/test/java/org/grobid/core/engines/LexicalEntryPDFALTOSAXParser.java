@@ -7,7 +7,10 @@ import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.sax.PDFALTOSaxHandler;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.hamcrest.CoreMatchers.is;
+import org.grobid.core.features.FeatureVectorLexicalEntry;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
@@ -52,6 +55,23 @@ public class LexicalEntryPDFALTOSAXParser {
         assertTrue(images.size() == 0);
         assertTrue(document.getPages().size() == 4);
         assertTrue(document.getBlocks().size() == 26);
+    }
+
+    @Test
+    public void testParsing_pdfAltoCatalogs_ShouldWork() throws Exception {
+        InputStream is = this.getClass().getResourceAsStream("/1871_08_RDA_N028-1.xml_final.new.xml");
+
+        SAXParser p = spf.newSAXParser();
+        p.parse(is, target);
+        List<LayoutToken> tokenList = target.getTokenization();
+        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(tokenList, DICTIONARY_ENTRY_LABEL).toString();
+
+//        System.out.print(featSeg);
+        assertTrue(tokenList.size() > 0);
+//        assertTrue(document.getImages().size() == 0);
+//        assertTrue(images.size() == 0);
+//        assertTrue(document.getPages().size() == 4);
+//        assertTrue(document.getBlocks().size() == 26);
     }
 
 
