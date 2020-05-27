@@ -145,7 +145,7 @@ public class TEIRelatedEntrySaxParser  extends DefaultHandler {
         private boolean isRelevantTag(String qName) {
             if ((qName.equals("form"))
                     || (qName.equals("inflected")) || (qName.equals("note")) || (qName.equals("variant")) ||
-                    (qName.equals("def")) || (qName.equals("usg")) ||
+                    (qName.equals("def")) || (qName.equals("usg")) ||  (qName.equals("gramGrp")) ||
                    (qName.equals("dictScrap")) ) {
                 return true;
             }

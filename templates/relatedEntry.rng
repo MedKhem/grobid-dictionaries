@@ -36,6 +36,18 @@
         </element>
     </define>
 
+    <define name="gramGrp">
+        <element name="gramGrp">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+
     <define name="inflected">
         <element name="inflected">
             <oneOrMore>
@@ -135,6 +147,7 @@
                     <ref name="variant"/>
                     <ref name="def"/>
                     <ref name="usg"/>
+                    <ref name="gramGrp"/>
                     <ref name="note"/>
                     <ref name="dictScrap"/>
 

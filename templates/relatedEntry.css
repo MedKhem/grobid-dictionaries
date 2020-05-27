@@ -53,6 +53,11 @@ usg {
     background-color: #86d5af;
 }
 
+gramGrp {
+    display: inline;
+    background-color: #4dd50f;
+}
+
 
 
 /* special whitespace handling for minimally better readability */
