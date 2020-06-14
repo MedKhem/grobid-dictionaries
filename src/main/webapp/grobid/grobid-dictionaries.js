@@ -58,7 +58,7 @@ var grobid = (function ($) {
 
 
         // bind downloadDictionary buttons with downloadDictionary methods
-        // $('#btn_download').bind('click', downloadDictionary);
+        $('#btn_download').bind('click', downloadDictionary);
         $("#btn_download").hide();
 
         $('#btn_download_lemmas').bind('click', downloadLemma);
