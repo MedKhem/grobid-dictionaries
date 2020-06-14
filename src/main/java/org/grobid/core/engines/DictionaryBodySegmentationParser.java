@@ -1890,7 +1890,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         if ((segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)
                 || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)
                 || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)
-                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) ){
+                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) && ! parsingModels[0].equals("SkipForm") ){
 
                 clusterContent.append(formParser.processToTEI(segmentedEntryComponent,parsingModels));
 

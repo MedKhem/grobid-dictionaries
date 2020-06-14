@@ -280,7 +280,7 @@ var grobid = (function ($) {
         $("#btn_download").show();
         var selectedDictionaryForm = $('#selectedFormService option:selected').attr('value');
         console.log(selectedDictionaryForm);
-        if (selectedDictionaryForm == 'form' || selectedDictionaryForm == 'customisedForm'){
+        if (selectedDictionaryForm == 'form' || selectedDictionaryForm == 'gramGrp'){
             $('#btn_download_lemmas').show();
         }else{
             $('#btn_download_lemmas').hide();
@@ -464,7 +464,7 @@ function processDictionaryChange()  {
 
         //   createInputFile(selectedMacroLevel);
        $('#refinedModels').show();
-       // $('#btn_download_lemmas').show();
+       $('#btn_download_lemmas').show();
            setBaseUrl(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
 
 
@@ -559,8 +559,16 @@ function downloadLemma() {
     var form, i;
     for (i = 0; i< entryList.length; i++) {
         form = entryList[i].getElementsByTagName("form")[0];
+        if ('null' != form.getElementsByTagName("orth")[0]){
+            if ('null' != entryList[i].getElementsByTagName("gramGrp")[0]){
+                lemmas += form.getElementsByTagName("orth")[0].childNodes[0].nodeValue +" "+ entryList[i].getElementsByTagName("gramGrp")[0].getElementsByTagName("pos")[0].childNodes[0].nodeValue +"\n";
 
-        lemmas += form.getElementsByTagName("orth")[0].childNodes[0].nodeValue +" "+ entryList[i].getElementsByTagName("gramGrp")[0].getElementsByTagName("pos")[0].childNodes[0].nodeValue +"\n";
+            }else{
+                lemmas += form.getElementsByTagName("orth")[0].childNodes[0].nodeValue +" " +"\n";
+            }
+        }
+
+        // lemmas += form.getElementsByTagName("orth")[0].childNodes[0].nodeValue +" "+ entryList[i].getElementsByTagName("gramGrp")[0].getElementsByTagName("pos")[0].childNodes[0].nodeValue +"\n";
     }
     console.log(lemmas);
 
