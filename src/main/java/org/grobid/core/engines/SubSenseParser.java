@@ -62,6 +62,7 @@ public class SubSenseParser extends AbstractParser {
         LabeledLexicalInformation labeledSense = process(senseEntry);
         StringBuilder sb = new StringBuilder();
 
+
         sb.append("<sense>").append("\n");
         //I apply the form also to the sense to recognise the grammatical group, if any!
 
@@ -73,21 +74,21 @@ public class SubSenseParser extends AbstractParser {
             content = content.replace("&lt;lb/&gt;", "<lb/>");
 
             if (subSenseComponentLabel.equals("<example>")){
-                sb.append("<cit type=\"example\">").append("\n").append("<quote>").append("\n");
+                sb.append("<cit type=\"example\">").append("\n").append("<quote>");
                 sb.append(content);
                 sb.append("</quote>").append("\n").append("</cit>").append("\n");
             } else if (subSenseComponentLabel.equals("<translation>")){
                 sb.append("<cit type=\"translation\">").append("\n").append("<quote>");
                 sb.append(content);
                 sb.append("</quote>").append("\n").append("</cit>").append("\n");
-            }else if (subSenseComponentLabel.equals("<gramGrp>") && parsingModels[0].equals("gramGrp")) {
+            }
+            else if (subSenseComponentLabel.equals("<gramGrp>") && parsingModels[0].equals("gramGrp")) {
                 //To be activated when the training and annotations are implemented.
 //                GramGrpParser gramGrpParser = new GramGrpParser();
 //                sb.append(gramGrpParser.processToTEI(subSenseComponent.getLeft()).toString());
-
-                sb.append("<gramGrp>").append("\n").append("<gram>");
-                sb.append(content);
-                sb.append("</gram>").append("\n").append("</gramGrp>").append("\n");
+                sb.append("<gramGrp>");
+                sb.append(formatter.createMyXMLString("pos", null, content));
+                sb.append("</gramGrp>").append("\n");
 
             }
             else{

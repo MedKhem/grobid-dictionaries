@@ -31,6 +31,7 @@ import java.util.*;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+import static org.grobid.core.engines.label.SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.PC_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 import static org.grobid.service.DictionaryPaths.*;
@@ -1877,6 +1878,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
     private String processALexicalEntryComponentToTEI(String tagLabel, Pair<List<LayoutToken>, String> segmentedEntryComponent, String modelToRun) {
         StringBuilder clusterContent = new StringBuilder();
+//        System.out.println(modelToRun);
         String[] parsingModels = modelToRun.split("-");
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
@@ -1900,16 +1902,49 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && parsingModels[1].equals("subSense")) {
             SubSenseParser subSenseParser = new SubSenseParser();
             LabeledLexicalInformation parsedSense = senseParser.process(segmentedEntryComponent.getLeft());
+            boolean isEmbeddedSense = false;
+            StringBuilder embeddedSense = new StringBuilder();
+            embeddedSense.append("<sense>").append("\n");
             for (Pair<List<LayoutToken>, String> segmentedSense : parsedSense.getLabels()) {
-                if (segmentedSense.getRight().equals(SUBSENSE_SENSE_LABEL)) {
-                    clusterContent.append(subSenseParser.processToTEI(segmentedSense.getLeft(),parsingModels));
-                } else if (!segmentedSense.getRight().equals(PC_SENSE_LABEL)){
-                    clusterContent.append(senseParser.processToTEI(segmentedSense.getLeft()).toString());
-                }else{
+                if (segmentedSense.getRight().equals(GRAMMATICAL_GROUP_SENSE_LABEL)){
+                    String gramGrp = LayoutTokensUtil.normalizeText(segmentedSense.getLeft());
+                    isEmbeddedSense = true;
+                    if (parsingModels[0].equals("gramGrp")){
+                        embeddedSense.append("<gramGrp>");
+                        embeddedSense.append(formatter.createMyXMLString("pos", null, gramGrp));
+                        embeddedSense.append("</gramGrp>").append("\n");
+                    }else {
+
+                        embeddedSense.append(formatter.createMyXMLString(segmentedSense.getRight().toString(), null, DocumentUtils.escapeHTMLCharac(gramGrp)));
+
+                    }
+
+
+                } else if (segmentedSense.getRight().equals(SUBSENSE_SENSE_LABEL)) {
+                    if (isEmbeddedSense){
+                        embeddedSense.append(subSenseParser.processToTEI(segmentedSense.getLeft(),parsingModels));
+                    }else{
+                        clusterContent.append(subSenseParser.processToTEI(segmentedSense.getLeft(),parsingModels));
+                    }
+
+                } else{
                     String tokenSense = LayoutTokensUtil.normalizeText(segmentedSense.getLeft());
-                    clusterContent.append(formatter.createMyXMLString("pc", null, DocumentUtils.escapeHTMLCharac(tokenSense)));
-                }
+                    if (isEmbeddedSense){
+                        embeddedSense.append(formatter.createMyXMLString(segmentedSense.getRight().toString(), null, DocumentUtils.escapeHTMLCharac(tokenSense)));
+
+                    } else{
+                        clusterContent.append(formatter.createMyXMLString(segmentedSense.getRight().toString(), null, DocumentUtils.escapeHTMLCharac(tokenSense)));
+
+                    }
+
+                  }
+
+
             }
+            if (isEmbeddedSense){
+                clusterContent.append(embeddedSense).append("\n").append("</sense>");
+            }
+
 
         } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ETYM_LABEL) && parsingModels[2].equals("etym")) {
             // Get the result of the first level Etym parsing
