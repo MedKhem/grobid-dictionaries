@@ -34,9 +34,9 @@ The same logic respectively applies for the recognised blocks in a lexical entry
 
 GROBID-Dictionaries takes as input a file in PDF or ALTO formats. Each model of the aforementioned components generates a TEI P5-encoded hierarchy of the different recognised text structures at that specific cascading level. The final serialised output is in-line with new version of LMF (Romary et al. 2019) and the TEI-Lex-0 initiative (Romary and Tasovac 2019).
 
-##Demo
+## Demo
 
-The most recent version of the system is available [online](https://traces1.inria.fr/grobid-dictionaries/). The models of this version are trained with [5 different dictionaries](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Raw_Documents) that you can download and parse with GROBID-Dictionaries. 
+The most recent version of the system is available [online](https://traces1.inria.fr/grobid-dictionaries/). The models of this version are trained with [samples](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Training_Data%26Evaluation) from [5 different dictionaries](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Raw_Documents) that you can download and parse with GROBID-Dictionaries. 
 
 
 ## Docker Use
