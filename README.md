@@ -36,7 +36,8 @@ GROBID-Dictionaries takes as input a file in PDF or ALTO formats. Each model of 
 
 ## Demo
 
-The most recent version of the system is available [online](https://traces1.inria.fr/grobid-dictionaries/). The models of this version are trained with [samples](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Training_Data%26Evaluation) from [5 different dictionaries](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Raw_Documents) that you can download and parse with GROBID-Dictionaries. 
+The most recent version of the system is available [online](https://traces1.inria.fr/grobid-dictionaries/). The models of this version are trained with [samples](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Training_Data%26Evaluation) from [5 different dictionaries](https://github.com/MedKhem/grobid-dictionaries_data/tree/master/Raw_Documents) that you can download and parse with GROBID-Dictionaries.
+This [video](https://www.youtube.com/watch?v=u9PhaJA8awk) illustrates a use case of different models of the system.  
 
 
 ## Docker Use
