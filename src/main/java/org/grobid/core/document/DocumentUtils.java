@@ -6,7 +6,7 @@ import org.grobid.core.layout.Block;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.layout.Page;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.core.utilities.KeyGen;
 
 import java.io.File;
@@ -161,27 +161,27 @@ public class DocumentUtils {
         tei.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         if (schemaDeclaration != null) {
             if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.DTD)) {
-                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidProperties.get_GROBID_HOME_PATH()
+                tei.append("<!DOCTYPE TEI SYSTEM \"" + GrobidDictionaryProperties.get_GROBID_HOME_PATH()
                                    + "/schemas/dtd/Grobid.dtd" + "\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.XSD)) {
                 // XML schema
                 tei.append("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" \n" +
                                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                                    //"\n xsi:noNamespaceSchemaLocation=\"" +
-                                   //GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
+                                   //GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\""	+
                                    "xsi:schemaLocation=\"http://www.tei-c.org/ns/1.0 " +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
+                                   GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/xsd/Grobid.xsd\"" +
                                    "\n xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
 //				"\n xmlns:mml=\"http://www.w3.org/1998/Math/MathML\">\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNG)) {
                 // standard RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
+                                   GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rng" +
                                    "\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n");
             } else if (schemaDeclaration.equals(org.grobid.core.document.TEIFormatter.SchemaDeclaration.RNC)) {
                 // compact RelaxNG
                 tei.append("<?xml-model href=\"file://" +
-                                   GrobidProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
+                                   GrobidDictionaryProperties.get_GROBID_HOME_PATH() + "/schemas/rng/Grobid.rnc" +
                                    "\" type=\"application/relax-ng-compact-syntax\"?>\n");
             }
 
@@ -208,7 +208,7 @@ public class DocumentUtils {
         df.setTimeZone(tz);
         String dateISOString = df.format(new java.util.Date());
 
-        tei.append("\t\t\t\t<application version=\"" + GrobidProperties.getVersion() +
+        tei.append("\t\t\t\t<application version=\"" + GrobidDictionaryProperties.getVersion() +
                            "\" ident=\"GROBID\" when=\"" + dateISOString + "\">\n");
         tei.append("\t\t\t\t\t<ref target=\"https://github.com/kermitt2/grobid\">GROBID_Dictionaries - A machine learning software for structuring digitized dictionaries</ref>\n");
         tei.append("\t\t\t\t</application>\n");

@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEIEtymQuoteSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -30,11 +30,11 @@ public class EtymQuoteTrainer extends AbstractDictionaryTrainer {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
-        Trainer trainer = new EtymQuoteTrainer();
-        AbstractTrainer.runTraining( trainer);
+        GrobidDictionaryProperties.getInstance();
+        AbstractDictionaryTrainer trainer = new EtymQuoteTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false,args));
     }
 
     @Override

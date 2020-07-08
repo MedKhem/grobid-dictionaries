@@ -3,7 +3,7 @@ package org.grobid.core.main.batch;
 import org.grobid.core.main.GrobidHomeFinder;
 import org.grobid.core.engines.*;
 import org.grobid.core.main.LibraryLoader;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 
 import java.io.File;
 import java.util.Arrays;
@@ -105,7 +105,7 @@ public class DictionaryMain {
         try {
             final GrobidHomeFinder grobidHomeFinder = new GrobidHomeFinder(Arrays.asList(grobidHome));
             grobidHomeFinder.findGrobidHomeOrFail();
-            GrobidProperties.getInstance(grobidHomeFinder);
+            GrobidDictionaryProperties.getInstance(grobidHomeFinder);
             LibraryLoader.load();
         } catch (final Exception exp) {
             System.err.println("Grobid initialisation failed: " + exp);
@@ -121,7 +121,7 @@ public class DictionaryMain {
         } catch (final Exception exp) {
             System.err.println("Grobid initialisation failed: " + exp);
         }
-        GrobidProperties.getInstance();
+        GrobidDictionaryProperties.getInstance();
     }
 
     /**

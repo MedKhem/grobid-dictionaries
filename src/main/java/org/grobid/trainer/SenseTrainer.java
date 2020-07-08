@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEISenseSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -23,11 +23,11 @@ public class SenseTrainer extends AbstractDictionaryTrainer {
     }
 
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
-        Trainer trainer = new SenseTrainer();
-        AbstractTrainer.runTraining( trainer);
+        GrobidDictionaryProperties.getInstance();
+        AbstractDictionaryTrainer trainer = new SenseTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false,args));
     }
 
     @Override

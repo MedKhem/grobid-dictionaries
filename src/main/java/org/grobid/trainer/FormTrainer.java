@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.engines.DictionaryModels;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.grobid.trainer.sax.TEIFormSaxParser;
 
 import javax.xml.parsers.SAXParser;
@@ -23,12 +23,12 @@ public class FormTrainer extends AbstractDictionaryTrainer {
     }
 
     public static void main(String[] args) throws Exception {
-        GrobidProperties.getInstance();
+        GrobidDictionaryProperties.getInstance();
 
-        Trainer trainer = new FormTrainer();
-        AbstractTrainer.runTraining( trainer);
+        AbstractDictionaryTrainer trainer = new FormTrainer();
+        AbstractDictionaryTrainer.runTraining( trainer);
 
-        System.out.println( AbstractTrainer.runEvaluation( trainer, false));
+        System.out.println( AbstractDictionaryTrainer.runEvaluation( trainer, false,args));
 
     }
 

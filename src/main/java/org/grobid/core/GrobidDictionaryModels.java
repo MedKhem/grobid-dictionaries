@@ -2,7 +2,7 @@ package org.grobid.core;
 
 import org.apache.commons.lang3.StringUtils;
 import org.grobid.core.utilities.GrobidDictionaryProperties;
-import org.grobid.core.utilities.GrobidProperties;
+import org.grobid.core.utilities.GrobidDictionaryProperties;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +22,10 @@ public enum GrobidDictionaryModels implements GrobidModel {
     SENSE("sense"),
     SUB_SENSE("sub-sense"),
     GRAMMATICAL_GROUP ("gramGrp"),
-    ETYM_QUOTE("etymQuote"),
-    ETYM ("etym"),
+    ETYM_QUOTE("etym"),
+    ETYM ("nothing"),
     CROSS_REF("crossRef"),
+    RE("related-entry"),
     DUMMY("none");
 
     //I cannot declare it before
