@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Med on 12.05.20.
  */
-public class RelatedEntryTrainer extends AbstractTrainer {
+public class RelatedEntryTrainer extends AbstractDictionaryTrainer {
 
     public RelatedEntryTrainer() {
         super(DictionaryModels.RE);

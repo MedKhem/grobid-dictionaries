@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Med on 26.04.19.
  */
-public class CrossRefTrainer extends AbstractTrainer {
+public class CrossRefTrainer extends AbstractDictionaryTrainer {
 
     public CrossRefTrainer() {
         super(DictionaryModels.CROSS_REF);

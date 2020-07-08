@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 /**
  * Created by med on 19.08.16.
  */
-public class LexicalEntryTrainer extends AbstractTrainer {
+public class LexicalEntryTrainer extends AbstractDictionaryTrainer {
 
     public LexicalEntryTrainer() {
         super(DictionaryModels.LEXICAL_ENTRY);

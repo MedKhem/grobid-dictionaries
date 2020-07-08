@@ -15,7 +15,7 @@ import java.util.StringTokenizer;
 /**
  * Created by med on 08.11.16.
  */
-public class DictionaryBodySegmentationTrainer extends AbstractTrainer {
+public class DictionaryBodySegmentationTrainer extends AbstractDictionaryTrainer {
 
     public DictionaryBodySegmentationTrainer() {
         super(DictionaryModels.DICTIONARY_BODY_SEGMENTATION);

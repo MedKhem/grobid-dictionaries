@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
 /**
  * Created by Med on 06.10.17.
  */
-public class EtymQuoteTrainer extends AbstractTrainer {
+public class EtymQuoteTrainer extends AbstractDictionaryTrainer {
 
     public EtymQuoteTrainer() {
         super(DictionaryModels.ETYM_QUOTE);

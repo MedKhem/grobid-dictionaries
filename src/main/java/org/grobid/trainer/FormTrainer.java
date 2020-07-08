@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by med on 19.08.16.
  */
-public class FormTrainer extends AbstractTrainer {
+public class FormTrainer extends AbstractDictionaryTrainer {
 
     public FormTrainer() {
         super(DictionaryModels.FORM);

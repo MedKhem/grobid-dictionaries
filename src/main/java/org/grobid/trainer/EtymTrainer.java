@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 /**
  * Created by Med on 04.09.17.
  */
-public class EtymTrainer extends AbstractTrainer {
+public class EtymTrainer extends AbstractDictionaryTrainer {
 
     public EtymTrainer() {
         super(DictionaryModels.ETYM);

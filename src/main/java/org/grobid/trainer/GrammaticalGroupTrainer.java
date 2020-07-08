@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by Med on 30.04.19.
  */
-public class GrammaticalGroupTrainer extends AbstractTrainer {
+public class GrammaticalGroupTrainer extends AbstractDictionaryTrainer {
 
     public GrammaticalGroupTrainer() {
         super(DictionaryModels.GRAMMATICAL_GROUP);

@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by med on 11.03.19.
  */
-public class SubSenseTrainer extends AbstractTrainer {
+public class SubSenseTrainer extends AbstractDictionaryTrainer {
 
     public SubSenseTrainer() {
         super(DictionaryModels.SUB_SENSE);
