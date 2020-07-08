@@ -19,6 +19,7 @@ import org.grobid.core.features.FeaturesVectorSegmentation;
 import org.grobid.core.layout.*;
 import org.grobid.core.utilities.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.grobid.trainer.AbstractDictionaryTrainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ import static org.grobid.core.engines.label.DictionarySegmentationLabels.DICTION
 /**
  * Created by med on 02.08.16.
  */
-public class DictionarySegmentationParser extends AbstractParser {
+public class DictionarySegmentationParser extends AbstractDictionaryParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySegmentationParser.class);
     // default bins for relative position
     private static final int NBBINS_POSITION = 12;
@@ -52,7 +53,7 @@ public class DictionarySegmentationParser extends AbstractParser {
     private FeatureFactory featureFactory = FeatureFactory.getInstance();
 
     public DictionarySegmentationParser() {
-        super(DictionaryModels.DICTIONARY_SEGMENTATION);
+        super(DictionaryModels.DICTIONARY_SEGMENTATION,"CRF");
     }
 
     public static DictionarySegmentationParser getInstance() {

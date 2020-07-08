@@ -98,8 +98,8 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         trainer.train(getTemplatePath(), dataPath, tempModelPath, GrobidDictionaryProperties.getNBThreads(), model);
         // if we are here, that means that training succeeded
         // rename model for CRF sequence labellers (not with DeLFT deep learning models)
-        if (((GrobidDictionaryProperties.getGrobidCRFEngine() == GrobidCRFEngine.DELFT) && (model.getModelName().equals("dictionary-segmentation")))
-                || (GrobidDictionaryProperties.getGrobidCRFEngine() == GrobidCRFEngine.WAPITI))
+        if (((GrobidDictionaryProperties.getGrobidCRFEngine() == GrobidCRFEngine.DELFT) && ( model.getModelName().equals("dictionary-segmentation")))
+                || (GrobidDictionaryProperties.getGrobidCRFEngine() == GrobidCRFEngine.WAPITI) )
             renameModels(oldModelPath, tempModelPath);
 
 
@@ -183,7 +183,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         Path dataPath2 = Paths.get(dataPath.getAbsolutePath());
         Path dataPath3 = Paths.get(dataPath.getAbsolutePath());
 
-        List<String> trainingData = loadAndShuffle(dataPath2, dataPath3);
+        List<String> trainingData = loadAndShuffle(dataPath2,dataPath3);
 
 
         // Split into folds
@@ -544,7 +544,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
         long end = System.currentTimeMillis();
         LOGGER.warn("runntraining said the model is " + trainer.getModel().getModelPath());
 
-        System.out.println("Model for " + trainer.getModel() + " created in " + (end - start) + " ms");
+        System.out.println("Model for " + trainer.getModel().getModelName() + " created in " + (end - start) + " ms");
     }
 
     public File getEvalDataPath() {
@@ -560,7 +560,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
             throw new GrobidException("An exception occurred while evaluating Grobid.", e);
         }
         long end = System.currentTimeMillis();
-        report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
+        report += "\n\nEvaluation for " + trainer.getModel().getModelName() + " model is realized in " + (end - start) + " ms";
 
 
         return report;
@@ -576,18 +576,18 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
             throw new GrobidException("An exception occurred while evaluating Grobid.", e);
         }
         long end = System.currentTimeMillis();
-        report += "\n\nEvaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
+        report += "\n\nEvaluation for " + trainer.getModel().getModelName() + " model is realized in " + (end - start) + " ms";
 
-        if (variables.length > 0) {
+        if (variables.length > 0){
             String modelType = GrobidDictionaryProperties.getGrobidCRFEngine().toString();
             String outPathRawtext;
 
-            if (variables.length == 1) {
-                if (variables[0].toString().equals("true")) {
+            if(variables.length == 1){
+                if (variables[0].toString().equals("true") ){
 
-                    outPathRawtext = "resources" + "/" + "eval" + modelType + "/" + trainer.getModel() + "/evaluationOnly.txt";
+                    outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + trainer.getModel().getModelName() + "/evaluationOnly.txt" ;
                     FileUtils.writeStringToFile(new File(outPathRawtext), report, "UTF-8");
-                    System.out.print("File stored at" + outPathRawtext);
+                    System.out.print("File stored at"+outPathRawtext);
                 }
 
             } else if (variables.length > 1) {
@@ -597,7 +597,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
                     trainingParameters.append("Dict+");
                     trainingParameters.append(variables[1] + "+");
                     trainingParameters.append("Model+");
-                    trainingParameters.append(trainer.getModel() + "+");
+                    trainingParameters.append(trainer.getModel().getModelName() + "+");
 
 
                     if (variables.length > 1) {
@@ -610,10 +610,12 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
                     }
 
 
-                    String dictName = variables[1];
+                    String dictName= variables[1];
 
 
-                    outPathRawtext = "resources" + "/" + "eval" + modelType + "/" + dictName + "/" + trainer.getModel();
+
+
+                    outPathRawtext = "resources" + "/" + "eval"+ modelType + "/" + dictName + "/" + trainer.getModel().getModelName() ;
                     File file = new File(outPathRawtext);
                     if (!file.exists()) {
                         if (file.mkdir()) {
@@ -623,7 +625,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
                         }
                     }
                     report = trainingParameters.toString() + report;
-                    FileUtils.writeStringToFile(new File(outPathRawtext + "/" + "Feature" + variables[2] + "DataLevel" + variables[3] + ".txt"), report, "UTF-8");
+                    FileUtils.writeStringToFile(new File(outPathRawtext+ "/" + "Feature" + variables[2] + "DataLevel" + variables[3] + ".txt"), report, "UTF-8");
 
                 } catch (final Exception exp) {
                     throw new GrobidException("An exception occurred while rendering evaluation.", exp);
@@ -650,7 +652,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
             throw new GrobidException("An exception occurred while evaluating Grobid.", e);
         }
         long end = System.currentTimeMillis();
-        report += "\n\nSplit, training and evaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
+        report += "\n\nSplit, training and evaluation for " + trainer.getModel().getModelName() + " model is realized in " + (end - start) + " ms";
 
         return report;
     }
@@ -686,7 +688,7 @@ public abstract class AbstractDictionaryTrainer implements Trainer {
             throw new GrobidException("An exception occurred while evaluating Grobid.", e);
         }
         long end = System.currentTimeMillis();
-        report += "\n\nN-Fold evaluation for " + trainer.getModel() + " model is realized in " + (end - start) + " ms";
+        report += "\n\nN-Fold evaluation for " + trainer.getModel().getModelName() + " model is realized in " + (end - start) + " ms";
 
         return report;
     }
