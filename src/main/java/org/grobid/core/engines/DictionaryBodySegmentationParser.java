@@ -1883,15 +1883,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         FormParser formParser = new FormParser();
         SenseParser senseParser = new SenseParser();
-        EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
+//        EtymQuoteParser etymQuoteParser = new EtymQuoteParser();
         CrossRefParser crossRefParser = new CrossRefParser();
-        EtymParser etymParser = new EtymParser();
+        EtymQuoteParser etymParser = new EtymQuoteParser();
 
 
-        if ((segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)
-                || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)
-                || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)
-                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) ){
+        if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)){
 
                 clusterContent.append(formParser.processToTEI(segmentedEntryComponent,parsingModels));
 
@@ -1916,17 +1913,18 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
         } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ETYM_LABEL) && parsingModels[1].equals("etym")) {
             // Get the result of the first level Etym parsing
-            LabeledLexicalInformation parsedEtymSegOrQuote = etymQuoteParser.process(segmentedEntryComponent.getLeft(), modelToRun);
-            // For each <seg> or <quote> segment parse the etym information
             String etymTEIString = "";
-            for (Pair<List<LayoutToken>, String> segmentedEtym : parsedEtymSegOrQuote.getLabels()) {
+            etymTEIString = etymTEIString+ etymParser.processToTei(segmentedEntryComponent.getLeft());
+            // For each <seg> or <quote> segment parse the etym information
 
-                etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getLeft(), segmentedEtym.getRight()).toString();
-
-
-            }
-            produceXmlNode(clusterContent, etymTEIString, LEXICAL_ENTRY_ETYM_LABEL, true);
-            //clusterContent.append(clusterContent + etymTEIString);
+//            for (Pair<List<LayoutToken>, String> segmentedEtym : parsedEtymSegOrQuote.getLabels()) {
+//
+//                etymTEIString = etymTEIString + etymParser.processToTei(segmentedEtym.getLeft(), segmentedEtym.getRight()).toString();
+//
+//
+//            }
+//            produceXmlNode(clusterContent, etymTEIString, LEXICAL_ENTRY_ETYM_LABEL, true);
+            clusterContent.append(etymTEIString);
 
             //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getLeft()).toString();
         }else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_XR_LABEL) && parsingModels[1].equals("crossRef")) {

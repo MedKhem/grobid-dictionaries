@@ -8,7 +8,7 @@ import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.label.*;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.features.FeatureVectorForm;
+
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesUtils;
 import org.grobid.core.features.enums.LineStatus;
@@ -59,76 +59,64 @@ public class FormParser extends AbstractParser {
     public StringBuilder processToTEI(Pair<List<LayoutToken>, String> entryForm, String[] parsingModels) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
-        // The possible arguments complete chain form-gramGrp-gramGrpForm-gramGrpSense-gramGrpFormSense
-
-        LabeledLexicalInformation formComponents = process(entryForm.getLeft());
-
         StringBuilder sb = new StringBuilder();
-
-//        sb.append("<form type=\"lemma\">").append("\n");
-       if (entryForm.getRight().equals("<lemmaGrp>")) {
-           sb.append("<form type=\"lemmaGrp\">").append("\n");
-       }
-//        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)){
-//            sb.append("<form type=\"inflected\">").append("\n");
-//
-//        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)){
-//            sb.append("<form type=\"ending\">").append("\n");
-//
-//        }else if (entryForm.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)){
-//            sb.append("<form type=\"variant\">").append("\n");
-//
-//        }
-
-
-
         StringBuilder gramGrp = new StringBuilder();
-        for (Pair<List<LayoutToken>, String> formComponent : formComponents.getLabels()) {
-            String formComponentText = LayoutTokensUtil.normalizeText(formComponent.getLeft());
-            String formComponentLabel = formComponent.getRight();
 
-            String content = DocumentUtils.escapeHTMLCharac(formComponentText);
-            if (formComponentLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
-                formatter.produceXmlNode(sb, formComponentText, "<orth>", null);
-            } else if (formComponentLabel.equals(PART_FORM_LABEL)) {
-                formatter.produceXmlNode(sb, formComponentText, "<orth>", "extent-part");
-            }
-            else if (formComponentLabel.equals("<gramGrp>") && parsingModels[0].equals("gramGrp")) {
+        sb.append("<form type=\"lemmaGrp\">").append("\n");
+        if (parsingModels[0].equals("SkipForm")){
+            String componentText = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(entryForm.getLeft()));
+            sb = new StringBuilder();
+            formatter.produceXmlNode(sb, componentText, "<form>", null);
 
-                    GramGrpParser gramGrpParser = new GramGrpParser();
-                    sb.append(gramGrpParser.processToTEI(formComponent.getLeft()).toString());
+        }else {
+            LabeledLexicalInformation formComponents = process(entryForm.getLeft());
+
+//            if(parsingModels[0].equals("form")){
+                for (Pair<List<LayoutToken>, String> formComponent : formComponents.getLabels()) {
+                    String formComponentText = LayoutTokensUtil.normalizeText(formComponent.getLeft());
+                    String formComponentLabel = formComponent.getRight();
+
+                    String content = DocumentUtils.escapeHTMLCharac(formComponentText);
+                    if (formComponentLabel.equals(ORTHOGRAPHY_FORM_LABEL)) {
+                        sb.append("<form type=\"lemma\">").append("\n");
+                        formatter.produceXmlNode(sb, formComponentText, "<orth>", null);
+                        sb.append("</form>").append("\n");
+                    } else if (formComponentLabel.equals("<inflected>")) {
+                        sb.append("<form type=\"inflected\">").append("\n");
+                        formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-part");
+                        sb.append("</form>").append("\n");
+                    }else if (formComponentLabel.equals("<variant>")) {
+                        sb.append("<form type=\"variant\">").append("\n");
+                        formatter.produceXmlNode(sb, formComponentText, "<orth>", null);
+                        sb.append("</form>").append("\n");
+                    }
+                    else if (formComponentLabel.equals("<gramGrp>") && parsingModels[0].equals("gramGrp")) {
+
+                        GramGrpParser gramGrpParser = new GramGrpParser();
+                        sb.append(gramGrpParser.processToTEI(formComponent.getLeft()).toString());
 
 
 
-            }
-//            else if (labelForm.equals("<name>")){
-//                AuthorParser personNameParser = new AuthorParser();
-//                List<Person> structuredPersons = personNameParser.processing(entryForm.getLeft(),true);
+                    } else {
+                        sb.append(formatter.createMyXMLString(formComponentLabel, null, content));
+                    }
+                }
 //
-//                if ( structuredPersons == null){
-//                    sb.append("<dictScrap>");
-//                    sb.append(LayoutTokensUtil.normalizeText(entryForm.getLeft()));
-//                    sb.append("</dictScrap>");
-//                }else{
-//                    for (Person person: structuredPersons ){
-////                        sb.append("<name>");
-//                        sb.append(person.toTEI(false));
-////                        sb.append("</name>");
-//                    }
-//                }
-//
+//            } else if (parsingModels[0].equals("gramGrp")){
 //
 //            }
-            else {
-                sb.append(formatter.createMyXMLString(formComponentLabel, null, content));
+            sb.append("</form>").append("\n");
+            if (gramGrp.length() > 0) {
+                sb.append(gramGrp.toString()).append("\n");
             }
         }
 
 
-        sb.append("</form>").append("\n");
-        if (gramGrp.length() > 0) {
-            sb.append(gramGrp.toString()).append("\n");
-        }
+
+
+
+
+
 
 
         return sb;
@@ -191,7 +179,7 @@ public class FormParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+            FeatureVectorLexicalEntry featureVectorForm = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(token, "",
                     lineStatus, fontStatus);
 
             featureMatrix.append(featureVectorForm.printVector() + "\n");
