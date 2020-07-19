@@ -53,7 +53,7 @@ public class RelatedEntryParser extends AbstractParser {
         return instance;
     }
 
-    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> relatedEntry, String[] parsingModels) {
+    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> relatedEntry) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
         // The possible arguments complete chain form-gramGrp-gramGrpForm-gramGrpSense-gramGrpFormSense
@@ -63,12 +63,12 @@ public class RelatedEntryParser extends AbstractParser {
         StringBuilder sb = new StringBuilder();
 
 //        sb.append("<form type=\"lemma\">").append("\n");
-        if (relatedEntry.getRight().equals("<re>")) {
-            sb.append("<re>").append("\n");
-        }
+//        if (relatedEntry.getRight().equals("<re>")) {
+//            sb.append("<re>").append("\n");
+//        }
 
 
-        StringBuilder gramGrp = new StringBuilder();
+
         for (Pair<List<LayoutToken>, String> relatedEntryComponent : relatedEntryComponents.getLabels()) {
             String relatedEntryComponentText = LayoutTokensUtil.normalizeText(relatedEntryComponent.getLeft());
             String relatedEntryComponentLabel = relatedEntryComponent.getRight();
@@ -80,7 +80,7 @@ public class RelatedEntryParser extends AbstractParser {
         }
 
 
-        sb.append("</re>").append("\n");
+//        sb.append("</re>").append("\n");
 
 
         return sb;

@@ -83,7 +83,20 @@ public class FormParser extends AbstractParser {
                         sb.append("</form>").append("\n");
                     } else if (formComponentLabel.equals("<inflected>")) {
                         sb.append("<form type=\"inflected\">").append("\n");
-                        formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-part");
+//                        System.out.println(formComponentText);
+                        if (formComponentText.startsWith("Je") || formComponentText.startsWith("je") || formComponentText.startsWith("j'") || formComponentText.startsWith("J'") ||
+                                formComponentText.startsWith("tu") || formComponentText.startsWith("Tu")
+                                || formComponentText.startsWith("il") || formComponentText.startsWith("Il")
+                                || formComponentText.startsWith("nous") || formComponentText.startsWith("Nous")
+                                || formComponentText.startsWith("vous") || formComponentText.startsWith("Vous")
+                                || formComponentText.startsWith("ils") || formComponentText.startsWith("Ils")){
+
+                            formatter.produceXmlNode(sb, formComponentText, "<orth>", null);
+
+                        }else{
+                            formatter.produceXmlNode(sb, formComponentText, "<orth>", "type-part");
+                        }
+
                         sb.append("</form>").append("\n");
                     }else if (formComponentLabel.equals("<variant>")) {
                         sb.append("<form type=\"variant\">").append("\n");

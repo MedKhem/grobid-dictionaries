@@ -57,11 +57,11 @@ public class CrossRefParser extends AbstractParser {
         instance = new CrossRefParser();
     }
 
-    public StringBuilder processToTEI(List<LayoutToken> crossRefSequence , String modelToRun) {
+    public StringBuilder processToTEI(List<LayoutToken> crossRefSequence ) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
 
-        LabeledLexicalInformation labeledForm = process(crossRefSequence,modelToRun);
+        LabeledLexicalInformation labeledForm = process(crossRefSequence);
 
         StringBuilder sb = new StringBuilder();
         StringBuilder ref = new StringBuilder();
@@ -71,24 +71,24 @@ public class CrossRefParser extends AbstractParser {
 
         for (Pair<List<LayoutToken>, String> entryForm : labeledForm.getLabels()) {
             String tokenForm = LayoutTokensUtil.normalizeText(entryForm.getLeft());
-            String labelForm = entryForm.getRight();
+            String labeledCrossRefComponent = entryForm.getRight();
 
             String content = DocumentUtils.escapeHTMLCharac(tokenForm);
-            if (labelForm.equals("<relation>") && !relationshipSpecified) {
-                relation = content;
-                relationshipSpecified = true;
-
-            }else {
-                ref.append(formatter.createMyXMLString(labelForm, null, content));
-            }
+//            if (labelForm.equals("<relation>") && !relationshipSpecified) {
+//                relation = content;
+//                relationshipSpecified = true;
+//
+//            }else {
+                sb.append(formatter.createMyXMLString(labeledCrossRefComponent, null, content));
+//            }
         }
-        String attributes="";
-        if (relationshipSpecified){
-             attributes= "type-"+relation;
-            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
-        }else {
-            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
-        }
+//        String attributes="";
+//        if (relationshipSpecified){
+//             attributes= "type-"+relation;
+//            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
+//        }else {
+//            sb.append(formatter.createMyXMLString("<xr>", attributes, ref.toString()));
+//        }
 
 //        ref.append("</form>").append("\n");
 //        if (ref.length() > 0) {
@@ -100,7 +100,7 @@ public class CrossRefParser extends AbstractParser {
 
     }
 
-    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens, String model) {
+    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
         //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
 
         StringBuilder featureMatrix = new StringBuilder();
