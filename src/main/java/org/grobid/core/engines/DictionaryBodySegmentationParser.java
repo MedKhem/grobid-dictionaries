@@ -1687,7 +1687,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             clusterContent.append(etymTEIString);
 
             //clusterContent = clusterContent + etymQuoteParser.processToTei(segmentedEntryComponent.getLeft()).toString();
-        }else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_XR_LABEL) && parsingModels[4].equals("xr")) {
+        }else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_XR_LABEL) && (parsingModels[4].equals("xr") || parsingModels[4].equals("xrAll"))) {
             // Get the result of the first level Etym parsing
 //            LabeledLexicalInformation parsedCrossRef = crossRefParser.process(segmentedEntryComponent.getLeft());
             // For each <seg> or <quote> segment parse the etym information
