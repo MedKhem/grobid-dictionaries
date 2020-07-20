@@ -1,5 +1,3 @@
-git checkout basnage && \
-
 git pull && \
 
 mvn clean install -DskipTests && \
