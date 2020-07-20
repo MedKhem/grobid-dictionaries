@@ -33,3 +33,19 @@ mvn generate-resources -P train_sub_sense -e -Dexec.args="true" && \
 mvn generate-resources -P train_gramGrp -e  && \
 cp ~/grobid/grobid-home/models/gramGrp/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/gramGrp/ && \
 mvn generate-resources -P train_gramGrp -e -Dexec.args="true"
+
+mvn generate-resources -P train_etym -e  && \
+cp ~/grobid/grobid-home/models/etym/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/etym/ && \
+mvn generate-resources -P train_etym -e -Dexec.args="true"
+
+
+mvn generate-resources -P train_crossRef -e  && \
+cp ~/grobid/grobid-home/models/crossRef/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/crossRef/ && \
+mvn generate-resources -P train_crossRef -e -Dexec.args="true"
+
+
+mvn generate-resources -P train_relatedEntry -e  && \
+cp ~/grobid/grobid-home/models/relatedEntry/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/relatedEntry/ && \
+mvn generate-resources -P train_relatedEntry -e -Dexec.args="true"
+
+
