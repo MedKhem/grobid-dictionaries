@@ -28,6 +28,7 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SENSE_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_XR_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 
 /**
@@ -91,8 +92,8 @@ public class SubSenseParser extends AbstractParser {
 
             }else if (subSenseComponentLabel.equals("<xr>") && parsingModels[4].equals("xrAll")){
                 CrossRefParser crossRefParser = new CrossRefParser();
-                StringBuilder structuredCrossRef = crossRefParser.processToTEI(subSenseComponent.getLeft());
-                sb.append(structuredCrossRef.toString());
+                String structuredCrossRef = crossRefParser.processToTEI(subSenseComponent.getLeft()).toString();
+                sb.append(formatter.createMyXMLString(LEXICAL_ENTRY_XR_LABEL,null, structuredCrossRef));
             }
             else{
                 sb.append(formatter.createMyXMLString(subSenseComponentLabel, null, content));
@@ -105,6 +106,15 @@ public class SubSenseParser extends AbstractParser {
         sb.append("</sense>").append("\n");
         return sb;
 
+    }
+
+    private void produceXmlNode(StringBuilder buffer, String clusterContent, String tagLabel, Boolean clusterContentIsEscaped) {
+
+        if (!clusterContentIsEscaped) {
+            clusterContent = clusterContent.replace("&lt;lb/&gt;", "<lb/>");
+            clusterContent = DocumentUtils.escapeHTMLCharac(clusterContent);
+        }
+        buffer.append(formatter.createMyXMLString(tagLabel, null, clusterContent));
     }
 
     public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
