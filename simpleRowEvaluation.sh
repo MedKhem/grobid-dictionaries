@@ -4,7 +4,7 @@ git pull && \
 
 mvn clean install -DskipTests && \
 
-cp resources/dataset/dictionary-segmentation/model.wapiti grobid/grobid-home/models/dictionary-segmentation/  && \
+cp resources/dataset/dictionary-segmentation/model.wapiti /grobid/grobid-home/models/dictionary-segmentation/  && \
 
 cp resources/dataset/dictionary-body-segmentation/model.wapiti /grobid/grobid-home/models/dictionary-body-segmentation/ && \
 
