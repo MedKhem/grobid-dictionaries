@@ -1,51 +1,27 @@
-#!/usr/local/bin/bash
+git checkout basnage && \
 
-mvn generate-resources -P train_dictionary_segmentation -e && \
-cp ~/grobid/grobid-home/models/dictionary-segmentation/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/dictionary-segmentation/  && \
-mvn generate-resources -P train_dictionary_segmentation -e -Dexec.args="true" && \
+git pull && \
 
+mvn clean install -DskipTests && \
 
-mvn generate-resources -P train_dictionary_body_segmentation -e && \
-cp ~/grobid/grobid-home/models/dictionary-body-segmentation/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/dictionary-body-segmentation/ && \
-mvn generate-resources -P train_dictionary_body_segmentation -e -Dexec.args="true" && \
+cp resources/dataset/dictionary-segmentation/model.wapiti grobid/grobid-home/models/dictionary-segmentation/  && \
 
+cp resources/dataset/dictionary-body-segmentation/model.wapiti /grobid/grobid-home/models/dictionary-body-segmentation/ && \
 
-mvn generate-resources -P train_lexicalEntries -e && \
-cp ~/grobid/grobid-home/models/lexical-entry/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/lexical-entry/  && \
-mvn generate-resources -P train_lexicalEntries -e -Dexec.args="true" && \
+cp resources/dataset/lexical-entry/model.wapiti /grobid/grobid-home/models/lexical-entry/ && \
 
+cp resources/dataset/form/model.wapiti /grobid/grobid-home/models/form/ && \
 
-mvn generate-resources -P train_form -e && \
-cp ~/grobid/grobid-home/models/form/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/form/  && \
-mvn generate-resources -P train_form -e -Dexec.args="true" && \
+cp resources/dataset/gramGrp/model.wapiti /grobid/grobid-home/models/gramGrp/ && \
 
+cp resources/dataset/sense/model.wapiti /grobid/grobid-home/models/sense/ && \
 
-mvn generate-resources -P train_sense -e && \
-cp ~/grobid/grobid-home/models/sense/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/sense/  && \
-mvn generate-resources -P train_sense -e -Dexec.args="true" && \
+cp resources/dataset/sub-sense/model.wapiti /grobid/grobid-home/models/sub-sense/ && \
 
+cp resources/dataset/etym/model.wapiti /grobid/grobid-home/models/etym/ && \
 
-mvn generate-resources -P train_sub_sense -e && \
-cp ~/grobid/grobid-home/models/sub-sense/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/sub-sense/  && \
-mvn generate-resources -P train_sub_sense -e -Dexec.args="true" && \
+cp resources/dataset/crossRef/model.wapiti /grobid/grobid-home/models/crossRef/ && \
 
+mkdir /grobid/grobid-home/models/related-entry && \
 
-mvn generate-resources -P train_gramGrp -e  && \
-cp ~/grobid/grobid-home/models/gramGrp/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/gramGrp/ && \
-mvn generate-resources -P train_gramGrp -e -Dexec.args="true"
-
-mvn generate-resources -P train_etym -e  && \
-cp ~/grobid/grobid-home/models/etym/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/etym/ && \
-mvn generate-resources -P train_etym -e -Dexec.args="true"
-
-
-mvn generate-resources -P train_crossRef -e  && \
-cp ~/grobid/grobid-home/models/crossRef/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/crossRef/ && \
-mvn generate-resources -P train_crossRef -e -Dexec.args="true"
-
-
-mvn generate-resources -P train_relatedEntry -e  && \
-cp ~/grobid/grobid-home/models/relatedEntry/model.wapiti ~/grobid/grobid-dictionaries/resources/dataset/relatedEntry/ && \
-mvn generate-resources -P train_relatedEntry -e -Dexec.args="true"
-
-
+cp resources/dataset/related-entry/model.wapiti /grobid/grobid-home/models/related-entry/

@@ -89,6 +89,10 @@ public class SubSenseParser extends AbstractParser {
                 sb.append(content);
                 sb.append("</gram>").append("\n").append("</gramGrp>").append("\n");
 
+            }else if (subSenseComponentLabel.equals("<xr>") && parsingModels[4].equals("xrAll")){
+                CrossRefParser crossRefParser = new CrossRefParser();
+                StringBuilder structuredCrossRef = crossRefParser.processToTEI(subSenseComponent.getLeft());
+                sb.append(structuredCrossRef);
             }
             else{
                 sb.append(formatter.createMyXMLString(subSenseComponentLabel, null, content));

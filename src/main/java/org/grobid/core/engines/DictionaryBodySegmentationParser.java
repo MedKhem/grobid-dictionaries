@@ -1694,7 +1694,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             String crossRefTEIString = "";
 
 
-                crossRefTEIString = crossRefTEIString + crossRefParser.processToTEI(segmentedEntryComponent.getLeft());
+            crossRefTEIString = crossRefTEIString + crossRefParser.processToTEI(segmentedEntryComponent.getLeft());
 
 
 
