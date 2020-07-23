@@ -1,7 +1,7 @@
 package org.grobid.core.engines;
 
 import com.google.common.collect.Iterables;
-import org.apache.xpath.operations.Bool;
+
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.*;
 import org.grobid.core.engines.label.*;
