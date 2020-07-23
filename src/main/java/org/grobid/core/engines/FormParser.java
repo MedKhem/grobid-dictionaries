@@ -267,7 +267,7 @@ public class FormParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -284,12 +284,12 @@ public class FormParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingForm(fileEntry, outputDirectory, false);
+                    createTrainingForm(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingForm(path, outputDirectory, false);
+                createTrainingForm(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -303,7 +303,7 @@ public class FormParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -320,12 +320,12 @@ public class FormParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingForm(fileEntry, outputDirectory, true);
+                    createTrainingForm(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingForm(path, outputDirectory, true);
+                createTrainingForm(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -338,10 +338,10 @@ public class FormParser extends AbstractParser {
         }
     }
 
-    public void createTrainingForm(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingForm(File path, String outputDirectory, Boolean isAnnotated, Boolean isPDF) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";

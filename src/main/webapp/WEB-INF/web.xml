@@ -34,15 +34,15 @@
 
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processDictionarySegmentation</url-pattern>
+        <url-pattern>*.processDictionarySegmentation</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processDictionaryBodySegmentation</url-pattern>
+        <url-pattern>*.processDictionaryBodySegmentation</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processLexicalEntry</url-pattern>
+        <url-pattern>*.processLexicalEntry</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
@@ -52,15 +52,15 @@
 
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processBibliographySegmentation</url-pattern>
+        <url-pattern>*.processBibliographySegmentation</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processBibliographyBodySegmentation</url-pattern>
+        <url-pattern>*.processBibliographyBodySegmentation</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>grobid-service</servlet-name>
-        <url-pattern>/processBibliographyEntry</url-pattern>
+        <url-pattern>*.processBibliographyEntry</url-pattern>
     </servlet-mapping>
 
     <!-- Path to properties files and GROBID_HOME -->

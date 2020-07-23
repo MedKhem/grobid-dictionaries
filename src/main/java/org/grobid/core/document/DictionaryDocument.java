@@ -2,9 +2,11 @@ package org.grobid.core.document;
 
 import org.grobid.core.data.LabeledLexicalEntry;
 import org.grobid.core.data.LabeledLexicalInformation;
+import org.grobid.core.layout.Block;
 import org.grobid.core.layout.LayoutToken;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -28,7 +30,31 @@ public class DictionaryDocument extends Document {
         bodyComponents = null;
 
     }
+    public DictionaryDocument() {
+        super();
+        bodyComponents = null;
 
+    }
+    public DictionaryDocument(File file){
+
+        bodyComponents = null;
+        setPathXML(file);
+    }
+
+
+    public void setPathXML(File pathXML) {
+        this.pathXML = pathXML.getAbsolutePath();
+    }
+
+    public void setTokenizations(List<LayoutToken> tokenizations) {
+        this.tokenizations = tokenizations;
+    }
+
+    public static DictionaryDocument createFromText(String text) {
+        DictionaryDocument doc = new DictionaryDocument();
+        doc.fromText(text);
+        return doc;
+    }
     public SortedSet<DocumentPiece> getDocumentDictionaryPart(String segmentationLabel) {
         if (this.labeledBlocks == null) {
             LOGGER.debug("labeledBlocks is null");
@@ -92,6 +118,14 @@ public class DictionaryDocument extends Document {
 
             return this.footnotesOptimised;
         }
+    }
+    public DictionaryDocument  removePagesAndTheirBlocks(DictionaryDocument doc, int pageNumber, int blockNumber){
+
+        doc.getBlocks().remove(blockNumber);
+        doc.getPages().remove(pageNumber);
+
+
+        return doc;
     }
     public LabeledLexicalInformation gettDictScrapsOptimised(){
         if (this.dictScrapsOptimised == null) {

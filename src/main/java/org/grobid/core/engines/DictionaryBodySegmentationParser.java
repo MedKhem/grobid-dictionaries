@@ -1,16 +1,14 @@
 package org.grobid.core.engines;
 
 import com.google.common.collect.Iterables;
+import org.apache.xpath.operations.Bool;
 import org.grobid.core.data.LabeledLexicalInformation;
+import org.grobid.core.document.*;
 import org.grobid.core.engines.label.*;
 import org.grobid.core.layout.Page;
 import org.grobid.core.utilities.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.grobid.core.document.DictionaryDocument;
-import org.grobid.core.document.DocumentPiece;
-import org.grobid.core.document.DocumentUtils;
-import org.grobid.core.document.TEIDictionaryFormatter;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
@@ -32,7 +30,6 @@ import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DIC
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_DICTSCRAP_LABEL;
 import static org.grobid.core.engines.label.LexicalEntryLabels.*;
 import static org.grobid.core.engines.label.SenseLabels.GRAMMATICAL_GROUP_SENSE_LABEL;
-import static org.grobid.core.engines.label.SenseLabels.PC_SENSE_LABEL;
 import static org.grobid.core.engines.label.SenseLabels.SUBSENSE_SENSE_LABEL;
 import static org.grobid.service.DictionaryPaths.*;
 
@@ -77,14 +74,20 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         instance = new DictionaryBodySegmentationParser();
     }
 
-    public String processToTEI(File originFile, String modelToRun) {
+    public String processPDFToTEI(File originFile, String modelToRun) {
         //This method is used by the service mode to display the segmentation result as text in tei-xml format
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionaryDocument doc = null;
-
+        String[] parsingModels = modelToRun.split("-");
+        Boolean isPdf;
+        if (parsingModels[7].equals("PDF")){
+            isPdf = true;
+        }else{
+            isPdf = false;
+        }
         try {
-            doc = processing(originFile);
+            doc = processing(originFile, isPdf);
         } catch (GrobidException e) {
             throw e;
         } catch (Exception e) {
@@ -96,17 +99,67 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         return segmentedBody;
     }
 
-    public DictionaryDocument processing(File originFile) {
+//    public String processALTOToTEI(File originFile, String modelToRun) {
+//        //This method is used by the service mode to display the segmentation result as text in tei-xml format
+//        //Prepare
+//        GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
+//        DictionaryDocument doc = null;
+//
+//        try {
+//            doc = processing(originFile,);
+//        } catch (GrobidException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new GrobidException("An exception occurred while running Grobid.", e);
+//        }
+//
+//        String segmentedBody = toTEIFormatDictionaryBodySegmentation(config, null, doc, modelToRun).toString();
+//
+//        return segmentedBody;
+//    }
+
+    public DictionaryDocument processing(File originFile, Boolean isPDF) {
         // This method is to be called by the following parser
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser dictionaryParser = new DictionarySegmentationParser();
-        DictionaryDocument doc = dictionaryParser.initiateProcessing(originFile, config);
-        try {
-            //Get Body
-            SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+        DictionaryDocument doc = new DictionaryDocument();
+        SortedSet<DocumentPiece> documentBodyParts = null;
+        LayoutTokenization layoutTokenization = new LayoutTokenization();
 
-            //Get tokens from the body
-            LayoutTokenization layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+        //depending on the file to process, extract the body part and its tokenization
+        System.out.println("alto path is "+originFile.getPath());
+//        if (originFile.getPath().endsWith(".pdf")){
+        if (isPDF){
+
+                doc = dictionaryParser.initiateProcessingPDF(originFile, config);
+                //Get Body
+                documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+                //Get tokens from the body
+                layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+            } else{
+//            else if (originFile.getPath().endsWith(".xml")){
+
+                //Get tokens from the body
+                try {
+
+                    doc = dictionaryParser.initiateProcessingALTO(originFile);
+                    doc.setPathXML(originFile.getAbsoluteFile());
+                    List<LayoutToken> tokenList= doc.addTokenizedDocument(config);
+                    layoutTokenization = new LayoutTokenization(tokenList) ;
+
+                } catch (GrobidException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new GrobidException("An exception occurred while running Grobid.", e);
+                }
+
+            }
+
+
+        try {
+
 
             String bodytextFeatured = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
             String labeledFeatures = null;
@@ -273,6 +326,8 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     }
 
     public void extractPagesOffsetArray(DictionaryDocument doc) {
+
+
 
 
         for (Page page : doc.getPages()) {
@@ -1182,21 +1237,21 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 //                                    LabeledLexicalInformation parsedLexicalEntry = lexicalEntryParser.process(allTokensOfaLE, modelToRun);
 //                                    for (Pair<List<LayoutToken>, String> segmentedEntryComponent : parsedLexicalEntry.getLabels()) {
 //                                        if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_FORM_LABEL) && parsingModels[0].equals("form")) {
-//                                            clusterContent = clusterContent + formParser.processToTEI(segmentedEntryComponent.getLeft()).toString();
+//                                            clusterContent = clusterContent + formParser.processPDFToTEI(segmentedEntryComponent.getLeft()).toString();
 //
 //                                        } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && parsingModels[1].equals("sense")) {
 //
-//                                            clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getLeft()).toString();
+//                                            clusterContent = clusterContent + senseParser.processPDFToTEI(segmentedEntryComponent.getLeft()).toString();
 //                                        } else if (segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_SENSE_LABEL) && parsingModels[1].equals("subSense")) {
 //                                            SubSenseParser subSenseParser = new SubSenseParser();
 //                                            LabeledLexicalInformation parsedSense = senseParser.process(segmentedEntryComponent.getLeft());
 //                                            for (Pair<List<LayoutToken>, String> segmentedSense : parsedSense.getLabels()) {
 //                                                if (segmentedSense.getRight().equals(SUBSENSE_SENSE_LABEL)){
-//                                                    clusterContent = clusterContent + subSenseParser.processToTEI(segmentedSense.getLeft()).toString();
+//                                                    clusterContent = clusterContent + subSenseParser.processPDFToTEI(segmentedSense.getLeft()).toString();
 //                                                }
 //                                            }
 //
-//                                            clusterContent = clusterContent + senseParser.processToTEI(segmentedEntryComponent.getLeft()).toString();
+//                                            clusterContent = clusterContent + senseParser.processPDFToTEI(segmentedEntryComponent.getLeft()).toString();
 //                                        } else {
 //                                            String xmlTag = segmentedEntryComponent.getRight();
 //                                            clusterContent = clusterContent + createMyXMLString(xmlTag, LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(segmentedEntryComponent.getLeft())));
@@ -1442,7 +1497,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
         try {
             File path = new File(inputDirectory);
@@ -1460,12 +1515,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionaryBody(fileEntry, outputDirectory, false);
+                    createTrainingDictionaryBody(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingDictionaryBody(path, outputDirectory, false);
+                createTrainingDictionaryBody(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -1480,7 +1535,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
         try {
             File path = new File(inputDirectory);
@@ -1498,12 +1553,12 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionaryBody(fileEntry, outputDirectory, true);
+                    createTrainingDictionaryBody(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingDictionaryBody(path, outputDirectory, true);
+                createTrainingDictionaryBody(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -1517,10 +1572,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         }
     }
 
-    public void createTrainingDictionaryBody(File path, String outputDirectory, boolean isAnnotated) throws Exception {
+    public void createTrainingDictionaryBody(File path, String outputDirectory, boolean isAnnotated, Boolean isPDF) throws Exception {
 
         // Segment the doc
-        DictionaryDocument doc = processing(path);
+        DictionaryDocument doc = processing(path, isPDF);
         //Get Body
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
@@ -1887,10 +1942,10 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         EtymParser etymParser = new EtymParser();
 
 
-        if ((segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)
+        if (((segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_LEMMA_LABEL)
                 || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_INFLECTED_LABEL)
                 || segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_ENDING_LABEL)
-                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) && ! parsingModels[0].equals("SkipForm") ){
+                ||segmentedEntryComponent.getRight().equals(LEXICAL_ENTRY_VARIANT_LABEL)) && ! (parsingModels[0].equals("SkipForm") ))){
 
                 clusterContent.append(formParser.processToTEI(segmentedEntryComponent,parsingModels));
 

@@ -12,7 +12,7 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
- * The entrance point for starting grobid-dictionaries from command line and perform batch initiateProcessing
+ * The entrance point for starting grobid-dictionaries from command line and perform batch initiateProcessingPDF
  * <p>
  * Created by med on 27.07.16.
  */
@@ -131,7 +131,7 @@ public class DictionaryMain {
         help.append("-dIn: gives the path to the directory where the files to be processed are located, to be used only when the called method needs it.\n");
         help.append("-dOut: gives the path to the directory where the result files will be saved. The default output directory is the curent directory.\n");
         help.append("-s: is the parameter used for process using string as input and not file.\n");
-        help.append("-r: recursive directory initiateProcessing, default initiateProcessing is not recursive.\n");
+        help.append("-r: recursive directory initiateProcessingPDF, default initiateProcessingPDF is not recursive.\n");
         help.append("-ignoreAssets: do not extract and save the PDF assets (bitmaps, vector graphics), by default the assets are extracted and saved.\n");
         help.append("-exe: gives the command to execute. The value should be one of these:\n");
         help.append("\t" + availableCommands + "\n");
@@ -145,6 +145,7 @@ public class DictionaryMain {
      */
     protected static boolean processArgs(final String[] pArgs) {
         boolean result = true;
+        gbdArgs.setPdf(true);
         if (pArgs.length == 0) {
             System.out.println(getHelp());
             result = false;
@@ -208,6 +209,11 @@ public class DictionaryMain {
                     gbdArgs.setRecursive(true);
                     continue;
                 }
+
+                if (currArg.equals("-isALTO")) {
+                    gbdArgs.setPdf(false);
+                    continue;
+                }
             }
         }
         return result;
@@ -235,133 +241,133 @@ public class DictionaryMain {
 
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_DICTIONARY_SEGMENTATION)) {
                 DictionarySegmentationParser dictionarySegmentationParser = DictionarySegmentationParser.getInstance();
-                nb = dictionarySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = dictionarySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_DICTIONARY_SEGMENTATION)) {
                 DictionarySegmentationParser dictionarySegmentationParser = DictionarySegmentationParser.getInstance();
-                nb = dictionarySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = dictionarySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_DICTIONARY_BODY_SEGMENTATION)) {
                 DictionaryBodySegmentationParser dictionaryBodySegmentationParser = DictionaryBodySegmentationParser.getInstance();
-                nb = dictionaryBodySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = dictionaryBodySegmentationParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_DICTIONARY_BODY_SEGMENTATION)) {
                 DictionaryBodySegmentationParser dictionaryBodySegmentationParser = DictionaryBodySegmentationParser.getInstance();
-                nb = dictionaryBodySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = dictionaryBodySegmentationParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRY)) {
                 LexicalEntryParser lexicalEntryParser = LexicalEntryParser.getInstance();
-                nb = lexicalEntryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = lexicalEntryParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY)) {
                 LexicalEntryParser lexicalEntryParser = LexicalEntryParser.getInstance();
-                nb = lexicalEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = lexicalEntryParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_FORM)) {
                 FormParser formParser = FormParser.getInstance();
-                nb = formParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = formParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_FORM)) {
                 FormParser formParser = FormParser.getInstance();
-                nb = formParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = formParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SENSE)) {
                 SenseParser senseParser = SenseParser.getInstance();
-                nb = senseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = senseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE)) {
                 SenseParser senseParser = SenseParser.getInstance();
-                nb = senseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = senseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SUB_SENSE)) {
                 SubSenseParser subSenseParser = SubSenseParser.getInstance();
-                nb = subSenseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = subSenseParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SUB_SENSE)) {
                 SubSenseParser subSenseParser = SubSenseParser.getInstance();
-                nb = subSenseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = subSenseParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_ETYMQUOTE)) {
                 EtymQuoteParser etymQuoteParser = EtymQuoteParser.getInstance();
-                nb = etymQuoteParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = etymQuoteParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_ETYMQUOTE)) {
                 EtymQuoteParser etymQuoteParser = EtymQuoteParser.getInstance();
-                nb = etymQuoteParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = etymQuoteParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_ETYM)) {
                 EtymParser etymParser = EtymParser.getInstance();
-                nb = etymParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = etymParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_ETYM)) {
                 EtymParser etymParser = EtymParser.getInstance();
-                nb = etymParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                nb = etymParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(),gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
-                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
-                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_SENSE_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
-                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                nb = crossRefParserParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE_CROSSREF)) {
                 CrossRefParser crossRefParserParser = CrossRefParser.getInstance();
-                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                nb = crossRefParserParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_FORM_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form");
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_FORM_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form");
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "form",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry");
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "lexical entry",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                nb = gramGrpParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
-                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense",gbdArgs.isPdf());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 

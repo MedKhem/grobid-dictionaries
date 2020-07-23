@@ -4,24 +4,17 @@ import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
 import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.factory.AbstractDictionaryEngineFactory;
-import org.grobid.core.main.LibraryLoader;
 import org.apache.commons.lang3.tuple.Pair;
-import org.grobid.core.utilities.TextUtilities;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.xml.parsers.SAXParser;
 import java.io.File;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.SortedSet;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
@@ -131,7 +124,7 @@ public class DocumentUtilsTest {
         }
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc =  parser.initiateProcessing(input, config);
+        DictionaryDocument doc =  parser.initiateProcessingPDF(input, config);
         SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return Pair.of(doc, documentBodyParts);
@@ -148,7 +141,7 @@ public class DocumentUtilsTest {
         }
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc =  parser.initiateProcessing(input, config);
+        DictionaryDocument doc =  parser.initiateProcessingPDF(input, config);
        // SortedSet<DocumentPiece> documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
         return doc;

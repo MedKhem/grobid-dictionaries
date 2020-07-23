@@ -39,35 +39,39 @@ public class DictionaryRestService implements DictionaryPaths {
     }
 
 
-    @Path(PROCESS_DICTIONARY_SEGMENTATION)
+    @Path("{fileType}.processDictionarySegmentation")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processDictionarySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
+    public Response processDictionarySegmentation_post(@FormDataParam(INPUT) InputStream inputStream,
+                                                       @PathParam("fileType") String fileType) throws Exception {
         return DictionaryProcessFile.processDictionarySegmentation(inputStream);
     }
-    @Path(PROCESS_BIBLIOGRAPHY_SEGMENTATION)
+    @Path("{fileType}.processBibliographySegmentation")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processBibliographySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
+    public Response processBibliographySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream,
+                                                         @PathParam("fileType") String fileType) throws Exception {
         return DictionaryProcessFile.processDictionarySegmentation(inputStream);
     }
 
-    @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION)
+    @Path("{fileType}.processDictionaryBodySegmentation")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_DICTIONARY_BODY_SEGMENTATION);
+    public Response processDictionaryBodySegmentation_post(@FormDataParam(INPUT) InputStream inputStream,
+                                                           @PathParam("fileType") String fileType) throws Exception {
+        return DictionaryProcessFile.processInputFile(inputStream, PROCESS_DICTIONARY_BODY_SEGMENTATION,fileType);
     }
 
-    @Path(PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION)
+    @Path("{fileType}.processBibliographyBodySegmentation")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processBibliographyBodySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processDictionaryBodySegmentation(inputStream, PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION);
+    public Response processBibliographyBodySegmentation_post(@FormDataParam(INPUT_BIB) InputStream inputStream,
+                                                             @PathParam("fileType") String fileType) throws Exception {
+        return DictionaryProcessFile.processInputFile(inputStream, PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION,fileType);
     }
 //    @Path(PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED)
 //    @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -78,34 +82,38 @@ public class DictionaryRestService implements DictionaryPaths {
 //    }
 
 
-    @Path(PATH_LEXICAL_ENTRY)
+    @Path("{fileType}/{constant}.processLexicalEntry")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY);
+    public Response processLexicalEntries_post(@FormDataParam(INPUT) InputStream inputStream,
+                                               @PathParam("fileType") String fileType,
+                                               @PathParam("constant") String constant) throws Exception {
+        return DictionaryProcessFile.processInputFile(inputStream, constant,fileType);
     }
 
-    @Path(PATH_BIBLIOGRAPHY_ENTRY)
+    @Path("{fileType}.processBibliographyEntry")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
-    public Response processBibliographyEntries_post(@FormDataParam(INPUT_BIB) InputStream inputStream) throws Exception {
-        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_BIBLIOGRAPHY_ENTRY);
+    public Response processBibliographyEntries_post(@FormDataParam(INPUT_BIB) InputStream inputStream,
+                                                    @PathParam("fileType") String fileType) throws Exception {
+        return DictionaryProcessFile.processInputFile(inputStream, PATH_BIBLIOGRAPHY_ENTRY,fileType);
     }
 //    @Path(PATH_LEXICAL_ENTRY_OPTIMISED)
 //    @Consumes(MediaType.MULTIPART_FORM_DATA)
 //    @Produces(MediaType.APPLICATION_XML)
 //    @POST
 //    public Response processLexicalEntriesOptimised_post(@FormDataParam(INPUT) InputStream inputStream) throws Exception {
-//        return DictionaryProcessFile.processLexicalEntries(inputStream, PATH_LEXICAL_ENTRY_OPTIMISED);
+//        return DictionaryProcessFile.processInputFile(inputStream, PATH_LEXICAL_ENTRY_OPTIMISED);
 //    }
 
-    @Path("{form}/{sense}/{etym}/{re}/{xr}/{subEntry}/{note}.processFullDictionary")
+    @Path("{fileType}/{form}/{sense}/{etym}/{re}/{xr}/{subEntry}/{note}.processFullDictionary")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
     public Response processFullDictionary_post(@FormDataParam(INPUT) InputStream inputStream,
+                                               @PathParam("fileType") String fileType,
                                                @PathParam("form") String form,
                                                @PathParam("sense") String sense,
                                                @PathParam("etym") String etym,
@@ -114,7 +122,7 @@ public class DictionaryRestService implements DictionaryPaths {
                                                @PathParam("subEntry") String subEntry,
                                                @PathParam("note") String note) throws Exception {
 
-        return DictionaryProcessFile.processFullDictionary(inputStream, form+"-"+sense+"-"+etym+"-"+re+"-"+xr+"-"+subEntry+"-"+note);
+        return DictionaryProcessFile.processInputFile(inputStream, form+"-"+sense+"-"+etym+"-"+re+"-"+xr+"-"+subEntry+"-"+note,fileType);
     }
 
 //    @Path(PATH_FULL_DICTIONARY_OPTIMISED)

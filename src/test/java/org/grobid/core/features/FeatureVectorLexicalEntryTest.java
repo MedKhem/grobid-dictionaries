@@ -9,7 +9,6 @@ import org.grobid.core.engines.label.DictionarySegmentationLabels;
 import org.grobid.core.factory.AbstractDictionaryEngineFactory;
 import org.grobid.core.layout.LayoutToken;
 import org.grobid.core.layout.LayoutTokenization;
-import org.grobid.core.main.LibraryLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.GrobidDictionaryProperties;
 import org.junit.Before;
@@ -124,7 +123,7 @@ public class FeatureVectorLexicalEntryTest {
             parser = new DictionarySegmentationParser();
 
 
-            doc = parser.initiateProcessing(input, config);
+            doc = parser.initiateProcessingPDF(input, config);
             documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
 

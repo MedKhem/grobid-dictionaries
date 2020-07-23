@@ -9,7 +9,6 @@ import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
 import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
-import org.grobid.core.features.FeatureVectorForm;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
 import org.grobid.core.features.FeaturesUtils;
 import org.grobid.core.features.enums.LineStatus;
@@ -144,7 +143,7 @@ public class GramGrpParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+            FeatureVectorLexicalEntry featureVectorForm = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(token, "",
                     lineStatus, fontStatus);
 
             featureMatrix.append(featureVectorForm.printVector() + "\n");
@@ -216,7 +215,7 @@ public class GramGrpParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -233,12 +232,12 @@ public class GramGrpParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingGramGrp(fileEntry, outputDirectory, false, calledBy);
+                    createTrainingGramGrp(fileEntry, outputDirectory, false, calledBy, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingGramGrp(path, outputDirectory, false, calledBy);
+                createTrainingGramGrp(path, outputDirectory, false, calledBy, isPDF);
                 n++;
 
             }
@@ -252,7 +251,7 @@ public class GramGrpParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -269,12 +268,12 @@ public class GramGrpParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingGramGrp(fileEntry, outputDirectory, true, calledBy);
+                    createTrainingGramGrp(fileEntry, outputDirectory, true, calledBy, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingGramGrp(path, outputDirectory, true, calledBy);
+                createTrainingGramGrp(path, outputDirectory, true, calledBy, isPDF);
                 n++;
 
             }
@@ -287,10 +286,10 @@ public class GramGrpParser extends AbstractParser {
         }
     }
 
-    public void createTrainingGramGrp(File path, String outputDirectory, Boolean isAnnotated, String calledBy) throws Exception {
+    public void createTrainingGramGrp(File path, String outputDirectory, Boolean isAnnotated, String calledBy, Boolean isPDF) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile="";

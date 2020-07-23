@@ -228,7 +228,7 @@ public class SubSenseParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -245,12 +245,12 @@ public class SubSenseParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingSubSense(fileEntry, outputDirectory, false);
+                    createTrainingSubSense(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingSubSense(path, outputDirectory, false);
+                createTrainingSubSense(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -264,7 +264,7 @@ public class SubSenseParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -281,12 +281,12 @@ public class SubSenseParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingSubSense(fileEntry, outputDirectory, true);
+                    createTrainingSubSense(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingSubSense(path, outputDirectory, true);
+                createTrainingSubSense(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -299,10 +299,10 @@ public class SubSenseParser extends AbstractParser {
         }
     }
 
-    public void createTrainingSubSense(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingSubSense(File path, String outputDirectory, Boolean isAnnotated, Boolean isPDF) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.subSense";

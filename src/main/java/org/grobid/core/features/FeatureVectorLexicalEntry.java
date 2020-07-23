@@ -1,8 +1,12 @@
 package org.grobid.core.features;
 
 import org.grobid.core.document.DictionaryDocument;
+import org.grobid.core.document.DocumentPiece;
+import org.grobid.core.document.DocumentUtils;
 import org.grobid.core.engines.DictionarySegmentationParser;
 import org.grobid.core.engines.config.GrobidAnalysisConfig;
+import org.grobid.core.engines.label.DictionarySegmentationLabels;
+import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.enums.CapitalisationType;
 import org.grobid.core.features.enums.LineStatus;
 import org.grobid.core.layout.LayoutToken;
@@ -11,6 +15,7 @@ import org.grobid.core.utilities.TextUtilities;
 
 import java.io.File;
 import java.util.List;
+import java.util.SortedSet;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
@@ -158,10 +163,40 @@ public class FeatureVectorLexicalEntry {
     public static StringBuilder createFeaturesFromPDF(File inputFile) {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
-        DictionarySegmentationParser parser = new DictionarySegmentationParser();
-        DictionaryDocument doc = parser.initiateProcessing(inputFile, config);
+        DictionarySegmentationParser dictionaryParser = new DictionarySegmentationParser();
+        DictionaryDocument doc = null;
+        LayoutTokenization layoutTokenization = new LayoutTokenization();
+        SortedSet<DocumentPiece> documentBodyParts = null;
 
-        LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
+
+        if (inputFile.getPath().endsWith(".pdf")){
+            doc = dictionaryParser.initiateProcessingPDF(inputFile, config);
+            documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+            //Get Body
+
+            //Get tokens from the body
+            layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
+
+        } else if (inputFile.getPath().endsWith(".xml")){
+
+            //Get Body
+//            documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+
+
+            //Get tokens from the body
+            try {
+                List<LayoutToken> tokenList= dictionaryParser.initiateProcessingALTO(inputFile).addTokenizedDocument(config);
+                layoutTokenization = new LayoutTokenization(tokenList) ;
+            } catch (GrobidException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new GrobidException("An exception occurred while running Grobid.", e);
+            }
+
+        }
+
+        LayoutTokenization tokens = layoutTokenization;
         StringBuilder stringBuilder = createFeaturesFromLayoutTokens(tokens.getTokenization());
 
         return stringBuilder;

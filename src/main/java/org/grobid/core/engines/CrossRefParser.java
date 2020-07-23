@@ -232,7 +232,7 @@ public class CrossRefParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, String calledBy, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -249,12 +249,12 @@ public class CrossRefParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, false, calledBy);
+                    createTrainingCrossRef(fileEntry, outputDirectory, false, calledBy, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, false, calledBy);
+                createTrainingCrossRef(path, outputDirectory, false, calledBy, isPDF);
                 n++;
 
             }
@@ -268,7 +268,7 @@ public class CrossRefParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, String calledBy, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -285,12 +285,12 @@ public class CrossRefParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingCrossRef(fileEntry, outputDirectory, true, calledBy);
+                    createTrainingCrossRef(fileEntry, outputDirectory, true, calledBy, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingCrossRef(path, outputDirectory, true, calledBy);
+                createTrainingCrossRef(path, outputDirectory, true, calledBy, isPDF);
                 n++;
 
             }
@@ -303,10 +303,10 @@ public class CrossRefParser extends AbstractParser {
         }
     }
 
-    public void createTrainingCrossRef(File path, String outputDirectory, Boolean isAnnotated, String calledBy) throws Exception {
+    public void createTrainingCrossRef(File path, String outputDirectory, Boolean isAnnotated, String calledBy, Boolean isPDF) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile="";

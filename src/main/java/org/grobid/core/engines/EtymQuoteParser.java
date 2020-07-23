@@ -145,7 +145,7 @@ public class EtymQuoteParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -162,12 +162,12 @@ public class EtymQuoteParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingtoEtymQuote(fileEntry, outputDirectory, false);
+                    createTrainingtoEtymQuote(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingtoEtymQuote(path, outputDirectory, false);
+                createTrainingtoEtymQuote(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -181,7 +181,7 @@ public class EtymQuoteParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -198,12 +198,12 @@ public class EtymQuoteParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingtoEtymQuote(fileEntry, outputDirectory, true);
+                    createTrainingtoEtymQuote(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingtoEtymQuote(path, outputDirectory, true);
+                createTrainingtoEtymQuote(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -216,10 +216,10 @@ public class EtymQuoteParser extends AbstractParser {
         }
     }
 
-    public void createTrainingtoEtymQuote(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingtoEtymQuote(File path, String outputDirectory, Boolean isAnnotated, Boolean isPDF) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.etymQuote";

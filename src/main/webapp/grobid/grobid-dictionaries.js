@@ -8,6 +8,7 @@ jQuery.fn.prettify = function () {
     this.html(prettyPrintOne(this.html(), 'xml'));
 };
 var xmlToDownload;
+var fileType ="PDF";
 var grobid = (function ($) {
 
 
@@ -108,7 +109,7 @@ var grobid = (function ($) {
 
             $("#subTitle").hide();
             //$("#subTitle").show();
-            processDictionaryChange();
+            // processDictionaryChange();
 
             $("#divRestI").show();
             $("#divRestII").hide();
@@ -128,7 +129,7 @@ var grobid = (function ($) {
 
             $("#subTitle").hide();
             //$("#subTitle").show();
-            processBibliographyChange();
+            // processBibliographyChange();
 
             $("#divRestI").hide();
             $("#divRestII").show();
@@ -239,6 +240,16 @@ var grobid = (function ($) {
     function ShowRequest(formData, jqForm, options){
         //console.log(formData.value);
         var queryString = $.param(formData);
+        if ((document.getElementById("input").files[0].name.endsWith(".pdf")) ||
+            (document.getElementById("input").files[0].name.endsWith(".PDF"))) {
+            fileType = "PDF";
+        }
+        if ((document.getElementById("input").files[0].name.endsWith(".xml")) ||
+            (document.getElementById("input").files[0].name.endsWith(".xml"))) {
+            fileType = "ALTO";
+        }
+        processDictionaryChange();
+        // console.log(fileType);
         $('#requestResult').html('<font color="grey">Requesting server...</font>');
         return true;
     }
@@ -419,6 +430,8 @@ var grobid = (function ($) {
 
 function processDictionaryChange()  {
     var selectedMacroLevel = $('#selectedDictionaryService option:selected').attr('value');
+
+
     // var checked = $('#checkOptimise').is(':checked');
 
 
@@ -427,28 +440,29 @@ function processDictionaryChange()  {
         //    //Nothing to optimise yet
         // }
         // else {
-            createInputFile(selectedMacroLevel);
+        //     createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
        $('#btn_download_lemmas').hide();
-       setBaseUrl('processDictionarySegmentation');
+       setBaseUrl(fileType.concat('.processDictionarySegmentation'));
         // }
     }
     else if (selectedMacroLevel == 'processDictionaryBodySegmentation') {
 
-            createInputFile(selectedMacroLevel);
+            // createInputFile(selectedMacroLevel);
        $('#refinedModels').hide();
        $('#btn_download_lemmas').hide();
 
-       setBaseUrl('processDictionaryBodySegmentation');
+       setBaseUrl(fileType.concat('.processDictionaryBodySegmentation'));
 
     }
     else if (selectedMacroLevel == 'processLexicalEntry') {
 
-            createInputFile(selectedMacroLevel);
+            // createInputFile(selectedMacroLevel);
 
        $('#refinedModels').hide();
        $('#btn_download_lemmas').hide();
-       setBaseUrl('processLexicalEntry');
+       // var constant ='constant';
+       setBaseUrl(fileType.concat('/').concat(selectedMacroLevel).concat('.processLexicalEntry'));
 
     }
     else if (selectedMacroLevel == 'processFullDictionary' ) {
@@ -464,8 +478,8 @@ function processDictionaryChange()  {
 
         //   createInputFile(selectedMacroLevel);
        $('#refinedModels').show();
-       $('#btn_download_lemmas').show();
-           setBaseUrl(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('.processFullDictionary'));
+       // $('#btn_download_lemmas').show();
+           setBaseUrl(form.concat('/').concat(sense).concat('/').concat(etym).concat('/').concat(re).concat('/').concat(xr).concat('/').concat(subEntry).concat('/').concat(note).concat('/').concat(fileType).concat('.processFullDictionary'));
 
 
 
@@ -619,6 +633,7 @@ function defineBaseURL(ext) {
 
 function setBaseUrl(ext) {
     var baseUrl = defineBaseURL(ext);
+    console.log(ext);
     $('#gbdForm').attr('action', baseUrl);
 }
 function setBaseUrlBib(ext) {

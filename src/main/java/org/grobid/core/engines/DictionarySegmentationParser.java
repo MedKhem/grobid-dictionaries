@@ -15,12 +15,15 @@ import org.grobid.core.exceptions.GrobidExceptionStatus;
 import org.grobid.core.features.FeatureFactory;
 import org.grobid.core.features.FeaturesVectorSegmentation;
 import org.grobid.core.layout.*;
+import org.grobid.core.sax.PDFALTOSaxHandler;
 import org.grobid.core.utilities.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DateFormat;
@@ -238,9 +241,9 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
     }
 
     public String processToTEI(File originFile) {
-        // GrobidConfig needs to be always initiated before calling initiateProcessing()
+        // GrobidConfig needs to be always initiated before calling initiateProcessingPDF()
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DictionaryDocument doc = initiateProcessing(originFile, config);
+        DictionaryDocument doc = initiateProcessingPDF(originFile, config);
 
         LayoutTokenization tokens = new LayoutTokenization(doc.getTokenizations());
         String segmentedDictionary = null;
@@ -258,7 +261,7 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
         return segmentedDictionary;
     }
 
-    public DictionaryDocument initiateProcessing(File originFile, GrobidAnalysisConfig config) {
+    public DictionaryDocument initiateProcessingPDF(File originFile, GrobidAnalysisConfig config) {
         // This method is to be called by any parser to perform first level segmentation: Headnote, Body and Footnote
         DocumentSource documentSource = DocumentSource.fromPdf(originFile, config.getStartPage(), config.getEndPage());
         try {
@@ -289,6 +292,29 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
             }
         }
     }
+
+    public DictionaryDocument initiateProcessingALTO(File originFile) throws Exception {
+
+        InputStream is = new FileInputStream(originFile);
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        PDFALTOSaxHandler target;
+        List<GraphicObject> images = new ArrayList<>();
+        List<LayoutToken> tokenList = new ArrayList<>();
+
+        DictionaryDocument document = DictionaryDocument.createFromText("");
+        //remove first page and their blocks, as they are empty (side effect of createFromText)
+        document = document.removePagesAndTheirBlocks(document,0,0);
+        target = new PDFALTOSaxHandler(document, images);
+        SAXParser p = spf.newSAXParser();
+        p.parse(is, target);
+        document.setTokenizations(target.getTokenization());
+        document = prepareDocument(document);
+
+//        tokenList = target.getTokenization();
+
+        return document;
+    }
+
 
     private void dealWithImages(DocumentSource documentSource, Document doc, File assetFile, GrobidAnalysisConfig config) {
         if (assetFile != null) {
@@ -378,10 +404,6 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
 
         //This method is used to tokenize and set the diffrent sections of the document (labelled blocks)
         List<LayoutToken> tokenizations = doc.getTokenizations();
-//        if (tokenizations.size() > GrobidDictionaryProperties.getPdfTokensMax()) {
-//            throw new GrobidException("The document has " + tokenizations.size() + " tokens, but the limit is " + GrobidDictionaryProperties.getPdfTokensMax(),
-//                    GrobidExceptionStatus.TOO_MANY_TOKENS);
-//        }
 
         doc.produceStatistics();
         String content = getAllLinesFeatured(doc);
@@ -859,7 +881,7 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, boolean isPDF) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
 
         try {
@@ -881,13 +903,13 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
                 for (File fileEntry : path.listFiles()) {
 
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionary(fileEntry, outputDirectory, false);
+                    createTrainingDictionary(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
 
-                createTrainingDictionary(path, outputDirectory, false);
+                createTrainingDictionary(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -902,7 +924,7 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory,boolean isPDF) throws IOException {
         // This method is to create feature matrix and create pre-annotated data using the existing model
 
         try {
@@ -924,13 +946,13 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
                 for (File fileEntry : path.listFiles()) {
 
                     // Create the pre-annotated file and the raw text
-                    createTrainingDictionary(fileEntry, outputDirectory, true);
+                    createTrainingDictionary(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
 
-                createTrainingDictionary(path, outputDirectory, true);
+                createTrainingDictionary(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -944,10 +966,18 @@ public class DictionarySegmentationParser extends AbstractDictionaryParser {
         }
     }
 
-    public void createTrainingDictionary(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingDictionary(File path, String outputDirectory, Boolean isAnnotated, Boolean isPDF) throws Exception {
 
         GrobidAnalysisConfig config = GrobidAnalysisConfig.builder().generateTeiIds(true).build();
-        DictionaryDocument doc = initiateProcessing(path, config);
+        DictionaryDocument doc = new DictionaryDocument();
+        if (isPDF){
+            doc = initiateProcessingPDF(path, config);
+
+        } else{
+            doc = initiateProcessingALTO(path);
+
+        }
+
         if (doc.getBlocks() == null) {
             throw new Exception("PDF parsing resulted in empty content");
         }

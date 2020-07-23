@@ -115,20 +115,20 @@ public class LexicalEntryParser extends AbstractParser {
         return bodyWithSegmentedLexicalEntries.toString();
     }
 
-    public DictionaryDocument initiateProcess(File originFile) {
-        //Prepare
-        DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = null;
-        try {
-            doc = bodySegmentationParser.processing(originFile);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        return doc;
-    }
+//    public DictionaryDocument initiateProcess(File originFile) {
+//        //Prepare
+//        DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
+//        DictionaryDocument doc = null;
+//        try {
+//            doc = bodySegmentationParser.processing(originFile);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        return doc;
+//    }
 
 
     public LabeledLexicalInformation process(List<LayoutToken> entry, String parentTag) {
@@ -279,7 +279,7 @@ public class LexicalEntryParser extends AbstractParser {
 
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -297,12 +297,12 @@ public class LexicalEntryParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingLexicalEntries(fileEntry, outputDirectory, false);
+                    createTrainingLexicalEntries(fileEntry, outputDirectory, false, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingLexicalEntries(path, outputDirectory, false);
+                createTrainingLexicalEntries(path, outputDirectory, false, isPDF);
                 n++;
 
             }
@@ -316,7 +316,7 @@ public class LexicalEntryParser extends AbstractParser {
     }
 
     @SuppressWarnings({"UnusedParameters"})
-    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
+    public int createAnnotatedTrainingBatch(String inputDirectory, String outputDirectory, Boolean isPDF) throws IOException {
         try {
             File path = new File(inputDirectory);
             if (!path.exists()) {
@@ -333,12 +333,12 @@ public class LexicalEntryParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingLexicalEntries(fileEntry, outputDirectory, true);
+                    createTrainingLexicalEntries(fileEntry, outputDirectory, true, isPDF);
                     n++;
                 }
 
             } else {
-                createTrainingLexicalEntries(path, outputDirectory, true);
+                createTrainingLexicalEntries(path, outputDirectory, true, isPDF);
                 n++;
 
             }
@@ -351,10 +351,10 @@ public class LexicalEntryParser extends AbstractParser {
         }
     }
 
-    public void createTrainingLexicalEntries(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingLexicalEntries(File path, String outputDirectory, Boolean isAnnotated, Boolean isPDF) throws Exception {
         // Calling previous cascading model 
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
-        DictionaryDocument doc = bodySegmentationParser.processing(path);
+        DictionaryDocument doc = bodySegmentationParser.processing(path, isPDF);
 
         //Writing feature file
         String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.lexicalEntry";
