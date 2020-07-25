@@ -133,9 +133,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                 doc = dictionaryParser.initiateProcessingPDF(originFile, config);
                 //Get Body
-                documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
 
-                //Get tokens from the body
                 layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
             } else{
@@ -146,8 +144,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
                     doc = dictionaryParser.initiateProcessingALTO(originFile);
                     doc.setPathXML(originFile.getAbsoluteFile());
-                    List<LayoutToken> tokenList= doc.addTokenizedDocument(config);
-                    layoutTokenization = new LayoutTokenization(tokenList) ;
+
 
                 } catch (GrobidException e) {
                     throw e;
@@ -156,6 +153,9 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
                 }
 
             }
+
+        documentBodyParts = doc.getDocumentDictionaryPart(DictionarySegmentationLabels.DICTIONARY_BODY_LABEL);
+        layoutTokenization = DocumentUtils.getLayoutTokenizations(doc, documentBodyParts);
 
 
         try {
