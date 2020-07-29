@@ -123,7 +123,7 @@ public class DictionaryProcessFile {
 
                 DictionaryBodySegmentationParser dictionaryBodySegmentationParser = new DictionaryBodySegmentationParser();
 
-                response = Response.ok(dictionaryBodySegmentationParser.processPDFToTEI(originFile, modelToRun)).build();
+                response = Response.ok(dictionaryBodySegmentationParser.processPDFToTEI(originFile, modelToRun,fileType)).build();
 
 
 

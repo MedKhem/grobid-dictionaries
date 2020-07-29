@@ -237,17 +237,20 @@ var grobid = (function ($) {
 
     });
 
+
+
     function ShowRequest(formData, jqForm, options){
         //console.log(formData.value);
         var queryString = $.param(formData);
-        if ((document.getElementById("input").files[0].name.endsWith(".pdf")) ||
-            (document.getElementById("input").files[0].name.endsWith(".PDF"))) {
-            fileType = "PDF";
-        }
-        if ((document.getElementById("input").files[0].name.endsWith(".xml")) ||
-            (document.getElementById("input").files[0].name.endsWith(".xml"))) {
-            fileType = "ALTO";
-        }
+        // if ((document.getElementById("input").files[0].name.endsWith(".pdf")) ||
+        //     (document.getElementById("input").files[0].name.endsWith(".PDF"))) {
+        //     fileType = "PDF";
+        // }
+        // if ((document.getElementById("input").files[0].name.endsWith(".xml")) ||
+        //     (document.getElementById("input").files[0].name.endsWith(".xml"))) {
+        //     fileType = "ALTO";
+        // }
+        isAlto();
         processDictionaryChange();
         // console.log(fileType);
         $('#requestResult').html('<font color="grey">Requesting server...</font>');
@@ -431,6 +434,8 @@ var grobid = (function ($) {
 function processDictionaryChange()  {
     var selectedMacroLevel = $('#selectedDictionaryService option:selected').attr('value');
 
+    // $('#altoCheckbox').is(':checked');
+    document.getElementById("altoCheckbox").checked = false;
 
     // var checked = $('#checkOptimise').is(':checked');
 
@@ -669,6 +674,14 @@ function downloadVisibilty(){
 
 function downloadVisibiltyBib(){
     $("#btn_downloadBib").hide();
+}
+
+function isAlto() {
+    if ($('#altoCheckbox').selected()){
+        fileType = "ALTO";
+    }else{
+        fileType = "PDF";
+    }
 }
 
 

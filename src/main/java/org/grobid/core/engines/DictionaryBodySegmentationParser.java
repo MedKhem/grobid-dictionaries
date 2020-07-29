@@ -74,14 +74,14 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         instance = new DictionaryBodySegmentationParser();
     }
 
-    public String processPDFToTEI(File originFile, String modelToRun) {
+    public String processPDFToTEI(File originFile, String modelToRun, String fileType) {
         //This method is used by the service mode to display the segmentation result as text in tei-xml format
         //Prepare
         GrobidAnalysisConfig config = GrobidAnalysisConfig.defaultInstance();
         DictionaryDocument doc = null;
-        String[] parsingModels = modelToRun.split("-");
+//        String[] parsingModels = modelToRun.split("-");
         Boolean isPdf;
-        if (parsingModels[7].equals("PDF")){
+        if (fileType.equals("PDF")){
             isPdf = true;
         }else{
             isPdf = false;

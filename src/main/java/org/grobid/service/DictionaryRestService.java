@@ -108,7 +108,7 @@ public class DictionaryRestService implements DictionaryPaths {
 //        return DictionaryProcessFile.processInputFile(inputStream, PATH_LEXICAL_ENTRY_OPTIMISED);
 //    }
 
-    @Path("{fileType}/{form}/{sense}/{etym}/{re}/{xr}/{subEntry}/{note}.processFullDictionary")
+    @Path("{form}/{sense}/{etym}/{re}/{xr}/{subEntry}/{note}/{fileType}.processFullDictionary")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_XML)
     @POST
