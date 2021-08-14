@@ -1,9 +1,6 @@
 package org.grobid.core.engines.label;
 
 import org.grobid.core.engines.DictionaryModels;
-import org.grobid.core.engines.label.TaggingLabel;
-import org.grobid.core.engines.label.TaggingLabelImpl;
-import org.grobid.core.engines.label.TaggingLabels;
 
 /**
  * Created by med on 26.08.16.
@@ -34,10 +31,9 @@ public class LexicalEntryLabels extends TaggingLabels {
 
     public static final String LEXICAL_ENTRY_FROM_GRAMGRP_LABEL = "<formGramGrp>";
     public static final String LEXICAL_ENTRY_SENSE_GRAMGRP_LABEL = "<senseGramGrp>";
+    public static final String LEXICAL_ENTRY_DIV_LABEL = "<div>";
 
 
-    public static final TaggingLabel LEXICAL_ENTRY_SYNONYM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SYNONYM_LABEL);
-    public static final TaggingLabel LEXICAL_ENTRY_ANTONYM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_ANTONYM_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_NUM = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_NUM_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_NOTE = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_NOTE_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_GRAMGRP = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_GRAMGRP_LABEL);
@@ -56,12 +52,11 @@ public class LexicalEntryLabels extends TaggingLabels {
     public static final TaggingLabel LEXICAL_ENTRY_SUB_ENTRY = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SUB_ENTRY_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_FROM_GRAMGRP = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_FROM_GRAMGRP_LABEL);
     public static final TaggingLabel LEXICAL_ENTRY_SENSE_GRAMGRP = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_SENSE_GRAMGRP_LABEL);
+    public static final TaggingLabel LEXICAL_ENTRY_DIV = new TaggingLabelImpl(DictionaryModels.LEXICAL_ENTRY, LEXICAL_ENTRY_DIV_LABEL);
 
 
 
     static {
-        register(LEXICAL_ENTRY_SYNONYM);
-        register(LEXICAL_ENTRY_ANTONYM);
         register(LEXICAL_ENTRY_NUM);
         register(LEXICAL_ENTRY_NOTE);
         register(LEXICAL_ENTRY_GRAMGRP);
@@ -81,6 +76,7 @@ public class LexicalEntryLabels extends TaggingLabels {
         register(LEXICAL_ENTRY_FROM_GRAMGRP);
         register(LEXICAL_ENTRY_SENSE_GRAMGRP);
         register(LEXICAL_ENTRY_PC);
+        register(LEXICAL_ENTRY_DIV);
 
     }
 }

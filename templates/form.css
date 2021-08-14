@@ -29,29 +29,41 @@ lemma {
 	background-color: Salmon;
 }
 
-prefix {
+firstLemma {
 	display: inline;
 	background-color: yellow;
 }
 
-suffix {
+synRef {
 	 display: inline;
 	 background-color: PaleGreen;
  }
 
-def {
+antRef {
 	display: inline;
 	background-color: #0e90d2;
 }
 
-gloss {
+def {
 	display: inline;
 	background-color: olive;
 }
 
-xr {
+variant {
 	display: inline;
 	background-color: SkyBlue;
+
+}
+
+source {
+	display: inline;
+	background-color: Plum;
+
+}
+
+gramGrp {
+	display: inline;
+	background-color: YellowGreen;
 
 }
 

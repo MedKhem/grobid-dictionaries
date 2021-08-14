@@ -49,6 +49,9 @@ public class DictionaryMain {
     private static final String CREATE_TRAINING_SUB_SENSE_GRAMGRP = "createAnnotatedTrainingSubSenseGramGrp";
     private static final String CREATE_ANNOTATED__TRAINING_SUB_SENSE_GRAMGRP = "createAnnotatedTrainingSubSenseGramGrp";
 
+    private static final String CREATE_TRAINING_DIVISION = "createTrainingDivision";
+    private static final String CREATE_ANNOTATED_TRAINING_DIVISION = "createAnnotatedTrainingDivision";
+
 
 
     private static List<String> availableCommands = Arrays.asList(
@@ -79,7 +82,9 @@ public class DictionaryMain {
             CREATE_TRAINING_LEXICAL_ENTRY_GRAMGRP,
             CREATE_ANNOTATED_TRAINING_LEXICAL_ENTRY_GRAMGRP,
             CREATE_TRAINING_LEXICAL_SENSE_GRAMGRP,
-            CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP );
+            CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP,
+            CREATE_TRAINING_DIVISION,
+            CREATE_ANNOTATED_TRAINING_DIVISION);
 
     /**
      * Arguments of the batch.
@@ -376,6 +381,18 @@ public class DictionaryMain {
             if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_SENSE_GRAMGRP)) {
                 GramGrpParser gramGrpParser = GramGrpParser.getInstance();
                 nb = gramGrpParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output(), "sense");
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+
+            if (gbdArgs.getProcessMethodName().equals(CREATE_TRAINING_DIVISION)) {
+                DivisionParser divisionParser = DivisionParser.getInstance();
+                nb = divisionParser.createTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
+                System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
+            }
+
+            if (gbdArgs.getProcessMethodName().equals(CREATE_ANNOTATED_TRAINING_DIVISION)) {
+                DivisionParser divisionParser = DivisionParser.getInstance();
+                nb = divisionParser.createAnnotatedTrainingBatch(gbdArgs.getPath2Input(), gbdArgs.getPath2Output());
                 System.out.println(nb + " files processed in " + (System.currentTimeMillis() - time) + " milliseconds");
             }
 

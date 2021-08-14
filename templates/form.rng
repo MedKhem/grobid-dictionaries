@@ -119,19 +119,89 @@
 			</oneOrMore>
 		</element>
 	</define>
+    <define name="firstLemma">
+        <element name="firstLemma">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="synRef">
+        <element name="synRef">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="antRef">
+        <element name="antRef">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="variant">
+        <element name="variant">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="source">
+        <element name="source">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="gramGrp">
+        <element name="gramGrp">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
 
-	<define name="form">
+    <define name="form">
 		<element name="form">
 			<oneOrMore>
 				<choice>
 					<text/>
 
 					<ref name="lemma"/>
-					<ref name="prefix"/>
-					<ref name="suffix"/>
-					<ref name="def"/>
-					<ref name="gloss"/>
-					<ref name="xr"/>
+<!--					<ref name="prefix"/>-->
+<!--					<ref name="suffix"/>-->
+                    <ref name="firstLemma"/>
+                    <ref name="synRef"/>
+                    <ref name="antRef"/>
+                    <ref name="def"/>
+					<ref name="variant"/>
+                    <ref name="source"/>
+					<ref name="gramGrp"/>
 					<ref name="pc"/>
 					<ref name="lb"/>
 					<ref name="dictScrap"/>

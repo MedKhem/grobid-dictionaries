@@ -1,8 +1,7 @@
 package org.grobid.trainer.sax;
 
-import org.grobid.core.data.SimpleLabeled;
-//import org.grobid.core.utilities.Pair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.grobid.core.data.SimpleLabeled;
 import org.grobid.core.utilities.TextUtilities;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -15,65 +14,20 @@ import java.util.StringTokenizer;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-
-public class TEIFormSaxParser extends DefaultHandler {
+public class TEIDivisionSaxParser extends DefaultHandler {
 
     private StringBuffer accumulator = null;
     private Stack<String> currentTags = null;
     private String currentTag = null;
 
-    private SimpleLabeled currentForm = null;
+
+    private SimpleLabeled currentSense = null;
     private List<SimpleLabeled> labeled = null;
 
-
-    public TEIFormSaxParser() {
+    public TEIDivisionSaxParser() {
         labeled = new ArrayList<>();
         currentTags = new Stack<>();
         accumulator = new StringBuffer();
-    }
-
-    public void startElement(String namespaceURI,
-                             String localName,
-                             String qName,
-                             Attributes atts)
-            throws SAXException {
-
-        if (qName.equals("lb")) {
-//            accumulator.append(" +L+ ");
-        } else if (qName.equals("pb")) {
-//            accumulator.append(" +PAGE+ ");
-        } else if (qName.equals("space")) {
-//            accumulator.append(" ");
-        } else {
-            if (isFormTag(qName)) {
-                currentForm = new SimpleLabeled();
-            }
-            String text = getText();
-            if (isNotBlank(text)) {
-                currentTag = "<pc>";
-                writeData();
-
-            }
-            accumulator.setLength(0);
-
-            currentTags.push("<" + qName + ">");
-            currentTag = "<" + qName + ">";
-        }
-
-    }
-
-    @Override
-    public void endElement(String uri,
-                           String localName,
-                           String qName) throws SAXException {
-        if (isRelevantTag(qName)) {
-            writeData();
-            if (!currentTags.isEmpty()) {
-                currentTag = currentTags.pop();
-            }
-        } else if ("form".equals(qName)) {
-            labeled.add(currentForm);
-        }
     }
 
     @Override
@@ -88,15 +42,74 @@ public class TEIFormSaxParser extends DefaultHandler {
             return null;
         }
     }
-
     public List<SimpleLabeled> getLabeledResult() {
         return labeled;
     }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if (isRelevantTag(qName)) {
+            writeData();
+            if (!currentTags.isEmpty()) {
+                currentTag = currentTags.pop();
+            }
+        }
+        else if ("div".equals(qName)) {
+            labeled.add(currentSense);
+        }
+
+    }
+    public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
+            throws SAXException {
+
+
+        if (qName.equals("lb")) {
+//            accumulator.append(" +L+ ");
+        } else if (qName.equals("pb")) {
+//            accumulator.append(" +PAGE+ ");
+        } else if (qName.equals("space")) {
+//            accumulator.append(" ");
+        } else {
+            if (isDivisionTag(qName) ) {
+
+                currentSense = new SimpleLabeled();
+
+            }
+
+            // we have to write first what has been accumulated yet with the upper-level tag
+            String text = getText();
+            if (isNotBlank(text)) {
+                currentTag = "<pc>";
+                writeData();
+
+            }
+            accumulator.setLength(0);
+
+            currentTags.push("<" + qName + ">");
+            currentTag = "<" + qName + ">";
+
+        }
+    }
+
+
+
+
+
+
 
     private void writeData() {
         if (currentTag == null) {
             return;
         }
+//
+//        if (pop) {
+//            if (!currentTags.empty()) {
+//                currentTags.pop();
+//            }
+//        }
+//        if (qName.equals("sense")) {
+//            currentTag = "<pc>";
+//        }
 
         String text = getText();
         // we segment the text
@@ -108,30 +121,34 @@ public class TEIFormSaxParser extends DefaultHandler {
                 continue;
 
             String content = tok;
+
             if (content.length() > 0) {
                 if (begin) {
-                    currentForm.addLabel(Pair.of(content, "I-" + currentTag));
+                    currentSense.addLabel(Pair.of(content, "I-" + currentTag));
+
                     begin = false;
                 } else {
-                    currentForm.addLabel(Pair.of(content, currentTag));
+                    currentSense.addLabel(Pair.of(content,   currentTag));
                 }
             }
+
             begin = false;
         }
         accumulator.setLength(0);
     }
 
     private boolean isRelevantTag(String qName) {
-        if ("lemma".equals(qName) || "firstLemma".equals(qName) || "synRef".equals(qName) || "antRef".equals(qName)
-                || "def".equals(qName)  ||  (qName.equals("variant")) ||  (qName.equals("source"))
-                || "gramGrp".equals(qName) || "pc".equals(qName) || "dictScrap".equals(qName)) {
+        if ( (qName.equals("gramGrp"))  || (qName.equals("synonym")) ||
+                (qName.equals("antonym")) || (qName.equals("xr")) || (qName.equals("pc"))  ||  (qName.equals("dictScrap"))) {
             return true;
         }
         return false;
     }
 
-    private boolean isFormTag(String qName) {
-        if ("form".equals(qName)) {
+
+
+    private boolean isDivisionTag(String qName) {
+        if ("div".equals(qName)) {
             return true;
         }
         return false;

@@ -23,6 +23,7 @@ public interface DictionaryPaths {
 //    public static final String PROCESS_DICTIONARY_BODY_SEGMENTATION_OPTIMISED = "processDictionaryBodySegmentationOptimised";
     public static final String PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION = "processBibliographyBodySegmentation";
     public static final String PATH_SUB_ENTRY = "processSubEntry";
+    public static final String PATH_DIVISION = "processDivision";
     public static final String PATH_LEXICAL_ENTRY = "processLexicalEntry";
     public static final String PATH_BIBLIOGRAPHY_ENTRY = "processBibliographyEntry";
 //    public static final String PATH_LEXICAL_ENTRY_OPTIMISED = "processLexicalEntryOptimised";

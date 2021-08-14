@@ -150,8 +150,8 @@ public class TEILexicalEntrySaxParser extends DefaultHandler {
     }
 
     private boolean isRelevantTag(String qName) {
-        if ((qName.equals("synonym")) || (qName.equals("antonym"))  || (qName.equals("num")) || (qName.equals("gramGrp"))
-                || (qName.equals("pc")) || (qName.equals("note")) ||  (qName.equals("dictScrap"))) {
+        if ( (qName.equals("num")) || (qName.equals("gramGrp"))
+                || (qName.equals("div")) || (qName.equals("xr")) || (qName.equals("pc"))  ||  (qName.equals("dictScrap"))) {
             return true;
         }
         return false;

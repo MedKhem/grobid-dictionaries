@@ -2,11 +2,12 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.data.LabeledLexicalInformation;
-import org.grobid.core.data.Person;
 import org.grobid.core.document.DictionaryDocument;
 import org.grobid.core.document.DocumentUtils;
-import org.grobid.core.engines.label.*;
+import org.grobid.core.engines.label.DictionaryBodySegmentationLabels;
+import org.grobid.core.engines.label.TaggingLabel;
 import org.grobid.core.exceptions.GrobidException;
 import org.grobid.core.features.FeatureVectorForm;
 import org.grobid.core.features.FeatureVectorLexicalEntry;
@@ -17,8 +18,6 @@ import org.grobid.core.layout.LayoutTokenization;
 import org.grobid.core.tokenization.TaggingTokenCluster;
 import org.grobid.core.tokenization.TaggingTokenClusteror;
 import org.grobid.core.utilities.LayoutTokensUtil;
-//import org.grobid.core.utilities.Pair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.utilities.TextUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,26 +27,25 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
+import static org.grobid.core.engines.label.DivisionLabels.DIV_SYNONYM_LABEL;
 import static org.grobid.core.engines.label.FormLabels.*;
-import static org.grobid.core.engines.label.LexicalEntryLabels.*;
+
+import static org.grobid.core.engines.label.DivisionLabels.DIV_ANTONYM_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_DIV_LABEL;
+import static org.grobid.core.engines.label.LexicalEntryLabels.LEXICAL_ENTRY_SYNONYM_LABEL;
 import static org.grobid.core.engines.label.SubEntryLabels.SUB_ENTRY_ENTRY_LABEL;
 import static org.grobid.service.DictionaryPaths.PATH_SUB_ENTRY;
 
-
-/**
- * Created by lfoppiano on 05/05/2017.
- */
-public class FormParser extends AbstractParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FormParser.class);
-    private static volatile FormParser instance;
+public class DivisionParser extends AbstractParser{
+    private static final Logger LOGGER = LoggerFactory.getLogger(DivisionParser.class);
+    private static volatile DivisionParser instance;
     private DocumentUtils formatter = new DocumentUtils();
 
-    public FormParser() {
-        super(DictionaryModels.FORM);
+    public DivisionParser() {
+        super(DictionaryModels.LEXICAL_ENTRY);
     }
 
-
-    public static FormParser getInstance() {
+    public static DivisionParser getInstance() {
         if (instance == null) {
             getNewInstance();
         }
@@ -55,23 +53,23 @@ public class FormParser extends AbstractParser {
     }
 
     private static synchronized void getNewInstance() {
-        instance = new FormParser();
+        instance = new DivisionParser();
     }
 
-    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> entryForm) {
+    public StringBuilder processToTEI(Pair<List<LayoutToken>, String> entryDivision) {
         //This method is used by the parent parser to get the TEI to include the general TEI output
 
         // The possible arguments complete chain form-gramGrp-gramGrpForm-gramGrpSense-gramGrpFormSense
 
-        LabeledLexicalInformation formComponents = process(entryForm.getLeft());
+        LabeledLexicalInformation formComponents = process(entryDivision.getLeft());
 
         StringBuilder sb = new StringBuilder();
 
 //        sb.append("<form type=\"lemma\">").append("\n");
-       if (entryForm.getRight().equals(LEXICAL_ENTRY_SYNONYM_LABEL)){
+        if (entryDivision.getRight().equals(DIV_SYNONYM_LABEL)){
             sb.append("<form type=\"syn\">").append("\n");
 
-        }else if( entryForm.getRight().equals(LEXICAL_ENTRY_ANTONYM_LABEL)){
+        }else if( entryDivision.getRight().equals(DIV_ANTONYM_LABEL)){
             sb.append("<form type=\"ant\">").append("\n");
 
         }
@@ -164,16 +162,16 @@ public class FormParser extends AbstractParser {
             previousFont = returnedFont[0];
             fontStatus = returnedFont[1];
 
-            FeatureVectorForm featureVectorForm = FeatureVectorForm.addFeaturesForm(token, "",
+            FeatureVectorForm featureVectorDivision = FeatureVectorForm.addFeaturesForm(token, "",
                     lineStatus, fontStatus);
 
-            featureMatrix.append(featureVectorForm.printVector() + "\n");
+            featureMatrix.append(featureVectorDivision.printVector() + "\n");
         }
 
         String features = featureMatrix.toString();
         String output = label(features);
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DIVISION,
                 output, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -196,11 +194,11 @@ public class FormParser extends AbstractParser {
 
     }
 
-    public StringBuilder toTEIForm(String bodyContentFeatured, List<LayoutToken> layoutTokens,
-                                   boolean isTrainingData) {
+    public StringBuilder toTEIDivision(String bodyContentFeatured, List<LayoutToken> layoutTokens,
+                                       boolean isTrainingData) {
         StringBuilder buffer = new StringBuilder();
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.FORM,
+        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DIVISION,
                 bodyContentFeatured, layoutTokens);
 
         List<TaggingTokenCluster> clusters = clusteror.cluster();
@@ -237,9 +235,6 @@ public class FormParser extends AbstractParser {
         return buffer;
     }
 
-
-
-
     @SuppressWarnings({"UnusedParameters"})
     public int createTrainingBatch(String inputDirectory, String outputDirectory) throws IOException {
         try {
@@ -258,12 +253,12 @@ public class FormParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingForm(fileEntry, outputDirectory, false);
+                    createTrainingDivision(fileEntry, outputDirectory, false);
                     n++;
                 }
 
             } else {
-                createTrainingForm(path, outputDirectory, false);
+                createTrainingDivision(path, outputDirectory, false);
                 n++;
 
             }
@@ -294,12 +289,12 @@ public class FormParser extends AbstractParser {
             if (path.isDirectory()) {
                 for (File fileEntry : path.listFiles()) {
                     // Create the pre-annotated file and the raw text
-                    createTrainingForm(fileEntry, outputDirectory, true);
+                    createTrainingDivision(fileEntry, outputDirectory, true);
                     n++;
                 }
 
             } else {
-                createTrainingForm(path, outputDirectory, true);
+                createTrainingDivision(path, outputDirectory, true);
                 n++;
 
             }
@@ -312,31 +307,30 @@ public class FormParser extends AbstractParser {
         }
     }
 
-    public void createTrainingForm(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
+    public void createTrainingDivision(File path, String outputDirectory, Boolean isAnnotated) throws Exception {
         // Calling previous cascading model
         DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
         DictionaryDocument doc = bodySegmentationParser.processing(path);
         SubEntryParser subEntryParser = new SubEntryParser();
-        DivisionParser divParser = new DivisionParser();
 
         //Writing feature file
-        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";
+        String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.division";
         Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
 
         //Create rng and css files for guiding the annotation
-        File existingRngFile = new File("templates/form.rng");
-        File newRngFile = new File(outputDirectory + "/" + "form.rng");
+        File existingRngFile = new File("templates/division.rng");
+        File newRngFile = new File(outputDirectory + "/" + "division.rng");
         copyFileUsingStream(existingRngFile, newRngFile);
 
-        File existingCssFile = new File("templates/form.css");
-        File newCssFile = new File(outputDirectory + "/" + "form.css");
+        File existingCssFile = new File("templates/division.css");
+        File newCssFile = new File(outputDirectory + "/" + "division.css");
 //        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
         copyFileUsingStream(existingCssFile, newCssFile);
 
 
         StringBuffer rawtxt = new StringBuffer();
 
-        StringBuffer forms = new StringBuffer();
+        StringBuffer divisions = new StringBuffer();
         LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
         for (Pair<List<LayoutToken>, String> bodyComponent : doc.getBodyComponents().getLabels()) {
 
@@ -347,40 +341,33 @@ public class FormParser extends AbstractParser {
                         LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(subEntryLevelComponent.getLeft(), DICTIONARY_ENTRY_LABEL);
 
                         for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
-                            if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_DIV_LABEL)){
-                                LabeledLexicalInformation divComponents = divParser.process(lexicalEntryComponent.getLeft());
-                                for (Pair<List<LayoutToken>, String> divComponent : divComponents.getLabels()) {
-                                    if (divComponent.getRight().equals(DivisionLabels.DIV_ANTONYM_LABEL) || divComponent.getRight().equals(DivisionLabels.DIV_SYNONYM_LABEL)) {
-                                        //Write raw text
-                                        for (LayoutToken txtline : divComponent.getLeft()) {
-                                            rawtxt.append(txtline.getText());
-                                        }
-                                        forms.append("<form>");
-                                        LayoutTokenization layoutTokenization = new LayoutTokenization(divComponent.getLeft());
-                                        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
-                                        featureWriter.write(featSeg + "\n");
-                                        if (isAnnotated) {
+                            if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_DIV_LABEL) ) {
+                                //Write raw text
+                                for (LayoutToken txtline : lexicalEntryComponent.getLeft()) {
+                                    rawtxt.append(txtline.getText());
+                                }
+                                divisions.append("<div>");
+                                LayoutTokenization layoutTokenization = new LayoutTokenization(lexicalEntryComponent.getLeft());
+                                String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
+                                featureWriter.write(featSeg + "\n");
+                                if (isAnnotated) {
 
-                                            String labeledFeatures = null;
-                                            // if featSeg is null, it usually means that no body segment is found in the
+                                    String labeledFeatures = null;
+                                    // if featSeg is null, it usually means that no body segment is found in the
 
-                                            if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+                                    if ((featSeg != null) && (featSeg.trim().length() > 0)) {
 
 
-                                                labeledFeatures = label(featSeg);
-                                                forms.append(toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), true));
-                                            }
-                                        } else {
-                                            forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(divComponent.getLeft()))));
-
-                                        }
-
-                                        forms.append("</form>");
+                                        labeledFeatures = label(featSeg);
+                                        divisions.append(toTEIDivision(labeledFeatures, layoutTokenization.getTokenization(), true));
                                     }
+                                } else {
+                                    divisions.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()))));
+
                                 }
 
+                                divisions.append("</div>");
                             }
-
                         }
                     }
 
@@ -394,19 +381,19 @@ public class FormParser extends AbstractParser {
         }
 
         //Writing RAW file (only text)
-        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.rawtxt";
+        String outPathRawtext = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.division.rawtxt";
         FileUtils.writeStringToFile(new File(outPathRawtext), rawtxt.toString(), "UTF-8");
 
 
         // write the TEI file
-        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form.tei.xml";
+        String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.division.tei.xml";
         Writer teiWriter = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"form.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"form.css\"?>\n" +
+        teiWriter.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"division.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"division.css\"?>\n" +
                 "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
                 "\"/>\n\t</teiHeader>\n\t<text>");
         teiWriter.write("\n\t\t<body>");
-        teiWriter.write(forms.toString().replaceAll("&","&amp;"));
+        teiWriter.write(divisions.toString().replaceAll("&","&amp;"));
         teiWriter.write("</body>");
         teiWriter.write("\n\t</text>\n</tei>\n");
 
@@ -430,5 +417,4 @@ public class FormParser extends AbstractParser {
             os.close();
         }
     }
-
 }

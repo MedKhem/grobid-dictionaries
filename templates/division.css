@@ -4,16 +4,10 @@ tei { display: block; }
 
 teiHeader { display: none; }
 
-entry {
+div {
     margin:1em;
     display: block;
     border: 2px dotted black;
-}
-
-
-num {
-    display: inline;
-    background-color:  SkyBlue;
 }
 
 gramGrp {
@@ -21,16 +15,19 @@ gramGrp {
     background-color: Salmon;
 }
 
-div {
+synonym {
     display: inline;
     background-color: Khaki;
 }
 
-xr {
+antonym {
     display: inline;
     background-color: #647cfe;
 }
-
+xr {
+    display: inline;
+    background-color:  SkyBlue;
+}
 
 /* things to mark-up on any level */
 
@@ -39,19 +36,18 @@ pc {
     background-color: greenyellow;
 }
 
-/* things to mark-up in etymQuote */
 
+
+dictScrap { /* what's that for? */
+    display: inline;
+    background-color: #70695C;
+}
 
 /* note {
     display: inline;
     background-color: #eb1844;
 }
 */
-
-dictScrap { /* what's that for? */
-    display: inline;
-    background-color: #70695C;
-}
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }
