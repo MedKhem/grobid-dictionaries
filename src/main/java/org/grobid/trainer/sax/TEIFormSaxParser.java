@@ -123,7 +123,7 @@ public class TEIFormSaxParser extends DefaultHandler {
 
     private boolean isRelevantTag(String qName) {
         if ("lemma".equals(qName) || "firstLemma".equals(qName) || "synRef".equals(qName) || "antRef".equals(qName)
-                || "def".equals(qName)  ||  (qName.equals("variant")) ||  (qName.equals("source"))
+                || "def".equals(qName)  ||  (qName.equals("variant")) ||  (qName.equals("source")) ||  (qName.equals("example"))
                 || "gramGrp".equals(qName) || "pc".equals(qName) || "dictScrap".equals(qName)) {
             return true;
         }

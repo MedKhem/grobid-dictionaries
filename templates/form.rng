@@ -185,6 +185,17 @@
             </oneOrMore>
         </element>
     </define>
+    <define name="example">
+        <element name="example">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
 
     <define name="form">
 		<element name="form">
@@ -196,6 +207,7 @@
 <!--					<ref name="prefix"/>-->
 <!--					<ref name="suffix"/>-->
                     <ref name="firstLemma"/>
+                    <ref name="example"/>
                     <ref name="synRef"/>
                     <ref name="antRef"/>
                     <ref name="def"/>

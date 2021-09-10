@@ -13,7 +13,7 @@ public class FormLabels extends TaggingLabels {
 
     public static final String LEMMA_FORM_LABEL = "<lemma>";
     public static final String FIRST_LEMMA_FORM_LABEL = "<firstLemma>";
-
+    public static final String EXAMPLE_FORM_LABEL = "<example>";
     public static final String DEF_FORM_LABEL = "<def>";
     public static final String GLOSS_FORM_LABEL = "<variant>";
     public static final String SYN_XR_FORM_LABEL = "<synRef>";
@@ -29,6 +29,8 @@ public class FormLabels extends TaggingLabels {
     public static final TaggingLabel FORM_FIRST_LEMMA = new TaggingLabelImpl(DictionaryModels.FORM, FIRST_LEMMA_FORM_LABEL);
     public static final TaggingLabel FORM_SOURCE = new TaggingLabelImpl(DictionaryModels.FORM, SOURCE_FORM_LABEL);
     public static final TaggingLabel FORM_DEF = new TaggingLabelImpl(DictionaryModels.FORM, DEF_FORM_LABEL);
+    public static final TaggingLabel FORM_EXAMPLE = new TaggingLabelImpl(DictionaryModels.FORM, EXAMPLE_FORM_LABEL);
+
     public static final TaggingLabel FORM_GLOSS = new TaggingLabelImpl(DictionaryModels.FORM, GLOSS_FORM_LABEL);
     public static final TaggingLabel FORM_XR_SYN = new TaggingLabelImpl(DictionaryModels.FORM, SYN_XR_FORM_LABEL);
     public static final TaggingLabel FORM_XR_ANT = new TaggingLabelImpl(DictionaryModels.FORM, ANT_XR_FORM_LABEL);
@@ -42,6 +44,7 @@ public class FormLabels extends TaggingLabels {
         register(FORM_LEMMA);
         register(FORM_FIRST_LEMMA);
         register(FORM_SOURCE);
+        register(FORM_EXAMPLE);
 //        register(FORM_PREFIX);
 //        register(FORM_SUFFIX);
         register(FORM_DEF);

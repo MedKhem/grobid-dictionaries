@@ -5,7 +5,7 @@
     </teiHeader>
     <text xml:lang="en">
         <body>
-            <form><orth>area</orth> <pron>/eəriə/</pron> <gramGrp>noun</gramGrp></form>
+            <form><example>area</example> <pron>/eəriə/</pron> <gramGrp>noun</gramGrp></form>
         </body>
     </text>
 </tei>

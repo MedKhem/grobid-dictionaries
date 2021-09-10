@@ -67,6 +67,12 @@ gramGrp {
 
 }
 
+example {
+	display: inline;
+	background-color: Chocolate;
+
+}
+
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }
