@@ -73,6 +73,12 @@ example {
 
 }
 
+usg {
+	display: inline;
+	background-color: Lavender;
+
+}
+
 
 /* special whitespace handling for minimally better readability */
 lb:before { content: "\a "; }

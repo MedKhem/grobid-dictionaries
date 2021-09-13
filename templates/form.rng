@@ -196,6 +196,17 @@
             </oneOrMore>
         </element>
     </define>
+    <define name="usg">
+        <element name="usg">
+            <oneOrMore>
+                <choice>
+                    <text/>
+                    <ref name="pc"/>
+                    <ref name="lb"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
 
     <define name="form">
 		<element name="form">
@@ -213,6 +224,7 @@
                     <ref name="def"/>
 					<ref name="variant"/>
                     <ref name="source"/>
+                    <ref name="usg"/>
 					<ref name="gramGrp"/>
 					<ref name="pc"/>
 					<ref name="lb"/>
