@@ -43,7 +43,7 @@ public class DivisionParser extends AbstractParser{
     private DocumentUtils formatter = new DocumentUtils();
 
     public DivisionParser() {
-        super(DictionaryModels.LEXICAL_ENTRY);
+        super(DictionaryModels.DIVISION);
     }
 
     public static DivisionParser getInstance() {
@@ -108,7 +108,7 @@ public class DivisionParser extends AbstractParser{
     }
 
     public LabeledLexicalInformation process(List<LayoutToken> div) {
-        LabeledLexicalInformation labeledDivision = new LabeledLexicalInformation();
+        LabeledLexicalInformation labeledLexicalEntry = new LabeledLexicalInformation();
 
         LayoutTokenization layoutTokenization = new LayoutTokenization(div);
 
@@ -131,12 +131,12 @@ public class DivisionParser extends AbstractParser{
                 List<LayoutToken> concatenatedTokens = cluster.concatTokens();
                 String tagLabel = clusterLabel.getLabel();
 
-                labeledDivision.addLabel(Pair.of(concatenatedTokens, tagLabel));
+                labeledLexicalEntry.addLabel(Pair.of(concatenatedTokens, tagLabel));
             }
         }
 
 
-        return labeledDivision;
+        return labeledLexicalEntry;
     }
 
     public StringBuilder toTEIDivision(String bodyContentFeatured, List<LayoutToken> layoutTokens,

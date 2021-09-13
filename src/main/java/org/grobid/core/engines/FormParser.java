@@ -349,6 +349,7 @@ public class FormParser extends AbstractParser {
                         for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
                             if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_DIV_LABEL)){
                                 LabeledLexicalInformation divComponents = divParser.process(lexicalEntryComponent.getLeft());
+
                                 for (Pair<List<LayoutToken>, String> divComponent : divComponents.getLabels()) {
                                     if (divComponent.getRight().equals(DivisionLabels.DIV_ANTONYM_LABEL) || divComponent.getRight().equals(DivisionLabels.DIV_SYNONYM_LABEL)) {
                                         //Write raw text
