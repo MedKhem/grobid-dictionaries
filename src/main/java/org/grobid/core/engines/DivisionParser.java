@@ -2,6 +2,7 @@ package org.grobid.core.engines;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.document.DictionaryDocument;
@@ -106,92 +107,36 @@ public class DivisionParser extends AbstractParser{
 
     }
 
-    public LabeledLexicalInformation process(List<LayoutToken> layoutTokens) {
-        //This method is used by the parent parser to feed a following parser with a cluster of layout tokens
+    public LabeledLexicalInformation process(List<LayoutToken> div) {
+        LabeledLexicalInformation labeledDivision = new LabeledLexicalInformation();
 
-        StringBuilder featureMatrix = new StringBuilder();
-        String previousFont = null;
-        String fontStatus = null;
-        String lineStatus = null;
+        LayoutTokenization layoutTokenization = new LayoutTokenization(div);
 
-        int counter = 0;
-        int nbToken = layoutTokens.size();
-        for (LayoutToken token : layoutTokens) {
-            String text = token.getText();
-            text = text.replace(" ", "");
+        String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization(), DICTIONARY_ENTRY_LABEL).toString();
 
-            if (TextUtilities.filterLine(text) || isBlank(text)) {
-                counter++;
-                continue;
-            }
-            if (text.equals("\n") || text.equals("\r") || (text.equals("\n\r"))) {
-                counter++;
-                continue;
-            }
+        if (StringUtils.isNotBlank(featSeg)) {
+            // Run the lexical entry model to label the features
+            String modelOutput = label(featSeg);
+            TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DIVISION, modelOutput, div);
 
-            // First token
-            if (counter - 1 < 0) {
-                lineStatus = LineStatus.LINE_START.toString();
-            } else if (counter + 1 == nbToken) {
-                // Last token
-                lineStatus = LineStatus.LINE_END.toString();
-            } else {
-                String previousTokenText;
-                Boolean previousTokenIsNewLineAfter;
-                String nextTokenText;
-                Boolean nextTokenIsNewLineAfter;
-                Boolean afterNextTokenIsNewLineAfter = false;
+            List<TaggingTokenCluster> clusters = clusteror.cluster();
 
-                //The existence of the previousToken and nextToken is already check.
-                previousTokenText = layoutTokens.get(counter - 1).getText();
-                previousTokenIsNewLineAfter = layoutTokens.get(counter - 1).isNewLineAfter();
-                nextTokenText = layoutTokens.get(counter + 1).getText();
-                nextTokenIsNewLineAfter = layoutTokens.get(counter + 1).isNewLineAfter();
-
-                // Check the existence of the afterNextToken
-                if ((nbToken > counter + 2) && (layoutTokens.get(counter + 2) != null)) {
-                    afterNextTokenIsNewLineAfter = layoutTokens.get(counter + 2).isNewLineAfter();
+            for (TaggingTokenCluster cluster : clusters) {
+                if (cluster == null) {
+                    continue;
                 }
+                TaggingLabel clusterLabel = cluster.getTaggingLabel();
+                Engine.getCntManager().i((TaggingLabel) clusterLabel);
 
-                lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
+                List<LayoutToken> concatenatedTokens = cluster.concatTokens();
+                String tagLabel = clusterLabel.getLabel();
 
+                labeledDivision.addLabel(Pair.of(concatenatedTokens, tagLabel));
             }
-            counter++;
-
-            String[] returnedFont = FeaturesUtils.checkFontStatus(token.getFont(), previousFont);
-            previousFont = returnedFont[0];
-            fontStatus = returnedFont[1];
-
-            FeatureVectorForm featureVectorDivision = FeatureVectorForm.addFeaturesForm(token, "",
-                    lineStatus, fontStatus);
-
-            featureMatrix.append(featureVectorDivision.printVector() + "\n");
         }
 
-        String features = featureMatrix.toString();
-        String output = label(features);
 
-        TaggingTokenClusteror clusteror = new TaggingTokenClusteror(DictionaryModels.DIVISION,
-                output, layoutTokens);
-
-        List<TaggingTokenCluster> clusters = clusteror.cluster();
-
-        LabeledLexicalInformation labelledLayoutTokens = new LabeledLexicalInformation();
-        for (TaggingTokenCluster cluster : clusters) {
-            if (cluster == null) {
-                continue;
-            }
-            TaggingLabel clusterLabel = cluster.getTaggingLabel();
-            Engine.getCntManager().i((TaggingLabel) clusterLabel);
-            String tagLabel = clusterLabel.getLabel();
-            List<LayoutToken> concatenatedTokens = cluster.concatTokens();
-
-            labelledLayoutTokens.addLabel(Pair.of(concatenatedTokens, tagLabel));
-
-        }
-
-        return labelledLayoutTokens;
-
+        return labeledDivision;
     }
 
     public StringBuilder toTEIDivision(String bodyContentFeatured, List<LayoutToken> layoutTokens,
