@@ -26,6 +26,7 @@ public enum GrobidDictionaryModels implements GrobidModel {
     ETYM ("etym"),
     CROSS_REF("crossRef"),
     DIVISION("division"),
+    SUB_ENTRY("sub-entry"),
     DUMMY("none");
 
     //I cannot declare it before
