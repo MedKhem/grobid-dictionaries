@@ -1,6 +1,7 @@
 package org.grobid.core.engines;
 
 import com.google.common.collect.Iterables;
+import net.sf.saxon.functions.True;
 import org.grobid.core.data.LabeledLexicalInformation;
 import org.grobid.core.engines.label.*;
 import org.grobid.core.layout.Page;
@@ -550,191 +551,107 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
 
             }
 
-        } else if (modelToRun.equals(PROCESS_BIBLIOGRAPHY_BODY_SEGMENTATION)) {
-            bigEntryIsInsideDetected = false;
-            if (lexicalEntriesNumber > pagesNumber) {
-                int j = 0;
-                int lexicalEntryBeginIndex;
-                for (int i = 1; i <= pagesOffsetArray.size() - 1; i++) {
-                    int newPageOffset = pagesOffsetArray.get(i);
-                    lexicalEntryBeginIndex = j;
-                    // Check if the lexical entries are recognized (exist)
-                    while (j < lexicalEntriesOffsetArray.size()) {
-                        if (lexicalEntriesOffsetArray.get(j) < newPageOffset) {
-                            j++;
-                        }else{
-                            break;
-                        }
-
-                    }
-                    if (lexicalEntryBeginIndex >= j) {
-                        // When entry is on more than one page, this is considered as anomaly for the moment. So quit and show in second form of the output
-                        bigEntryIsInsideDetected = true;
-                        break;
-                    }
-                }
+        } else if (modelToRun.equals(PATH_SUB_ENTRY)) {
 
 
-                if (bigEntryIsInsideDetected) {
-//                    tei = headerTEI;
-                    if (headNotesOfAllPages.size() != 0) {
-                        for (DocumentPiece header : headNotesOfAllPages) {
-                            tei.append("\t\t<fw type=\"header\">");
-                            tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                            tei.append("</fw>");
-                        }
-                    }
+            DictionaryBodySegmentationParser bodySegmentationParser = new DictionaryBodySegmentationParser();
+//            DictionaryDocument doc = bodySegmentationParser.processing(path);
+            SubEntryParser subEntryParser = new SubEntryParser();
+            DivisionParser divParser = new DivisionParser();
+            FormParser formParser = new FormParser();
+
+            //Writing feature file
+//            String featuresFile = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.form";
+//            Writer featureWriter = new OutputStreamWriter(new FileOutputStream(new File(featuresFile), false), "UTF-8");
+//
+//            //Create rng and css files for guiding the annotation
+//            File existingRngFile = new File("templates/form.rng");
+//            File newRngFile = new File(outputDirectory + "/" + "form.rng");
+//            copyFileUsingStream(existingRngFile, newRngFile);
+//
+//            File existingCssFile = new File("templates/form.css");
+//            File newCssFile = new File(outputDirectory + "/" + "form.css");
+////        Files.copy(Gui.getClass().getResourceAsStream("templates/lexicalEntry.css"), Paths.get("new_project","css","lexicalEntry.css"))
+//            copyFileUsingStream(existingCssFile, newCssFile);
 
 
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
-                        List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
-                        String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
-                        String tagLabel = bodyComponent.getRight();
-                        if (bodyComponent.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
-                            produceXmlNodeBib(tei, clusterContent, tagLabel, false);
-                        }
+            StringBuffer rawtxt = new StringBuffer();
 
-                    }
+            StringBuffer forms = new StringBuffer();
+            LexicalEntryParser lexicalEntryParser = new LexicalEntryParser();
+            for (Pair<List<LayoutToken>, String> bodyComponent : doc.getBodyComponents().getLabels()) {
 
-                    simpleDisplayEndOfPage(tei, doc);
+                if (bodyComponent.getRight().equals(DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL)) {
+                    tei.append("<entry>").append("\n");
+                    LabeledLexicalInformation subEntryLevelComponents = subEntryParser.process(bodyComponent.getLeft(), PATH_SUB_ENTRY);
+                    for (Pair<List<LayoutToken>, String> subEntryLevelComponent : subEntryLevelComponents.getLabels()) {
+                        if (subEntryLevelComponent.getRight().equals(SUB_ENTRY_ENTRY_LABEL)){
+                            tei.append("<subEntry>").append("\n");
+                            LabeledLexicalInformation lexicalEntryComponents = lexicalEntryParser.process(subEntryLevelComponent.getLeft(), DICTIONARY_ENTRY_LABEL);
 
+                            for (Pair<List<LayoutToken>, String> lexicalEntryComponent : lexicalEntryComponents.getLabels()) {
+                                if (lexicalEntryComponent.getRight().equals(LEXICAL_ENTRY_DIV_LABEL)){
+                                    tei.append("<division>").append("\n");
+                                    LabeledLexicalInformation divComponents = divParser.process(lexicalEntryComponent.getLeft());
 
-                } else {
-                    if (headNotesOfAllPages.size() != 0) {
-                        tei.append("\t\t<fw " + "type=\"header\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(headNotesOfAllPages.first())));
-                        tei.append("</fw>\n");
-                    }
-                }
-
-
-                if (pagesOffsetArray.size() > 1) {
-                    int k = 0;
-
-                    for (int pageOffsetIndex = 1; pageOffsetIndex <= pagesOffsetArray.size() - 1; pageOffsetIndex++) {
-
-                        int newPageOffset = pagesOffsetArray.get(pageOffsetIndex);
-                        lexicalEntryBeginIndex = k;
-                        // Check if the lexical entries are recognized (exist)
-                        while (j < lexicalEntriesOffsetArray.size()) {
-                            if (lexicalEntriesOffsetArray.get(j) < newPageOffset) {
-                                j++;
-                            }else{
-                                break;
-                            }
-
-                        }
-
-                        lexicalEntriesSubList = bodyComponents.getLabels().subList(lexicalEntryBeginIndex, k);
-                        int subListSize = lexicalEntriesSubList.size();
-                        Pair<List<LayoutToken>, String> lastEntryInSublist = lexicalEntriesSubList.get(subListSize - 1);
-
-                        //Check if the last entry in the page is cut by the footer and header
-                        if (lastEntryInSublist.getLeft().get(lastEntryInSublist.getLeft().size() - 1).getOffset() < newPageOffset) {
-                            for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
-                                List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
-                                String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                produceXmlNodeBib(tei, clusterContent, bodyComponent.getRight(), false);
-                            }
+                                    for (Pair<List<LayoutToken>, String> divComponent : divComponents.getLabels()) {
+                                        if (divComponent.getRight().equals(DivisionLabels.DIV_ANTONYM_LABEL) || divComponent.getRight().equals(DivisionLabels.DIV_SYNONYM_LABEL)) {
+                                            //Write raw text
+                                            tei.append("<form>").append("\n");
+                                            LabeledLexicalInformation formComponents = formParser.process(divComponent.getLeft());
+                                            for (Pair<List<LayoutToken>, String> formComponent : formComponents.getLabels()) {
+                                                String fromText =  LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(formComponent.getLeft()));
+                                                produceXmlNode(tei,fromText, formComponent.getRight(), false);
 
 
-                            treatEndOfPageAndBeginingOfSecondPage(tei, doc);
+                                            }
+//                                            forms.append("<form>");
+//                                            LayoutTokenization layoutTokenization = new LayoutTokenization(divComponent.getLeft());
+//                                            String featSeg = FeatureVectorLexicalEntry.createFeaturesFromLayoutTokens(layoutTokenization.getTokenization()).toString();
 
+//                                            featureWriter.write(featSeg + "\n");
+//                                            if (isAnnotated) {
+//
+//                                                String labeledFeatures = null;
+//                                                // if featSeg is null, it usually means that no body segment is found in the
+//
+//                                                if ((featSeg != null) && (featSeg.trim().length() > 0)) {
+//
+//
+//                                                    labeledFeatures = label(featSeg);
+//                                                    tei.append(formParser.toTEIForm(labeledFeatures, layoutTokenization.getTokenization(), false));
+//                                                }
+//                                            }
+//                                            else {
+//                                                forms.append(DocumentUtils.replaceLinebreaksWithTags(DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(divComponent.getLeft()))));
+//
+//                                            }
 
-                        } else {
-                            String textToShowInTokens;
-                            int indexOfLastTokenInThePage = 0;
-                            List<LayoutToken> lexicalEntry = bodyComponents.getLabels().get(k).getLeft();
-
-                            for (LayoutToken token : lastEntryInSublist.getLeft()) {
-                                //Check offset of each token in the LE to insert the header and footer blocks
-                                if (token.getOffset() < newPageOffset) {
-
-                                    indexOfLastTokenInThePage++;
-                                } else {
-//                            indexOfLastTokenInThePage--;
-                                    break;
+                                            tei.append("</form>");
+                                        }
+                                    }
+                                    tei.append("</division>").append("\n");
+                                }else{
+                                    String lexicalEntryComponentText =  LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(lexicalEntryComponent.getLeft()));
+                                    produceXmlNode(tei,lexicalEntryComponentText, lexicalEntryComponent.getRight(), false);
                                 }
 
                             }
-
-
-                            for (int h = 0; h < lexicalEntriesSubList.size() - 1; h++) {
-                                List<LayoutToken> allTokensOfaLE = lexicalEntriesSubList.get(h).getLeft();
-                                String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                String tag = lexicalEntriesSubList.get(h).getRight();
-                                produceXmlNodeBib(tei, clusterContent, tag, false);
-                            }
-
-                            List<LayoutToken> firstPartOfLastLexicalEntry = lastEntryInSublist.getLeft().subList(0, indexOfLastTokenInThePage);
-                            List<LayoutToken> restOfLexicalEntryTokens = lastEntryInSublist.getLeft().subList(indexOfLastTokenInThePage, lastEntryInSublist.getLeft().size());
-                            String tagLabel = lastEntryInSublist.getRight();
-                            //Compound the last entry in tokens and insert the oher page blocks
-                            textToShowInTokens = DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(firstPartOfLastLexicalEntry));
-
-
-                            textToShowInTokens = treatEndOfSplitPage(textToShowInTokens, doc);
-
-
-                            textToShowInTokens += DocumentUtils.escapeHTMLCharac(LayoutTokensUtil.toText(restOfLexicalEntryTokens));
-                            String clusterContent = LayoutTokensUtil.normalizeText(textToShowInTokens);
-                            produceXmlNodeWithSplitInsideBib(tei, clusterContent, tagLabel, false);
-
-
+                            tei.append("</subEntry>").append("\n");
+                        }else{
+                            String subEntryLevelComponentText =  LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(subEntryLevelComponent.getLeft()));
+                            produceXmlNode(tei,subEntryLevelComponentText, subEntryLevelComponent.getRight(), false);
                         }
-                        if (pageOffsetIndex == pagesOffsetArray.size() - 1) {
-                            lexicalEntriesSubList = bodyComponents.getLabels().subList(k, bodyComponents.getLabels().size());
 
 
-                            for (Pair<List<LayoutToken>, String> bodyComponent : lexicalEntriesSubList) {
-                                List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
-                                String tagLabel = bodyComponent.getRight();
-                                String clusterContent = LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(allTokensOfaLE));
-                                produceXmlNodeBib(tei, clusterContent, tagLabel, false);
-                            }
-
-
-                            treatEndOfLastPage(tei, doc);
-
-
-                        }
                     }
 
-                } else {
-                    // In this case, the input file has just one page
-
-                    for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
-                        List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
-                        String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
-                        String tagLabel = bodyComponent.getRight();
-                        produceXmlNodeBib(tei, clusterContent, tagLabel, false);
-                    }
-
-                    simpleDisplayEndOfPage(tei, doc);
-
-
+                    tei.append("</entry>").append("\n");
+                }else{
+                    String bodyComponentText =  LayoutTokensUtil.normalizeText(LayoutTokensUtil.toText(bodyComponent.getLeft()));
+                    produceXmlNode(tei,bodyComponentText, bodyComponent.getRight(), false);
                 }
-
-            } else {
-                // This is caused probably by a lack of training. So just try to show what is already recognized in a consistent way
-
-                if (headNotesOfAllPages.size() != 0) {
-                    for (DocumentPiece header : headNotesOfAllPages) {
-                        tei.append("\t\t<fw type=\"header\">");
-                        tei.append(LayoutTokensUtil.normalizeText(doc.getDocumentPieceText(header)));
-                        tei.append("</fw>");
-                    }
-                }
-
-
-                for (Pair<List<LayoutToken>, String> bodyComponent : bodyComponents.getLabels()) {
-                    List<LayoutToken> allTokensOfaLE = bodyComponent.getLeft();
-                    String clusterContent = LayoutTokensUtil.normalizeText(allTokensOfaLE);
-                    String tagLabel = bodyComponent.getRight();
-                    produceXmlNode(tei, clusterContent, tagLabel, false);
-                }
-
-                simpleDisplayEndOfPage(tei, doc);
+                ;
 
 
             }
