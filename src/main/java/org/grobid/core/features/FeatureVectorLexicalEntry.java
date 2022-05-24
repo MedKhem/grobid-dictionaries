@@ -12,6 +12,7 @@ import org.grobid.core.utilities.TextUtilities;
 import java.io.File;
 import java.util.List;
 
+import static java.lang.Boolean.valueOf;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.grobid.core.engines.label.DictionaryBodySegmentationLabels.DICTIONARY_ENTRY_LABEL;
 
@@ -147,6 +148,81 @@ public class FeatureVectorLexicalEntry {
             FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus, parentTag);
             String featureVector = vector.printVector();
             stringBuilder.append(featureVector + "\n");
+
+        }
+
+        return stringBuilder;
+    }
+
+    public static StringBuilder createXMLFromLayoutTokens(List<LayoutToken> tokens) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String previousFont = null;
+        String fontStatus = null;
+
+        String lineStatus = null;
+        int nbToken = tokens.size();
+        int counter = 0;
+
+        for (LayoutToken layoutToken : tokens) {
+            // Feature Vector won't contain the space between tokens neither the different line breaks, although they are considered as a separate layoutToken
+            String text = layoutToken.getText();
+            text = text.replace(" ", "");
+
+            if (TextUtilities.filterLine(text) || isBlank(text)) {
+                counter++;
+                continue;
+            }
+            if (text.equals("\n") || text.equals("\r") || (text.equals("\n\r"))) {
+                counter++;
+                continue;
+            }
+
+            // First token
+            if (counter - 1 < 0) {
+                lineStatus = LineStatus.LINE_START.toString();
+            } else if (counter + 1 == nbToken) {
+                // Last token
+                lineStatus = LineStatus.LINE_END.toString();
+            } else {
+                String previousTokenText;
+                Boolean previousTokenIsNewLineAfter;
+                String nextTokenText;
+                Boolean nextTokenIsNewLineAfter;
+                Boolean afterNextTokenIsNewLineAfter = false;
+
+                //The existence of the previousToken and nextToken is already check.
+                previousTokenText = tokens.get(counter - 1).getText();
+                previousTokenIsNewLineAfter = tokens.get(counter - 1).isNewLineAfter();
+                nextTokenText = tokens.get(counter + 1).getText();
+                nextTokenIsNewLineAfter = tokens.get(counter + 1).isNewLineAfter();
+
+                // Check the existence of the afterNextToken
+                if ((nbToken > counter + 2) && (tokens.get(counter + 2) != null)) {
+                    afterNextTokenIsNewLineAfter = tokens.get(counter + 2).isNewLineAfter();
+                }
+
+                lineStatus = FeaturesUtils.checkLineStatus(text, previousTokenIsNewLineAfter, previousTokenText, nextTokenIsNewLineAfter, nextTokenText, afterNextTokenIsNewLineAfter);
+
+            }
+            counter++;
+
+            String[] returnedFont = FeaturesUtils.checkFontStatus(layoutToken.getFont(), previousFont);
+            previousFont = returnedFont[0];
+            fontStatus = returnedFont[1];
+            FeatureVectorLexicalEntry vector = FeatureVectorLexicalEntry.addFeaturesLexicalEntries(layoutToken, "", lineStatus, fontStatus);
+            String featureVector = vector.printVector();
+//            stringBuilder.append(featureVector + "\n");
+
+            String bold = String.valueOf(layoutToken.isBold());
+            String italic = String.valueOf(layoutToken.isItalic());
+            String font = layoutToken.getFont();
+            String size = String.valueOf(layoutToken.getFontSize());
+            String structure = "\n\t\t<token=\"" + text + "\" font=\"" + font + "\" bold=\"" + bold + "\" italic=\"" + italic + "\" linestatus=\"" + lineStatus +"\" fontsize=\"" + size +"\"/>";
+            System.out.println(structure);
+            stringBuilder.append(structure);
+
 
         }
 

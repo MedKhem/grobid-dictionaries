@@ -1549,6 +1549,7 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         writer.write(bodyTextFeatured);
         IOUtils.closeQuietly(writer);
 
+
         // also write the raw text as seen before segmentation
         StringBuffer rawtxt = new StringBuffer();
         for (LayoutToken txtline : tokenizations.getTokenization()) {
@@ -1584,15 +1585,16 @@ public class DictionaryBodySegmentationParser extends AbstractParser {
         // write the TEI file to reflect the exact layout of the text as extracted from the pdf
         String outTei = outputDirectory + "/" + path.getName().substring(0, path.getName().length() - 4) + ".training.dictionaryBodySegmentation.tei.xml";
         writer = new OutputStreamWriter(new FileOutputStream(new File(outTei), false), "UTF-8");
-        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionaryBodySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
-                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionaryBodySegmentation.css\"?>\n" +
-                "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
-                "\"/>\n\t</teiHeader>\n\t<text>");
+//        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<?xml-model href=\"dictionaryBodySegmentation.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"\n" +
+//                "?>\n" + "<?xml-stylesheet type=\"text/css\" href=\"dictionaryBodySegmentation.css\"?>\n" +
+//                "<tei xml:space=\"preserve\">\n\t<teiHeader>\n\t\t<fileDesc xml:id=\"" +
+//                "\"/>\n\t</teiHeader>\n\t<text>");
+        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n\t<text>");
 
-        writer.write("\n\t\t<body>");
-        writer.write(bufferFulltext.toString().replaceAll("&", "&amp;"));
-        writer.write("</body>");
-        writer.write("\n\t</text>\n</tei>\n");
+//        writer.write("\n\t\t<body>");
+        writer.write(FeatureVectorLexicalEntry.createXMLFromLayoutTokens(tokenizations.getTokenization()).toString());
+//        writer.write("</body>");
+        writer.write("\n\t</text>");
         writer.close();
 
     }
